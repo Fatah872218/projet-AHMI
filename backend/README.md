@@ -54,7 +54,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 Exemple de fichier .env
 PORT=5000
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/keepconnect
+MONGO_URI=mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER>.mongodb.net/<DATABASE>
 JWT_SECRET=secret_key
 JWT_REFRESH_SECRET=refresh_secret
 
