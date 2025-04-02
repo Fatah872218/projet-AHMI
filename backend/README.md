@@ -22,7 +22,7 @@ Le serveur démarre par défaut sur : http://localhost:5000
 ├── /middlewares # Authentification, rôles, gestion d’erreurs
 ├── /config # Connexion à MongoDB, env
 ├── /utils # Fonctions diverses
-└── server.js # Entrée principale
+└── app.js # Entrée principale
 
 🔐 Authentification JWT
 Auth basée sur un access token et un refresh token

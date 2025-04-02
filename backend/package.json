@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Ce dossier contient l’API REST du projet **AHMI**, développée en Node.js avec Express et MongoDB.",
   "main": "src/app.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.js",
@@ -16,6 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.1"
   },
   "devDependencies": {
