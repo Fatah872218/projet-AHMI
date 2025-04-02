@@ -68,7 +68,7 @@ dotenv
 
 jsonwebtoken
 
-bcryptjs
+Argon2
 
 cors
 
