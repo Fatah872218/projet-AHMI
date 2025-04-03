@@ -27,11 +27,12 @@ Le serveur démarre par défaut sur : http://localhost:5000
 🔐 Authentification JWT
 Auth basée sur un access token et un refresh token
 
-3 rôles utilisateurs :
+4 rôles utilisateurs :
 
-user : utilisateur inscrit
+utilisateur : utilisateur inscrit
+adherent : souscrit à une adhesion
 
-partner : peut créer/modifier des événements et sa fiche
+partenaire : peut créer/modifier des événements et sa fiche
 
 admin : valide les événements, fiches partenaires
 
