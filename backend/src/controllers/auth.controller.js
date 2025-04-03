@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 
-export const login = async (req, res) => {
+export default async function login(req, res) {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -41,4 +41,4 @@ export const login = async (req, res) => {
     console.error("Erreur login:", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
-};
+}

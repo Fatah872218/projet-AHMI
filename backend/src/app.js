@@ -17,7 +17,7 @@ const startServer = async () => {
     await mongoose.connect(process.env.MONGO_URI);
 
     //routes
-    app.use("api/auth", authRoutes);
+    app.use("/api/auth", authRoutes);
 
     app.listen(PORT, () => {
       console.log(`Serveur lancé sur http://localhost:${PORT}`);
