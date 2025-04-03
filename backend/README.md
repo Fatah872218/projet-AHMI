@@ -15,14 +15,31 @@ npm run dev
 Le serveur démarre par défaut sur : http://localhost:5000
 
 📁 Structure du code
-/backend
-├── /controllers # Logique métier (users, events, adhesion, etc.)
-├── /routes # Endpoints API REST
-├── /models # Schémas Mongoose (User, Event, Adhesion, etc.)
-├── /middlewares # Authentification, rôles, gestion d’erreurs
-├── /config # Connexion à MongoDB, env
-├── /utils # Fonctions diverses
-└── app.js # Entrée principale
+/
+
+```
+└── 📁backend
+    └── 📁src
+        └── app.js # Entrée principale
+        └── 📁config # Connexion à MongoDB, env
+        └── 📁controllers
+            └── auth.controller.js
+        └── 📁middlewares # Authentification, rôles, gestion d’erreurs
+        └── 📁models # Schémas Mongoose (User, Event, Adhesion, etc.)
+            └── Adhesion.js
+            └── ResetToken.js
+        └── 📁repositories
+        └── 📁routes # Endpoints API REST
+            └── auth.routes.js
+        └── 📁seeders
+        └── 📁services : # Logique métier (users, events, adhesion, etc.)
+    └── .DS_Store
+    └── .env
+    └── .env.example
+    └── package-lock.json
+    └── package.json
+    └── README.md
+```
 
 🔐 Authentification JWT
 Auth basée sur un access token et un refresh token
