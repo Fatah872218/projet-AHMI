@@ -1,11 +1,10 @@
 import express from "express";
-import dotenv from "dotenv";
+import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "./config/db.js";
 
-// Charger les variables d'environnement
-dotenv.config();
+console.log("MONGO_URI =", process.env.MONGO_URI);
 
 // Créer une instance d'Express
 const app = express();
