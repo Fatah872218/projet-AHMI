@@ -1,30 +1,20 @@
-import "dotenv/config";
 import express from "express";
-import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import cors from "cors";
+import connectDB from "./config/db.js";
 
-import authRoutes from "./routes/auth.routes.js";
+// Charger les variables d'environnement
+dotenv.config();
 
+// Créer une instance d'Express
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// Connexion à la base de données
+connectDB();
 
-const PORT = process.env.PORT;
-
-const startServer = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-
-    //routes
-    app.use("/api/auth", authRoutes);
-
-    app.listen(PORT, () => {
-      console.log(`Serveur lancé sur http://localhost:${PORT}`);
-    });
-  } catch (err) {
-    console.error(`Erreur de connexion à MongoDB:`, err.message);
-    process.exit(1);
-  }
-};
-startServer();
+// Démarrer le serveur
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Serveur en écoute sur http://localhost:${PORT}`);
+});
