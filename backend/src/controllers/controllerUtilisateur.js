@@ -1,79 +1,34 @@
 import UtilisateurService from "../services/serviceUtilisateur.js";
+import Role from "../models/modeleRole.js";
+import Utilisateur from "../models/modeleUtilisateur.js";
 
-class UtilisateurController {
+class ControleurUtilisateur {
   constructor() {
-    this.utilisateurService = new UtilisateurService();
+    this.utilisateurService = UtilisateurService;
   }
-  //comment s'inscrire:
-  async inscrire(req, res) {
-    console.log(req.body.nom);
-    if (!req.body.nom || !req.body.email || !req.body.motDePasse) {
-      res.status(400).json(`erreur ,l'un des champ est vide`);
-    } else {
-      try {
-        const dataUtilisateur = req.body;
-        const utilisateur = await this.utilisateurService.inscrireUtilisateur(
-          dataUtilisateur
-        );
-        // Vérifiez si le mot de passe existe avant de le supprimer
-        /* if (utilisateur.motDePasse) {
-          delete utilisateur.motDePasse;
-        } */
 
-        console.log(utilisateur.motDePasse);
-
-        res.status(201).json(utilisateur);
-        console.info("l utilisateur est cree");
-      } catch (err) {
-        res.status(400).json({ message: err.message });
-      }
-    }
-  }
-  //comment se connecter:
-  async connecter(req, res) {
-    // verifier si l'utilisateur existe dans le body
-    if (!req.body.email || !req.body.motDePasse) {
-      res.status(400).json(`erreur ,l'un des champ est vide`);
-    } else {
-      try {
-        const { email, motDePasse } = req.body;
-        const { utilisateur, token } =
-          await this.utilisateurService.connecterUtilisateur(
-            /* req.body.email,
-          req.body.motDePasse */
-            email,
-            motDePasse
-          );
-
-        // Envoyer le token dans un cookie:("tokenA" cest le nom de cookie)
-        res.cookie("tokenA", token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production", // Cookie sécurisé uniquement en production
-          sameSite: "strict",
-          expires: new Date(Date.now() + 36000),
-        });
-        res.status(200).json(utilisateur);
-      } catch (err) {
-        res.status(401).json({ message: err.message });
-      }
-    }
-  }
-  // Récupérer l'utilisateur connecté
-  async getUtilisateur(req, res) {
+  obtenirProfil = async (req, res) => {
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
-        req.body._id
+        req.utilisateur.id
       );
       res.status(200).json(utilisateur);
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  }
-  //mise a jour
-  async update(req, res) {
+  };
+
+  mettreAJourProfil = async (req, res) => {
+    console.log("Reçu PUT /profil");
+    if (Object.keys(req.body).length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Aucune donnée à mettre à jour." });
+    }
+
     try {
       const utilisateur = await this.utilisateurService.updateUtilisateur(
-        req.params.id,
+        req.utilisateur.id,
         req.body
       );
       console.log("Données reçues :", req.body);
@@ -81,30 +36,44 @@ class UtilisateurController {
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
-  // supprimer un utilisateur:
-  async delete(req, res) {
+  };
+
+  supprimerUtilisateur = async (req, res) => {
     try {
       await this.utilisateurService.deleteUtilisateur(req.params.id);
       res.status(200).json({ message: "utilisateur supprimée avec succès" });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
-  // comment se deconnecter:
-  async deconnecter(req, res) {
+  };
+
+  assignerRole = async (req, res) => {
     try {
-      res.clearCookie("tokenA", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Cookie sécurisé uniquement en production
-        sameSite: "strict",
-      });
-      res.status(200).json({ message: "Déconnexion réussie" });
+      const utilisateur = await Utilisateur.findById(req.params.id);
+      if (!utilisateur) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+
+      const role = await Role.findOne({ nom: req.body.nomRole });
+      if (!role) {
+        return res.status(404).json({ message: "Rôle non trouvé" });
+      }
+
+      const dejaAssigne = utilisateur.roles.includes(role._id);
+      if (!dejaAssigne) {
+        utilisateur.roles.push(role._id);
+        await utilisateur.save();
+      }
+
+      res
+        .status(200)
+        .json({ message: "Rôle assigné avec succès", utilisateur });
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res
+        .status(500)
+        .json({ message: "Erreur assignation rôle : " + err.message });
     }
-  }
+  };
 }
 
-// Exporter la classe entière
-export default UtilisateurController;
+export default new ControleurUtilisateur();

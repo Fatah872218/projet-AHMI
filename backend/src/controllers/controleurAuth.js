@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import argon2 from "argon2";
 import ServiceAuth from "../services/serviceAuth.js";
 import dotenv from "dotenv";
 
@@ -7,14 +6,16 @@ dotenv.config();
 
 class ControleurAuth {
   constructor() {
-    this.serviceAuth = new ServiceAuth();
+    this.serviceAuth = ServiceAuth;
   }
 
-  async inscription(req, res) {
+  // Inscription
+  inscription = async (req, res) => {
     const { nom, email, motDePasse } = req.body;
     if (!nom || !email || !motDePasse) {
       return res.status(400).json("Erreur, l'un des champs est vide");
     }
+
     try {
       const utilisateur = await this.serviceAuth.inscrireUtilisateur({
         nom,
@@ -22,32 +23,38 @@ class ControleurAuth {
         motDePasse,
       });
       res.status(201).json(utilisateur);
+      console.info("Utilisateur créé avec succès");
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
+  };
 
-  async connexion(req, res) {
+  // Connexion
+  connexion = async (req, res) => {
     const { email, motDePasse } = req.body;
     if (!email || !motDePasse) {
       return res.status(400).json("Erreur, l'un des champs est vide");
     }
+
     try {
       const { utilisateur, token } =
         await this.serviceAuth.connecterUtilisateur(email, motDePasse);
+
       res.cookie("tokenA", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         expires: new Date(Date.now() + 36000),
       });
+
       res.status(200).json(utilisateur);
     } catch (err) {
       res.status(401).json({ message: err.message });
     }
-  }
+  };
 
-  async deconnecter(req, res) {
+  // Déconnexion
+  deconnecter = async (req, res) => {
     try {
       res.clearCookie("tokenA", {
         httpOnly: true,
@@ -58,9 +65,10 @@ class ControleurAuth {
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 
-  async motDePasseOublie(req, res) {
+  // Mot de passe oublié (non implémenté encore)
+  motDePasseOublie = async (req, res) => {
     const { email } = req.body;
     try {
       await this.serviceAuth.envoyerEmailReinitialisation(email);
@@ -68,7 +76,7 @@ class ControleurAuth {
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 }
 
 export default new ControleurAuth();

@@ -6,7 +6,7 @@ const roleSchema = new mongoose.Schema({
     enum: ["visiteur", "adherent", "partenaire", "admin"],
     required: true,
   },
-  permissions: { type: String }, // Ex: ["creer_evenement", "moderer_evenement", "reserver_place", ...]
+  permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Permission" }],
 });
 
 export default mongoose.model("Role", roleSchema);
