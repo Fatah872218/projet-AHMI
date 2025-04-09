@@ -13,9 +13,14 @@ class UtilisateurRepository {
   }
 
   // Trouver un utilisateur par email
-  async findByEmail(email) {
+  // Trouver un utilisateur par email (avec ou sans mot de passe)
+  async findByEmail(email, includePassword = false) {
     try {
-      return await Utilisateur.findOne({ email });
+      const query = Utilisateur.findOne({ email });
+      if (includePassword) {
+        query.select("+motDePasse"); // Inclure le mot de passe
+      }
+      return await query;
     } catch (err) {
       throw new Error(
         `Erreur lors de la recherche de l'utilisateur par email : ${err.message}`
