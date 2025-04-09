@@ -5,11 +5,13 @@ import checkRole from "../middlewares/middlewareCheckRole.js";
 
 const router = express.Router();
 
-router.get("/", middlewareAuth, ControleurRole.getAllRoles);
-router.get("/:nom", middlewareAuth, ControleurRole.getRole);
-router.post("/", middlewareAuth, ControleurRole.createRole);
-router.post("/", middlewareAuth, checkRole("admin"), ControleurRole.createRole);
-router.put("/:id", middlewareAuth, ControleurRole.updateRole);
-router.delete("/:id", middlewareAuth, ControleurRole.deleteRole);
+const controleurRole = new ControleurRole();
+
+router.get("/", middlewareAuth, controleurRole.getAllRoles);
+router.get("/:nom", middlewareAuth, controleurRole.getRole);
+router.post("/role", middlewareAuth, controleurRole.createRole);
+router.post("/", middlewareAuth, checkRole("admin"), controleurRole.createRole);
+router.put("/:id", middlewareAuth, controleurRole.updateRole);
+router.delete("/:id", middlewareAuth, controleurRole.deleteRole);
 
 export default router;

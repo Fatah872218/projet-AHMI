@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import roleRoutes from "./routes/routesRole.js";
 import permissionRoutes from "./routes/routesPermission.js";
 import utilisateurRoutes from "./routes/routeUtilisateur.js";
+import authRoutes from "./routes/routesAuth.js";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use("/api/utilisateurs", utilisateurRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);
+app.use("/api/auth", authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route introuvable" });

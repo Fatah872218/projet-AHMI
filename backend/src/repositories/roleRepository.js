@@ -28,4 +28,4 @@ class RoleRepository {
   }
 }
 
-export default new RoleRepository();
+export default RoleRepository;
