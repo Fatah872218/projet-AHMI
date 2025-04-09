@@ -1,5 +1,6 @@
 import express from "express";
 import utilisateurController from "../controllers/controllerUtilisateur.js";
+import checkRole from "../middlewares/middlewareCheckRole.js";
 
 import middlewareAuth from "../middlewares/middlewareAuth.js";
 
@@ -19,6 +20,13 @@ router.delete(
   "/:id",
   middlewareAuth,
   utilisateurController.supprimerUtilisateur
+);
+
+router.post(
+  "/:id/roles",
+  middlewareAuth,
+  checkRole("admin"),
+  utilisateurController.assignerRole
 );
 
 export default router;

@@ -35,6 +35,15 @@ class PermissionRepository {
       );
     }
   }
+  async getAllPermissions() {
+    try {
+      return await Permission.find();
+    } catch (err) {
+      throw new Error(
+        `Erreur lors de la récupération des permissions : ${err.message}`
+      );
+    }
+  }
 
   // Mettre à jour une permission
   async updatePermission(id, updateData) {
