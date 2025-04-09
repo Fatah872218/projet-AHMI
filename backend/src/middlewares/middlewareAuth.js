@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Utilisateur from "../models/modeleUtilisateur.js";
+import UtilisateurRepository from "../repositories/repositoryUtilisateur.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -11,7 +12,9 @@ const middlewareAuth = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.utilisateur = decoded;
-    const utilisateur = await Utilisateur.findById(decoded.id);
+    const repository = new UtilisateurRepository();
+    const utilisateur = await repository.findById(decoded.id);
+
     if (!utilisateur) return res.status(404).send("Utilisateur non trouvé");
     next();
   } catch (ex) {

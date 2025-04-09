@@ -32,6 +32,9 @@ class ServiceRole {
       );
     }
   }
+  async getAllRoles() {
+    return await this.roleRepository.findAll();
+  }
 
   async updateRole(id, updateData) {
     try {
