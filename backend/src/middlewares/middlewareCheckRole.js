@@ -17,7 +17,7 @@ const checkRole = (...rolesAutorises) => {
 
       const nomsRoles = utilisateur.roles.map((r) => r.nom);
 
-s      if (nomsRoles.includes("admin")) {
+      if (nomsRoles.includes("admin")) {
         return next();
       }
 

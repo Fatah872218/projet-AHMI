@@ -33,7 +33,10 @@ class ServiceAuth {
   // se connecter
   async connecterUtilisateur(email, motDePasse) {
     try {
-      const utilisateur = await this.utilisateurRepository.findByEmail(email);
+      const utilisateur = await this.utilisateurRepository.findByEmail(
+        email,
+        true
+      );
       if (!utilisateur) throw new Error("Utilisateur non trouvé");
 
       const motDePasseValide = await argon2.verify(

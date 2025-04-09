@@ -6,20 +6,20 @@ class ControleurUtilisateur {
   constructor() {
     this.utilisateurService = UtilisateurService;
   }
-  // Récupérer l'utilisateur connecté
-  async obtenirProfil(req, res) {
+
+  obtenirProfil = async (req, res) => {
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
-        //req.body._id
         req.utilisateur.id
       );
       res.status(200).json(utilisateur);
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  }
-  //mise a jour
-  async mettreAJourProfil(req, res) {
+  };
+
+  mettreAJourProfil = async (req, res) => {
+    console.log("Reçu PUT /profil");
     if (Object.keys(req.body).length === 0) {
       return res
         .status(400)
@@ -28,7 +28,6 @@ class ControleurUtilisateur {
 
     try {
       const utilisateur = await this.utilisateurService.updateUtilisateur(
-        //req.params.id,
         req.utilisateur.id,
         req.body
       );
@@ -37,18 +36,18 @@ class ControleurUtilisateur {
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
-  // supprimer un utilisateur:
-  async supprimerUtilisateur(req, res) {
+  };
+
+  supprimerUtilisateur = async (req, res) => {
     try {
       await this.utilisateurService.deleteUtilisateur(req.params.id);
       res.status(200).json({ message: "utilisateur supprimée avec succès" });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 
-  async assignerRole(req, res) {
+  assignerRole = async (req, res) => {
     try {
       const utilisateur = await Utilisateur.findById(req.params.id);
       if (!utilisateur) {
@@ -60,7 +59,6 @@ class ControleurUtilisateur {
         return res.status(404).json({ message: "Rôle non trouvé" });
       }
 
-      // évite doublon si le rôle existe déjà
       const dejaAssigne = utilisateur.roles.includes(role._id);
       if (!dejaAssigne) {
         utilisateur.roles.push(role._id);
@@ -75,6 +73,7 @@ class ControleurUtilisateur {
         .status(500)
         .json({ message: "Erreur assignation rôle : " + err.message });
     }
-  }
+  };
 }
+
 export default new ControleurUtilisateur();

@@ -5,9 +5,9 @@ class ServiceRole {
     this.roleRepository = new RoleRepository();
   }
 
-  async createRole(roleData) {
+  async createRole(data) {
     try {
-      return await this.roleRepository.createRole(roleData);
+      return await this.roleRepository.createRole(data);
     } catch (err) {
       throw new Error(`Erreur lors de la création du rôle : ${err.message}`);
     }
@@ -53,4 +53,4 @@ class ServiceRole {
   }
 }
 
-export default new ServiceRole();
+export default ServiceRole;

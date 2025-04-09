@@ -6,11 +6,11 @@ dotenv.config();
 
 class ControleurAuth {
   constructor() {
-    this.serviceAuth = ServiceAuth; /
+    this.serviceAuth = ServiceAuth;
   }
 
   // Inscription
-  async inscription(req, res) {
+  inscription = async (req, res) => {
     const { nom, email, motDePasse } = req.body;
     if (!nom || !email || !motDePasse) {
       return res.status(400).json("Erreur, l'un des champs est vide");
@@ -27,10 +27,10 @@ class ControleurAuth {
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
+  };
 
   // Connexion
-  async connexion(req, res) {
+  connexion = async (req, res) => {
     const { email, motDePasse } = req.body;
     if (!email || !motDePasse) {
       return res.status(400).json("Erreur, l'un des champs est vide");
@@ -51,10 +51,10 @@ class ControleurAuth {
     } catch (err) {
       res.status(401).json({ message: err.message });
     }
-  }
+  };
 
   // Déconnexion
-  async deconnecter(req, res) {
+  deconnecter = async (req, res) => {
     try {
       res.clearCookie("tokenA", {
         httpOnly: true,
@@ -65,10 +65,10 @@ class ControleurAuth {
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 
   // Mot de passe oublié (non implémenté encore)
-  async motDePasseOublie(req, res) {
+  motDePasseOublie = async (req, res) => {
     const { email } = req.body;
     try {
       await this.serviceAuth.envoyerEmailReinitialisation(email);
@@ -76,7 +76,7 @@ class ControleurAuth {
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 }
 
 export default new ControleurAuth();
