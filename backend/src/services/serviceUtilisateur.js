@@ -1,6 +1,7 @@
 import UtilisateurRepository from "../repositories/repositoryUtilisateur.js";
+import dotenv from "dotenv";
 
-import cookieParser from "cookie-parser";
+//import cookieParser from "cookie-parser";
 
 // Charger les variables d'environnement
 dotenv.config();

@@ -17,6 +17,11 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/utilisateurs", utilisateurRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ message: "Route introuvable" });
+});
+
 // Démarrer le serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

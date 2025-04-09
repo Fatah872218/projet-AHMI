@@ -2,7 +2,7 @@ import UtilisateurService from "../services/serviceUtilisateur.js";
 
 class ControleurUtilisateur {
   constructor() {
-    this.utilisateurService = new UtilisateurService();
+    this.utilisateurService = UtilisateurService;
   }
   // Récupérer l'utilisateur connecté
   async obtenirProfil(req, res) {
@@ -18,6 +18,12 @@ class ControleurUtilisateur {
   }
   //mise a jour
   async mettreAJourProfil(req, res) {
+    if (Object.keys(req.body).length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Aucune donnée à mettre à jour." });
+    }
+
     try {
       const utilisateur = await this.utilisateurService.updateUtilisateur(
         //req.params.id,
