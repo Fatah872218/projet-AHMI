@@ -34,4 +34,5 @@ Composant pour afficher les informations du profil utilisateur.
 p {
   color: blue;
 }
+class="text-red-500"
 </style>
