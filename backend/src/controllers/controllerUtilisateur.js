@@ -54,7 +54,7 @@ class ControleurUtilisateur {
         return res.status(404).json({ message: "Utilisateur non trouvé" });
       }
 
-      const role = await Role.findOne({ nom: req.body.nomRole });
+      const role = await Role.findOne({ nom: req.body.nom });
       if (!role) {
         return res.status(404).json({ message: "Rôle non trouvé" });
       }
