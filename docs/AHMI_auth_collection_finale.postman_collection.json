@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "AHMI Authentification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "ahmi-auth-20250410070538"
+  },
+  "item": [
+    {
+      "name": "Inscription utilisateur",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Alice Test\",\n  \"email\": \"alice@example.com\",\n  \"motDePasse\": \"MotDePasse123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/inscription",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "inscription"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Connexion utilisateur",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"alice@example.com\",\n  \"motDePasse\": \"MotDePasse123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/connexion",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "connexion"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Profil utilisateur (GET)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-auth-token",
+            "value": "<TON_TOKEN_ICI>",
+            "description": "Remplacer par le token JWT re\u00e7u lors de la connexion"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/utilisateurs/profil",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "utilisateurs",
+            "profil"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Modifier profil utilisateur",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "x-auth-token",
+            "value": "<TON_TOKEN_ICI>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Alice Modifi\\u00e9e\",\n  \"email\": \"alice_mod@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/utilisateurs/profil",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "utilisateurs",
+            "profil"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cr\u00e9er un r\u00f4le",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-auth-token",
+            "value": "<TON_TOKEN_ADMIN>",
+            "description": "Token JWT requis avec r\u00f4le admin"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"adherent\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/roles/role",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "roles",
+            "role"
+          ]
+        }
+      }
+    },
+    {
+      "name": "D\u00e9connexion utilisateur",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-auth-token",
+            "value": "<TON_TOKEN_ICI>",
+            "description": "Token JWT requis pour identifier l'utilisateur \u00e0 d\u00e9connecter"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/auth/deconnexion",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "deconnexion"
+          ]
+        }
+      }
+    }
+  ]
+}

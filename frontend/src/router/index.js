@@ -17,6 +17,16 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
+    {
+      path: '/mot-de-passe-oublie',
+      name: 'MotDePasseOublie',
+      component: () => import('@/views/VueMotDePasseOublie.vue'),
+    },
+    {
+      path: '/reinitialisation-mot-de-passe/:token',
+      name: 'ReinitialisationMotDePasse',
+      component: () => import('@/views/VueReinitialisationMotDePasse.vue'),
+    },
   ],
 })
 
