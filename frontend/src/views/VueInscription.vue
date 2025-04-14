@@ -1,33 +1,74 @@
 <template>
-  <div>
-    <!--  Vue pour la page d'inscription. -->
-    <p>Vue pour la page d'inscription !</p>
-  </div>
+  <BaseFormWrapper
+    title="Inscription"
+    description="Remplissez le formulaire pour créer un compte"
+    @submit="soumettreFormulaire"
+  >
+    <BaseInput label="Nom" v-model="form.nom" required :error="erreurs.nom" />
+
+    <BaseInput label="Email" type="email" v-model="form.email" required :error="erreurs.email" />
+
+    <BaseInput
+      label="Mot de passe"
+      type="password"
+      v-model="form.motDePasse"
+      required
+      :error="erreurs.motDePasse"
+    >
+      <template #icon>
+        <MdiEyeOutline />
+      </template>
+    </BaseInput>
+
+    <BaseInput
+      label="Confirmation du mot de passe"
+      type="password"
+      v-model="form.confirmationMotDePasse"
+      required
+      :error="erreurs.confirmationMotDePasse"
+    >
+      <template #icon>
+        <MdiEyeOutline />
+      </template>
+    </BaseInput>
+
+    <template #footer>
+      En validant, vous acceptez nos <a href="#" class="underline">conditions générales</a>.
+    </template>
+  </BaseFormWrapper>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      message: 'Bonjour, monde !',
-    }
-  },
-  methods: {
-    //  Vue pour la page d'inscription.
-    greet() {
-      console.log(this.message)
-    },
-  },
-}
+<script setup>
+import { ref } from 'vue'
+import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
+import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
+import { useAuthStore } from '@/stores/auth'
 
-/*
- Vue pour la page d'inscription.
-*/
+const auth = useAuthStore()
+
+const form = ref({
+  nom: '',
+  email: '',
+  motDePasse: '',
+  confirmationMotDePasse: '',
+})
+
+const erreurs = ref({
+  nom: '',
+  email: '',
+  motDePasse: '',
+  confirmationMotDePasse: '',
+})
+
+function soumettreFormulaire() {
+  // Validation de correspondance des mots de passe avant soumission
+  if (form.value.motDePasse !== form.value.confirmationMotDePasse) {
+    erreurs.value.confirmationMotDePasse = 'Les mots de passe ne correspondent pas.'
+    return
+  }
+
+  erreurs.value.confirmationMotDePasse = ''
+  auth.inscrire(form.value)
+}
 </script>
-
-<style scoped>
-/*  Vue pour la page d'inscription */
-p {
-  color: blue;
-}
-</style>
