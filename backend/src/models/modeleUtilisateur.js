@@ -26,8 +26,16 @@ const utilisateurSchema = new mongoose.Schema(
     },
     roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }],
 
-    /*  roles: [{ type: ObjectId, ref: "Role" }] */ // Relation plusieurs-à-plusieurs avec Roles
-    /*  reservations: [{ type: ObjectId, ref: "Reservation" }], */ // Relation un-à-plusieurs avec Reservations
+    isActif: { type: Boolean, default: false },
+    activationCode: { type: String },
+    /* resetPasswordToken: */
+    tokenReinitialisation: { type: String }, // Stocke le token unique de réinitialisation
+    /* resetPasswordExpires: */
+    expirationTokenReinitialisation: { type: Date }, // Stocke la date d'expiration du token
+    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }], // Relation plusieurs-à-plusieurs avec Roles
+    reservations: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Reservation" },
+    ], // Relation un-à-plusieurs avec Reservations
   },
   { timestamps: true }
 );

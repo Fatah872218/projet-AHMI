@@ -1,4 +1,10 @@
 import UtilisateurService from "../services/serviceUtilisateur.js";
+import {
+  schemaInscription,
+  schemaConnexion,
+  schemaMiseAJourUtilisateur,
+} from "../validations/schemasUtilisateur.js";
+import { sendConfirmationEmail } from "../config/nodemailerConfig.js";
 import Role from "../models/modeleRole.js";
 import Utilisateur from "../models/modeleUtilisateur.js";
 
@@ -6,8 +12,80 @@ class ControleurUtilisateur {
   constructor() {
     this.utilisateurService = UtilisateurService;
   }
+  //comment s'inscrire:
+  async inscrire(req, res) {
+    /*  console.log(req.body.nom);
+    if (!req.body.nom || !req.body.email || !req.body.motDePasse) {
+      res.status(400).json(`erreur ,l'un des champ est vide`);
+    } else { */
 
-  obtenirProfil = async (req, res) => {
+    try {
+      // methode pour creer une chaine de caractere aleatoire:
+      const characters =
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let activationCode = "";
+
+      for (let i = 0; i < 25; i++) {
+        activationCode +=
+          characters[Math.floor(Math.random() * characters.length)];
+      }
+
+      console.log(activationCode);
+
+      const dataUtilisateur = {
+        nom: req.body.nom,
+        email: req.body.email,
+        motDePasse: req.body.motDePasse,
+        activationCode: activationCode,
+      };
+      const utilisateur = await this.utilisateurService.inscrireUtilisateur(
+        dataUtilisateur
+      );
+      sendConfirmationEmail(
+        dataUtilisateur.email,
+        dataUtilisateur.activationCode,
+        dataUtilisateur.motDePasse
+      );
+
+      console.log(utilisateur.motDePasse);
+
+      res.status(201).json(utilisateur);
+      console.info("l utilisateur est cree");
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }
+  //comment se connecter:
+  async connecter(req, res) {
+    // verifier si l'utilisateur existe dans le body
+    if (!req.body.email || !req.body.motDePasse) {
+      res.status(400).json(`erreur ,l'un des champ est vide`);
+    } else {
+      try {
+        const { email, motDePasse } = req.body;
+        const { utilisateur, token } =
+          await this.utilisateurService.connecterUtilisateur(
+            /* req.body.email,
+          req.body.motDePasse */
+            email,
+            motDePasse
+          );
+
+        // Envoyer le token dans un cookie:("tokenA" cest le nom de cookie)
+        res.cookie("tokenA", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production", // Cookie sécurisé uniquement en production
+          sameSite: "strict",
+          expires: new Date(Date.now() + 36000),
+        });
+        res.status(200).json(utilisateur);
+      } catch (err) {
+        res.status(401).json({ message: err.message });
+      }
+    }
+  }
+  // Récupérer l'utilisateur connecté
+  async getUtilisateur(req, res) {
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
         req.utilisateur.id
@@ -16,7 +94,7 @@ class ControleurUtilisateur {
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  };
+  }
 
   mettreAJourProfil = async (req, res) => {
     console.log("Reçu PUT /profil");

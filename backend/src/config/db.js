@@ -6,10 +6,13 @@ console.log("URI utilisée :", process.env.MONGO_URI);
 
 const connectDB = async () => {
   try {
+    // Vérifiez que l'URI est bien chargé
+    console.log("Tentative de connexion avec URI:", process.env.MONGO_URI);
+
     await mongoose.connect(process.env.MONGO_URI);
-    console.log(" Connecté à MongoDB");
+    console.log(" ✅ Connecté à MongoDB");
   } catch (err) {
-    console.error(" Erreur de connexion à MongoDB :", err);
+    console.error(" ❌ Erreur de connexion à MongoDB :", err);
     process.exit(1);
   }
 };
