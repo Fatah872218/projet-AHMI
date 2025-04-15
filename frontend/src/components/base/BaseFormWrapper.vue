@@ -23,6 +23,8 @@
 </template>
 
 <script setup>
+import BaseButton from './BaseButton.vue'
+
 defineProps({
   title: String,
   description: String,

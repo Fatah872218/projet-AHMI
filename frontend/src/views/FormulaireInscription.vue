@@ -44,6 +44,16 @@ import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
 import { useAuthStore } from '@/stores/auth'
+import { inscrireUtilisateur } from '@/services/serviceAuth'
+
+const envoyerFormulaire = async () => {
+  try {
+    await inscrireUtilisateur(formulaire)
+    // Rediriger l'utilisateur ou afficher un message de succès
+  } catch (erreur) {
+    console.error(erreur)
+  }
+}
 
 const auth = useAuthStore()
 

@@ -18,6 +18,12 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
     {
+      path: '/inscription',
+      name: 'inscription',
+      component: () => import('@/views/VueInscription.vue'),
+    },
+
+    {
       path: '/mot-de-passe-oublie',
       name: 'MotDePasseOublie',
       component: () => import('@/views/VueMotDePasseOublie.vue'),

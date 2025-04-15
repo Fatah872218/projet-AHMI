@@ -1,34 +1,32 @@
 :root {
-  :root {
-    /* === AHMI Color Tokens === */
+  /* === AHMI Color Tokens === */
 
-    /* Fond / Accent */
-    --color-bg: #f0e7da;
-    --color-accent: #efe3cb;
+  /* Fond / Accent */
+  --color-bg: #f0e7da;
+  --color-accent: #efe3cb;
 
-    /* Principaux (bleus) */
-    --color-primary: #1b3a4b;
-    --color-primary-title: #003366;
+  /* Principaux (bleus) */
+  --color-primary: #1b3a4b;
+  --color-primary-title: #003366;
 
-    /* Secondaires */
-    --color-secondary: #87afc7;
-    --color-secondary-muted: #b8c2c7;
+  /* Secondaires */
+  --color-secondary: #87afc7;
+  --color-secondary-muted: #b8c2c7;
 
-    /* Texte */
-    --text-primary: var(--color-primary);
-    --text-secondary: #607c8d;
-    --text-brand: var(--color-primary-title);
-    --text-invert: #e6ebf0;
+  /* Texte */
+  --text-primary: var(--color-primary);
+  --text-secondary: #607c8d;
+  --text-brand: var(--color-primary-title);
+  --text-invert: #e6ebf0;
 
-    /* Surfaces */
-    --surface-primary: #e8ebed;
-    --surface-secondary: #4a606d;
-    --surface-invert: #0b1820;
-    --surface-brand: var(--color-bg);
+  /* Surfaces */
+  --surface-primary: #e8ebed;
+  --surface-secondary: #4a606d;
+  --surface-invert: #0b1820;
+  --surface-brand: var(--color-bg);
 
-    /* Borders */
-    --border-primary: #00152b;
-  }
+  /* Borders */
+  --border-primary: #00152b;
 
   /* === Typographie  === */
   --font-h1-size: 40px;
