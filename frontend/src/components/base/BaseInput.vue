@@ -1,43 +1,75 @@
 <template>
-  <div class="flex flex-col gap-1 w-full">
-    <label v-if="label" class="text-ahmi-text-primary font-bold text-sm">
+  <div class="w-full md:w-1/2 mb-sm">
+    <label
+      class="block text-sm md:text-base font-medium text-ahmi-text-primary font-montserrat mb-xs"
+    >
       {{ label }}
-      <span v-if="required" class="text-red-600">*</span>
     </label>
 
-    <div
-      :class="[
-        'flex items-center px-3 py-2 bg-white border rounded',
-        error ? 'border-red-500' : 'border-ahmi-border-primary',
-        rounded ? 'rounded-full' : 'rounded-md',
-      ]"
-    >
+    <div class="relative">
       <input
-        v-bind="$attrs"
-        :type="type"
-        :placeholder="placeholder"
-        class="w-full bg-transparent text-ahmi-text-primary focus:outline-none"
+        class="block w-full rounded-rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body placeholder:text-ahmi-text-secondary focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md pr-10"
+        :type="typeDeChamp"
+        :value="modelValue"
+        @input="emit('update:modelValue', $event.target.value)"
+        :required="required"
+        :aria-invalid="!!error"
       />
-      <slot name="icon" />
+
+      <!-- Si c'est un mot de passe, rendre l’icône cliquable -->
+      <template v-if="type === 'password'">
+        <button
+          type="button"
+          @click="toggleVisibiliteMotDePasse"
+          class="absolute inset-y-0 right-0 pr-sm md:pr-md flex items-center text-ahmi-text-secondary focus:outline-none"
+        >
+          <slot name="icon" />
+        </button>
+      </template>
+
+      <!-- Sinon, simple icône décorative -->
+      <template v-else-if="$slots.icon">
+        <div
+          class="absolute inset-y-0 right-0 pr-sm md:pr-md flex items-center pointer-events-none"
+        >
+          <slot name="icon" />
+        </div>
+      </template>
     </div>
 
-    <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
+    <p v-if="error" class="text-caption text-ahmi-error mt-xs font-openSans">
+      {{ error }}
+    </p>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { ref, computed } from 'vue'
+
+const props = defineProps({
   label: String,
-  placeholder: String,
+  modelValue: [String, Number],
   type: {
     type: String,
     default: 'text',
   },
-  error: String,
-  required: Boolean,
-  rounded: {
+  required: {
     type: Boolean,
     default: false,
   },
+  error: String,
 })
+
+const emit = defineEmits(['update:modelValue'])
+
+const motDePasseVisible = ref(false)
+
+const typeDeChamp = computed(() => {
+  if (props.type !== 'password') return props.type
+  return motDePasseVisible.value ? 'text' : 'password'
+})
+
+function toggleVisibiliteMotDePasse() {
+  motDePasseVisible.value = !motDePasseVisible.value
+}
 </script>

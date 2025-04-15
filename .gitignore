@@ -42,3 +42,7 @@ coverage/
 .cache/
 temp/
 .git
+
+frontend/.env.production
+frontend/.env.development
+.vscode/
