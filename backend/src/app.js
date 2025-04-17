@@ -10,17 +10,10 @@ import authRoutes from "./routes/routesAuth.js";
 
 const app = express();
 
-const corsOptions = {
-  origin: "http://localhost:5173",
-  credentials: true,
-};
-
 // Connexion à la base de données
 connectDB();
 // Middleware
-
-app.use(cors(corsOptions));
-
+app.use(cors());
 app.use(express.json()); //
 app.use(cookieParser());
 
