@@ -20,7 +20,7 @@ const router = createRouter({
     {
       path: '/inscription',
       name: 'inscription',
-      component: () => import('@/views/VueInscription.vue'),
+      component: () => import('@/views/FormulaireInscription.vue'),
     },
 
     {

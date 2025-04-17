@@ -1,8 +1,8 @@
 import api from '@/services/api'
 
 // ➤ Inscription d’un utilisateur
-export async function inscrireUtilisateur(donneesUtilisateur) {
-  return api.post('/auth/register', donneesUtilisateur)
+export const inscrireUtilisateur = (data) => {
+  return api.post('/auth/inscription', data)
 }
 
 // ➤ Connexion

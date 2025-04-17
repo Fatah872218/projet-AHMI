@@ -32,6 +32,13 @@
       </template>
     </BaseInput>
 
+    <div v-if="messageSucces" class="text-ahmi-success font-bold mt-2">
+      {{ messageSucces }}
+    </div>
+    <div v-if="messageErreur" class="text-ahmi-error font-bold mt-2">
+      {{ messageErreur }}
+    </div>
+
     <template #footer>
       En validant, vous acceptez nos <a href="#" class="underline">conditions générales</a>.
     </template>
@@ -40,22 +47,13 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
-import { useAuthStore } from '@/stores/auth'
 import { inscrireUtilisateur } from '@/services/serviceAuth'
 
-const envoyerFormulaire = async () => {
-  try {
-    await inscrireUtilisateur(formulaire)
-    // Rediriger l'utilisateur ou afficher un message de succès
-  } catch (erreur) {
-    console.error(erreur)
-  }
-}
-
-const auth = useAuthStore()
+const routeur = useRouter()
 
 const form = ref({
   nom: '',
@@ -71,14 +69,36 @@ const erreurs = ref({
   confirmationMotDePasse: '',
 })
 
-function soumettreFormulaire() {
-  // Validation de correspondance des mots de passe avant soumission
+const messageSucces = ref('')
+const messageErreur = ref('')
+
+async function soumettreFormulaire() {
+  erreurs.value.confirmationMotDePasse = ''
+  messageErreur.value = ''
+  messageSucces.value = ''
+
   if (form.value.motDePasse !== form.value.confirmationMotDePasse) {
     erreurs.value.confirmationMotDePasse = 'Les mots de passe ne correspondent pas.'
     return
   }
 
-  erreurs.value.confirmationMotDePasse = ''
-  auth.inscrire(form.value)
+  try {
+    await inscrireUtilisateur({
+      nom: form.value.nom,
+      email: form.value.email,
+      motDePasse: form.value.motDePasse,
+    })
+
+    messageSucces.value = 'Inscription réussie ! Redirection en cours...'
+    setTimeout(() => {
+      routeur.push('/connexion')
+    }, 2000)
+  } catch (erreur) {
+    messageErreur.value = erreur.response?.data?.message || 'Une erreur est survenue.'
+  }
 }
 </script>
+
+<style scoped>
+/* Tu peux ajouter ici un style plus personnalisé si besoin */
+</style>
