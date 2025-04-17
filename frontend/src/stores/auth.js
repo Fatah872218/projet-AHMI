@@ -1,60 +1,62 @@
-// Module pour gérer l'état d'authentification.
 // src/stores/auth.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import serviceAuth from '@/services/serviceAuth'
+import {
+  connecterUtilisateur,
+  deconnecterUtilisateur,
+  demanderReinitialisationMotDePasse,
+  reinitialiserMotDePasse,
+} from '@/services/serviceAuth'
 import { useUtilisateurStore } from '@/stores/utilisateur'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(null)
+  const jeton = ref(null)
   const utilisateur = ref(null)
-  const loading = ref(false)
+  const chargement = ref(false)
   const erreur = ref(null)
 
-  const login = async (credentials) => {
-    loading.value = true
+  const connexion = async (identifiants) => {
+    chargement.value = true
     erreur.value = null
 
     try {
-      const response = await serviceAuth.login(credentials)
-      token.value = response.data.token
-      utilisateur.value = response.data.utilisateur
+      const reponse = await connecterUtilisateur(identifiants)
+      jeton.value = reponse.data.token
+      utilisateur.value = reponse.data.utilisateur
 
-      // Stockage dans un autre store si tu veux synchroniser
       const utilisateurStore = useUtilisateurStore()
       utilisateurStore.setUtilisateur(utilisateur.value)
 
-      // Tu peux aussi stocker dans localStorage si tu veux persister
-      localStorage.setItem('token', token.value)
+      localStorage.setItem('token', jeton.value)
     } catch (err) {
       erreur.value = err.response?.data?.message || 'Erreur de connexion'
     } finally {
-      loading.value = false
+      chargement.value = false
     }
   }
 
-  const logout = () => {
-    token.value = null
+  const deconnexion = () => {
+    jeton.value = null
     utilisateur.value = null
     localStorage.removeItem('token')
   }
 
-  const forgotPassword = async (email) => {
-    return await serviceAuth.forgotPassword(email)
+  const motDePasseOublie = async (email) => {
+    return await demanderReinitialisationMotDePasse(email)
   }
 
-  const resetPassword = async (tokenReset, newPassword) => {
-    return await serviceAuth.resetPassword(tokenReset, newPassword)
+  const reinitialiser = async (tokenReset, nouveauMotDePasse) => {
+    return await reinitialiserMotDePasse(tokenReset, nouveauMotDePasse)
   }
 
   return {
-    token,
+    jeton,
     utilisateur,
-    loading,
+    chargement,
     erreur,
-    login,
-    logout,
-    forgotPassword,
-    resetPassword,
+    connexion,
+    deconnexion,
+    motDePasseOublie,
+    reinitialiser,
   }
 })

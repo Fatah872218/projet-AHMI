@@ -85,7 +85,9 @@ class ControleurUtilisateur {
     }
   }
   // Récupérer l'utilisateur connecté
-  async getUtilisateur(req, res) {
+
+  obtenirProfil = async (req, res) => {
+
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
         req.utilisateur.id

@@ -12,24 +12,37 @@ class ServiceAuth {
     this.utilisateurRepository = new UtilisateurRepository();
   }
   //authentification (inscription)
+
   async inscrireUtilisateur(utilisateurData) {
     try {
       const utilisateurExiste = await this.utilisateurRepository.findByEmail(
         utilisateurData.email
       );
       if (utilisateurExiste) throw new Error("Cet utilisateur existe déjà");
-      //etape1:hachage de mot de passe:
+
+      // Étape 1 : hachage du mot de passe
       utilisateurData.motDePasse = await argon2.hash(
         utilisateurData.motDePasse
       );
-      console.log("mot de passe hachee:", utilisateurData.motDePasse);
-      return await this.utilisateurRepository.createUtilisateur(
+      console.log("Mot de passe haché :", utilisateurData.motDePasse);
+
+      // Étape 2 : création de l'utilisateur en BDD
+      const utilisateur = await this.utilisateurRepository.createUtilisateur(
         utilisateurData
       );
+
+      // Étape 3 : génération du token JWT
+      const token = jwt.sign({ id: utilisateur._id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+
+      // Étape 4 : retour des deux
+      return { utilisateur, token };
     } catch (err) {
       throw new Error(`Erreur lors de l'inscription : ${err.message}`);
     }
   }
+
   // se connecter
   async connecterUtilisateur(email, motDePasse) {
     try {

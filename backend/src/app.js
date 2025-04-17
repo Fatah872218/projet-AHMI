@@ -13,7 +13,12 @@ const app = express();
 // Connexion à la base de données
 connectDB();
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // ✅autorise le front local
+    credentials: true, // autorise les cookies / sessions / headers
+  })
+);
 app.use(express.json()); //
 app.use(cookieParser());
 

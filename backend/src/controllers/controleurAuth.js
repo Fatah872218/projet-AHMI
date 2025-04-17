@@ -17,12 +17,19 @@ class ControleurAuth {
     }
 
     try {
-      const utilisateur = await this.serviceAuth.inscrireUtilisateur({
-        nom,
-        email,
-        motDePasse,
+      const { utilisateur, token } = await this.serviceAuth.inscrireUtilisateur(
+        { nom, email, motDePasse }
+      );
+
+      res.cookie("tokenA", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        expires: new Date(Date.now() + 36000),
       });
+
       res.status(201).json(utilisateur);
+
       console.info("Utilisateur créé avec succès");
     } catch (err) {
       res.status(400).json({ message: err.message });

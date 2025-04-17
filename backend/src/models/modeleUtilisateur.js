@@ -24,7 +24,7 @@ const utilisateurSchema = new mongoose.Schema(
       newsletter: { type: Boolean },
       rappelEvenement: { type: Boolean },
     },
-    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }],
+    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }], // Relation plusieurs-à-plusieurs avec Roles
 
     isActif: { type: Boolean, default: false },
     activationCode: { type: String },
@@ -32,7 +32,7 @@ const utilisateurSchema = new mongoose.Schema(
     tokenReinitialisation: { type: String }, // Stocke le token unique de réinitialisation
     /* resetPasswordExpires: */
     expirationTokenReinitialisation: { type: Date }, // Stocke la date d'expiration du token
-    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }], // Relation plusieurs-à-plusieurs avec Roles
+
     reservations: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Reservation" },
     ], // Relation un-à-plusieurs avec Reservations
