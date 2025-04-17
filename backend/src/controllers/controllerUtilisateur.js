@@ -85,7 +85,9 @@ class ControleurUtilisateur {
     }
   }
   // Récupérer l'utilisateur connecté
+
   obtenirProfil = async (req, res) => {
+
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
         req.utilisateur.id
@@ -94,7 +96,7 @@ class ControleurUtilisateur {
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  };
+  }
 
   mettreAJourProfil = async (req, res) => {
     console.log("Reçu PUT /profil");
