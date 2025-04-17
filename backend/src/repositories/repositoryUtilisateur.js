@@ -57,5 +57,37 @@ class UtilisateurRepository {
       );
     }
   }
+
+  //-------definir le token a rénitialiser
+  /* setResetToken ,*/
+  /* async definirTokenReinitialisation(email, token, expiration) {
+    return await Utilisateur.findOneAndUpdate(
+      { email },
+      {
+        tokenReinitialisation: token,
+        expirationTokenReinitialisation: expiration,
+      },
+      { new: true }
+    );
+  }
+  //------------ findByResetToken(token),resetPasswordToken,resetPasswordExpires:
+  async trouverParTokenReinitialisation(token) {
+    return await Utilisateur.findOne({
+      tokenReinitialisation: token,
+      expirationTokenReinitialisation: { $gt: Date.now() },
+    });
+  }
+  //---------updatePassword,
+  async reinitialiserMotDePasse(id, nouveauMotDePasse) {
+    return await Utilisateur.findByIdAndUpdate(
+      id,
+      {
+        motDePasse: nouveauMotDePasse,
+        tokenReinitialisation: undefined,
+        expirationTokenReinitialisation: undefined,
+      },
+      { new: true }
+    );
+  } */
 }
 export default UtilisateurRepository;
