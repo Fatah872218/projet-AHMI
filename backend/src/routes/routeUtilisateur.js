@@ -11,7 +11,6 @@ import checkRole from "../middlewares/middlewareCheckRole.js";
 import middlewareAuth from "../middlewares/middlewareAuth.js";
 
 const router = express.Router();
-const utilisateurController = new UtilisateurController();
 
 router.post("/auth/register", valider(schemaInscription), (req, res) =>
   utilisateurController.inscrire(req, res)
