@@ -77,6 +77,12 @@ async function soumettreFormulaire() {
   messageErreur.value = ''
   messageSucces.value = ''
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(form.value.email)) {
+    erreurs.value.email = 'Adresse email invalide.'
+    return
+  }
+
   if (form.value.motDePasse !== form.value.confirmationMotDePasse) {
     erreurs.value.confirmationMotDePasse = 'Les mots de passe ne correspondent pas.'
     return
