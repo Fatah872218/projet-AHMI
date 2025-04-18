@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import argon2 from "argon2";
 import UtilisateurRepository from "../repositories/repositoryUtilisateur.js";
 import dotenv from "dotenv";
+import { schemaInscription } from "../validations/schemasUtilisateur.js";
+
 //import cookieParser from "cookie-parser";
 
 // Charger les variables d'environnement
@@ -14,6 +16,11 @@ class ServiceAuth {
   //authentification (inscription)
 
   async inscrireUtilisateur(utilisateurData) {
+    const { error } = schemaInscription.validate(utilisateurData);
+    if (error) {
+      throw new Error(error.details[0].message);
+    }
+
     try {
       const utilisateurExiste = await this.utilisateurRepository.findByEmail(
         utilisateurData.email

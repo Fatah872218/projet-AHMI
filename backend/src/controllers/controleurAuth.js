@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import ServiceAuth from "../services/serviceAuth.js";
 import dotenv from "dotenv";
+import Utilisateur from "../models/modeleUtilisateur.js";
 
 dotenv.config();
 
@@ -10,6 +11,7 @@ class ControleurAuth {
   }
 
   // Inscription
+  // Inscription
   inscription = async (req, res) => {
     const { nom, email, motDePasse } = req.body;
     if (!nom || !email || !motDePasse) {
@@ -17,8 +19,20 @@ class ControleurAuth {
     }
 
     try {
+      // 🔒 Vérifie si l'utilisateur existe déjà
+      const utilisateurExistant = await Utilisateur.findOne({ email });
+      if (utilisateurExistant) {
+        return res
+          .status(400)
+          .json({ message: "Cet utilisateur existe déjà." });
+      }
+
       const { utilisateur, token } = await this.serviceAuth.inscrireUtilisateur(
-        { nom, email, motDePasse }
+        {
+          nom,
+          email,
+          motDePasse,
+        }
       );
 
       res.cookie("tokenA", token, {

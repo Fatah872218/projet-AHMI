@@ -10,10 +10,18 @@ export const schemaInscription = Joi.object({
     "string.email": "Email invalide",
     "string.empty": "L'email est requis",
   }),
-  motDePasse: Joi.string().min(8).required().messages({
-    "string.min": "Le mot de passe doit contenir au moins 8 caractères",
-    "string.empty": "Le mot de passe est requis",
-  }),
+  motDePasse: Joi.string()
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/
+    )
+
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Le mot de passe doit contenir au moins 8 caractères, avec une majuscule, une minuscule, un chiffre et un caractère spécial.",
+      "string.empty": "Le mot de passe est requis",
+    }),
+
   telephone: Joi.string()
     .pattern(/^[0-9]{10}$/)
     .allow("")
