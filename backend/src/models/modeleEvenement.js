@@ -4,8 +4,8 @@ const evenementSchema = new mongoose.Schema({
   _id: ObjectId,
   titre: { type: String },
   description: { type: String },
-  dateDebut: { Date },
-  dateFin: { Date },
+  dateDebut: { type: Date },
+  dateFin: { type: Date },
   lieu: {
     nom: { type: String },
     adresse: { type: String },
@@ -16,7 +16,7 @@ const evenementSchema = new mongoose.Schema({
   },
   createur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Users (partenaire qui crée l'événement)
   statut: {
-    type: { type: String },
+    type: String,
     enum: ["en_attente", "approuve", "rejete", "annule"],
     default: "en_attente",
   },

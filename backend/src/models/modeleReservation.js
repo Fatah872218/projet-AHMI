@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+const { Schema, Types } = mongoose;
 
-const reservationSchema = new mongoose.Schema({
-  _id: ObjectId,
+const reservationSchema = new Schema({
+  _id: { type: Types.ObjectId, default: () => new Types.ObjectId() }, // Génération automatique d'un ObjectId
   utilisateur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Utilisateur
   evenement: { type: ObjectId, ref: "Evenement" }, // Relation un-à-plusieurs avec Evenement
   dateReservation: { type: Date, default: Date.now },
