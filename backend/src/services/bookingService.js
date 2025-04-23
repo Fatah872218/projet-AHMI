@@ -1,12 +1,44 @@
 import BookingRepository from "../repositories/bookingRepository.js";
+import Evenement from "../models/modeleEvenement.js";
 
 class BookingService {
   constructor() {
     this.bookingRepository = new BookingRepository();
   }
+  // Créer une réservation
 
   async createBooking(data) {
+    const existingBooking =
+      await this.bookingRepository.findBookingByUserAndEvent(
+        data.utilisateur,
+        data.evenement
+      );
+
+    if (existingBooking) {
+      // Juste un message d'avertissement, on ne bloque pas la suite
+      return {
+        ...existingBooking.toObject(),
+        alerte:
+          "Attention : vous avez déjà une réservation pour cet événement.",
+        doublonDetecte: true,
+      };
+    }
     try {
+      const evenement = await Evenement.findById(data.evenement);
+      if (!evenement) throw new Error("Événement introuvable");
+
+      const totalPlaces = await this.bookingRepository.countConfirmedBookings(
+        data.evenement
+      );
+
+      const placesRestantes = evenement.capaciteMax - totalPlaces;
+
+      if (data.nombrePlaces > placesRestantes) {
+        throw new Error(
+          `Réservation impossible : ${placesRestantes} place(s) restante(s)`
+        );
+      }
+
       return await this.bookingRepository.createBooking(data);
     } catch (err) {
       throw new Error(`Erreur création réservation : ${err.message}`);

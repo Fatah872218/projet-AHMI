@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
+const { ObjectId } = Types;
 
 const evenementSchema = new mongoose.Schema({
-  _id: ObjectId,
   titre: { type: String },
   description: { type: String },
   dateDebut: { type: Date },

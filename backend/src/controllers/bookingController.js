@@ -1,4 +1,5 @@
 import BookingService from "../services/bookingService.js";
+import { formatReservation } from "../utils/utilsFormatDate.js";
 
 class BookingController {
   constructor() {
@@ -12,7 +13,7 @@ class BookingController {
         ...req.body,
         utilisateur: req.utilisateur?.id, // Si connecté
       });
-      res.status(201).json(booking);
+      res.status(200).json(formatReservation(booking));
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -24,7 +25,7 @@ class BookingController {
       const booking = await this.bookingService.getBookingById(req.params.id);
       if (!booking)
         return res.status(404).json({ message: "Réservation introuvable" });
-      res.status(200).json(booking);
+      res.status(200).json(formatReservation(booking));
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -34,7 +35,7 @@ class BookingController {
   getAllBookings = async (req, res) => {
     try {
       const bookings = await this.bookingService.getAllBookings();
-      res.status(200).json(bookings);
+      res.status(200).json(bookings.map(formatReservation));
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -46,7 +47,7 @@ class BookingController {
       const bookings = await this.bookingService.getBookingsByUser(
         req.utilisateur.id
       );
-      res.status(200).json(bookings);
+      res.status(200).json(bookings.map(formatReservation));
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -59,7 +60,7 @@ class BookingController {
         req.params.id,
         req.body
       );
-      res.status(200).json(booking);
+      res.status(200).json(formatReservation(booking));
     } catch (err) {
       res.status(400).json({ message: err.message });
     }

@@ -1,4 +1,6 @@
 import EventService from "../services/eventService.js";
+import { formatEvenement } from "../utils/utilsFormatDate.js";
+import mongoose from "mongoose";
 
 class EventController {
   constructor() {
@@ -24,7 +26,7 @@ class EventController {
       const { statut } = req.query;
       const filter = statut ? { statut } : {};
       const events = await this.eventService.getAllEvents(filter);
-      res.status(200).json(events);
+      res.status(200).json(events.map(formatEvenement));
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -36,7 +38,7 @@ class EventController {
       const event = await this.eventService.getEventById(req.params.id);
       if (!event)
         return res.status(404).json({ message: "Évènement introuvable" });
-      res.status(200).json(event);
+      res.status(200).json(formatEvenement(event));
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -49,7 +51,7 @@ class EventController {
         req.params.id,
         req.body
       );
-      res.status(200).json(event);
+      res.status(200).json(formatEvenement(event));
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -70,9 +72,33 @@ class EventController {
     try {
       const { status } = req.params;
       const events = await this.eventService.getEventsByStatus(status);
-      res.status(200).json(events);
+      res.status(200).json(events.map(formatEvenement));
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  };
+  updateStatut = async (req, res) => {
+    try {
+      const { statut } = req.body;
+      const moderateurId =
+        req.utilisateur?.id ||
+        new mongoose.Types.ObjectId("000000000000000000000000");
+      const event = await this.eventService.updateStatut(
+        req.params.id,
+        statut,
+        moderateurId
+      );
+      res.status(200).json(formatEvenement(event));
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  };
+  getPlacesRestantes = async (req, res) => {
+    try {
+      const places = await this.eventService.getPlacesRestantes(req.params.id);
+      res.status(200).json({ placesRestantes: places });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
     }
   };
 }

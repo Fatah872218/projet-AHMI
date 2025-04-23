@@ -7,6 +7,7 @@ import {
   createBookingSchema,
   updateBookingSchema,
 } from "../validations/bookingSchemas.js";
+import valider from "../middlewares/middlewareValidation.js";
 
 const router = express.Router();
 

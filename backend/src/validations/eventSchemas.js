@@ -9,8 +9,8 @@ export const createEventSchema = Joi.object({
   dateDebut: Joi.date().required().messages({
     "date.base": "La date de début est requise",
   }),
-  dateFin: Joi.date().greater(Joi.ref("dateDebut")).required().messages({
-    "date.greater": "La date de fin doit être après la date de début",
+  dateFin: Joi.date().min(Joi.ref("dateDebut")).required().messages({
+    "date.min": "La date de fin doit être après ou égale la date de début",
     "date.base": "La date de fin est requise",
   }),
   lieu: Joi.object({

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const { Schema, Types } = mongoose;
+const { ObjectId } = Types;
 
 const reservationSchema = new Schema({
   _id: { type: Types.ObjectId, default: () => new Types.ObjectId() }, // Génération automatique d'un ObjectId

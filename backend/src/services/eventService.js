@@ -1,8 +1,10 @@
 import EventRepository from "../repositories/eventRepository.js";
+import BookingRepository from "../repositories/bookingRepository.js";
 
 class EventService {
   constructor() {
     this.eventRepository = new EventRepository();
+    this.bookingRepository = new BookingRepository();
   }
 
   async createEvent(data) {
@@ -36,6 +38,18 @@ class EventService {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);
     }
   }
+  async updateStatut(id, statut, moderateurId) {
+    try {
+      const updateFields = {
+        statut,
+        dateModeration: new Date(),
+        moderateur: moderateurId,
+      };
+      return await this.eventRepository.updateStatut(id, updateFields);
+    } catch (err) {
+      throw new Error(`Erreur mise à jour du statut : ${err.message}`);
+    }
+  }
 
   async deleteEvent(id) {
     try {
@@ -50,6 +64,22 @@ class EventService {
       return await this.eventRepository.findByStatus(status);
     } catch (err) {
       throw new Error(`Erreur filtrage des évènements : ${err.message}`);
+    }
+  }
+  async getPlacesRestantes(eventId) {
+    try {
+      const evenement = await this.eventRepository.findById(eventId);
+      if (!evenement) throw new Error("Événement introuvable");
+
+      const totalPlaces = await this.bookingRepository.countConfirmedBookings(
+        eventId
+      );
+
+      return evenement.capaciteMax - totalPlaces;
+    } catch (err) {
+      throw new Error(
+        `Erreur récupération des places restantes : ${err.message}`
+      );
     }
   }
 }

@@ -13,6 +13,12 @@ const router = express.Router();
 
 // Routes publiques (tout le monde)
 router.get("/", eventController.getAllEvents);
+router.get(
+  "/:id/places-restantes",
+  // middlewareAuth,
+  eventController.getPlacesRestantes
+);
+
 router.get("/:id", eventController.getEventById);
 
 // Routes protégées - partenaire ou admin
@@ -47,6 +53,12 @@ router.get(
   //middlewareAuth,
   // checkRole("admin"),
   eventController.getEventsByStatus
+);
+router.patch(
+  "/:id/statut",
+  // middlewareAuth,
+  // checkRole("admin"),
+  eventController.updateStatut
 );
 
 export default router;

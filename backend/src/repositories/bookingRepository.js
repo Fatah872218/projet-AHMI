@@ -1,4 +1,5 @@
 import Reservation from "../models/modeleReservation.js";
+import mongoose from "mongoose";
 
 class BookingRepository {
   // Créer une réservation
@@ -57,6 +58,34 @@ class BookingRepository {
       return await Reservation.findByIdAndDelete(id);
     } catch (err) {
       throw new Error(`Erreur suppression réservation : ${err.message}`);
+    }
+  }
+  async countConfirmedBookings(evenementId) {
+    try {
+      const bookings = await Reservation.aggregate([
+        {
+          $match: {
+            evenement: new mongoose.Types.ObjectId(evenementId),
+            statut: "confirme",
+          },
+        },
+        { $group: { _id: null, total: { $sum: "$nombrePlaces" } } },
+      ]);
+      return bookings[0]?.total || 0;
+    } catch (err) {
+      throw new Error(`Erreur comptage des réservations : ${err.message}`);
+    }
+  }
+  async findBookingByUserAndEvent(userId, eventId) {
+    try {
+      return await Reservation.findOne({
+        utilisateur: userId,
+        evenement: eventId,
+      });
+    } catch (err) {
+      throw new Error(
+        `Erreur vérification de réservation existante : ${err.message}`
+      );
     }
   }
 }

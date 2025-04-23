@@ -41,6 +41,20 @@ class EventRepository {
       throw new Error(`Erreur récupération évènements : ${err.message}`);
     }
   }
+  async findByStatus(status) {
+    try {
+      return await Evenement.find({ statut: status });
+    } catch (err) {
+      throw new Error(`Erreur filtrage des évènements : ${err.message}`);
+    }
+  }
+  async updateStatut(id, fields) {
+    try {
+      return await Evenement.findByIdAndUpdate(id, fields, { new: true });
+    } catch (err) {
+      throw new Error(`Erreur changement de statut : ${err.message}`);
+    }
+  }
 }
 
 export default EventRepository;
