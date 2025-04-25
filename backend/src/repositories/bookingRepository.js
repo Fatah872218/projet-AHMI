@@ -1,3 +1,4 @@
+//src/repositories/bookingRepository.js
 import Reservation from "../models/modeleReservation.js";
 import mongoose from "mongoose";
 
@@ -5,6 +6,7 @@ class BookingRepository {
   // Créer une réservation
   async createBooking(bookingData) {
     try {
+      console.log("Données reçues :", bookingData);
       const reservation = new Reservation(bookingData);
       return await reservation.save();
     } catch (err) {
@@ -60,7 +62,9 @@ class BookingRepository {
       throw new Error(`Erreur suppression réservation : ${err.message}`);
     }
   }
-  async countConfirmedBookings(evenementId) {
+
+  // Compter les réservations confirmées pour un événement
+  async countReservationsByEvent(evenementId) {
     try {
       const bookings = await Reservation.aggregate([
         {
@@ -69,14 +73,23 @@ class BookingRepository {
             statut: "confirme",
           },
         },
-        { $group: { _id: null, total: { $sum: "$nombrePlaces" } } },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$nombrePlaces" },
+          },
+        },
       ]);
       return bookings[0]?.total || 0;
     } catch (err) {
       throw new Error(`Erreur comptage des réservations : ${err.message}`);
     }
   }
+
+  // Vérifier si un utilisateur a déjà réservé pour un événement
   async findBookingByUserAndEvent(userId, eventId) {
+    console.log(userId, eventId);
+
     try {
       return await Reservation.findOne({
         utilisateur: userId,

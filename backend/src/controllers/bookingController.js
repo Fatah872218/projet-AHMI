@@ -1,25 +1,39 @@
+//src/controllers/bookingController.js
 import BookingService from "../services/bookingService.js";
 import { formatReservation } from "../utils/utilsFormatDate.js";
 
+import bookingRepository from "../repositories/bookingRepository.js";
+import eventRepository from "../repositories/eventRepository.js"; // 👈 à ne pas oublier
+
+const bookingService = new BookingService(bookingRepository, eventRepository); // 👈 les deux arguments sont nécessaires
+
 class BookingController {
   constructor() {
-    this.bookingService = BookingService;
+    this.bookingService = new BookingService(
+      bookingRepository,
+      eventRepository
+    ); //
   }
 
-  // Créer une réservation
   createBooking = async (req, res) => {
     try {
+      //if (!req.utilisateur) {
+      //  return res.status(401).json({ message: "Utilisateur non connecté" });
+      // }
+      console.log(" controller req.body", req.body);
+
       const booking = await this.bookingService.createBooking({
         ...req.body,
-        utilisateur: req.utilisateur?.id, // Si connecté
+        //utilisateur: mockUserId, // req.utilisateur.id,
       });
+      console.log("controller booking", booking);
+      "controller booking", booking;
       res.status(200).json(formatReservation(booking));
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
   };
 
-  // Obtenir une réservation par ID
   getBookingById = async (req, res) => {
     try {
       const booking = await this.bookingService.getBookingById(req.params.id);
@@ -31,7 +45,6 @@ class BookingController {
     }
   };
 
-  // Obtenir toutes les réservations (admin)
   getAllBookings = async (req, res) => {
     try {
       const bookings = await this.bookingService.getAllBookings();
@@ -41,19 +54,16 @@ class BookingController {
     }
   };
 
-  // Obtenir les réservations de l'utilisateur connecté
   getMyBookings = async (req, res) => {
     try {
-      const bookings = await this.bookingService.getBookingsByUser(
-        req.utilisateur.id
-      );
+      const userId = req.utilisateur?.id || "000000000000000000000000";
+      const bookings = await this.bookingService.getBookingsByUser(userId);
       res.status(200).json(bookings.map(formatReservation));
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   };
 
-  // Mettre à jour une réservation (nb places)
   updateBooking = async (req, res) => {
     try {
       const booking = await this.bookingService.updateBooking(
@@ -66,7 +76,6 @@ class BookingController {
     }
   };
 
-  // Supprimer une réservation
   deleteBooking = async (req, res) => {
     try {
       await this.bookingService.deleteBooking(req.params.id);

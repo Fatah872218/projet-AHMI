@@ -1,4 +1,4 @@
-// validations/bookingSchemas.js
+//src/validations/bookingSchemas.js
 import Joi from "joi";
 
 export const createBookingSchema = Joi.object({
@@ -10,6 +10,13 @@ export const createBookingSchema = Joi.object({
     "number.min": "Il faut réserver au moins une place",
   }),
   notes: Joi.string().allow("").optional(),
+  utilisateur: Joi.string().length(24).optional().messages({
+    "string.empty": "L'identifiant de l'utilisateur est requis",
+  }),
+  statut: Joi.string()
+    .valid("confirme", "annule")
+    .default("confirme")
+    .optional(),
 });
 export const updateBookingSchema = Joi.object({
   nombrePlaces: Joi.number().integer().min(1).messages({

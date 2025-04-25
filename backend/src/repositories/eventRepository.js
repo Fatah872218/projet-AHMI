@@ -18,6 +18,14 @@ class EventRepository {
     }
   }
 
+  async getEventById(id) {
+    try {
+      return await Evenement.findById(id);
+    } catch (err) {
+      throw new Error(`Erreur récupération évènement par ID : ${err.message}`);
+    }
+  }
+
   async update(id, updateData) {
     try {
       return await Evenement.findByIdAndUpdate(id, updateData, { new: true });
@@ -41,6 +49,7 @@ class EventRepository {
       throw new Error(`Erreur récupération évènements : ${err.message}`);
     }
   }
+
   async findByStatus(status) {
     try {
       return await Evenement.find({ statut: status });
@@ -48,6 +57,7 @@ class EventRepository {
       throw new Error(`Erreur filtrage des évènements : ${err.message}`);
     }
   }
+
   async updateStatut(id, fields) {
     try {
       return await Evenement.findByIdAndUpdate(id, fields, { new: true });

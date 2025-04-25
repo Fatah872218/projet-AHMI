@@ -1,89 +1,89 @@
+//src/services/bookingService.js
 import BookingRepository from "../repositories/bookingRepository.js";
-import Evenement from "../models/modeleEvenement.js";
+import { formatReservation } from "../utils/utilsFormatDate.js";
+import EventRepository from "../repositories/eventRepository.js"; // 👈 à ne pas oublier
 
 class BookingService {
   constructor() {
     this.bookingRepository = new BookingRepository();
+    this.eventRepository = new EventRepository();
   }
-  // Créer une réservation
 
   async createBooking(data) {
-    const existingBooking =
-      await this.bookingRepository.findBookingByUserAndEvent(
-        data.utilisateur,
-        data.evenement
-      );
-
-    if (existingBooking) {
-      // Juste un message d'avertissement, on ne bloque pas la suite
-      return {
-        ...existingBooking.toObject(),
-        alerte:
-          "Attention : vous avez déjà une réservation pour cet événement.",
-        doublonDetecte: true,
-      };
-    }
     try {
-      const evenement = await Evenement.findById(data.evenement);
-      if (!evenement) throw new Error("Événement introuvable");
+      /* const existingBooking =
+        await this.bookingRepository.findBookingByUserAndEvent(
+          data.utilisateur,
+          data.evenement
+        ); */
+      const existingBooking =
+        await this.bookingRepository.findBookingByUserAndEvent(
+          data.utilisateur,
+          data.evenement
+        );
+      console.log(" service existingBooking", existingBooking);
 
-      const totalPlaces = await this.bookingRepository.countConfirmedBookings(
-        data.evenement
-      );
+      const doublonDetecte = !!existingBooking;
+      let alerte = "";
+      if (doublonDetecte) {
+        alerte =
+          "Attention : vous avez déjà une réservation pour cet événement.";
+      }
 
-      const placesRestantes = evenement.capaciteMax - totalPlaces;
+      const event = await this.eventRepository.getEventById(data.evenement);
+      if (!event) {
+        throw new Error("Événement introuvable");
+      }
+
+      const nbReservations =
+        await this.bookingRepository.countReservationsByEvent(data.evenement);
+      const placesRestantes = event.capaciteMax - nbReservations;
 
       if (data.nombrePlaces > placesRestantes) {
         throw new Error(
-          `Réservation impossible : ${placesRestantes} place(s) restante(s)`
+          `Il ne reste que ${placesRestantes} place(s) disponible(s)`
         );
       }
 
-      return await this.bookingRepository.createBooking(data);
-    } catch (err) {
-      throw new Error(`Erreur création réservation : ${err.message}`);
+      const nouvelleReservation = await this.bookingRepository.createBooking(
+        data
+      );
+      console.log("nouvelle Reservation", nouvelleReservation);
+
+      return {
+        nouvelleReservation,
+        alerte,
+        doublonDetecte,
+      };
+      //return nouvelleReservation;
+    } catch (error) {
+      throw new Error(`Erreur création réservation : ${error.message}`);
     }
+  }
+
+  async getAllBookings() {
+    const bookings = await this.bookingRepository.findAll();
+    return bookings.map(formatReservation);
   }
 
   async getBookingById(id) {
-    try {
-      return await this.bookingRepository.findById(id);
-    } catch (err) {
-      throw new Error(`Erreur récupération réservation : ${err.message}`);
-    }
+    const booking = await this.bookingRepository.findById(id);
+    return formatReservation(booking);
   }
 
-  async getAllBookings(filter = {}) {
-    try {
-      return await this.bookingRepository.findAll(filter);
-    } catch (err) {
-      throw new Error(`Erreur récupération réservations : ${err.message}`);
-    }
-  }
-
-  async getBookingsByUser(userId) {
-    try {
-      return await this.bookingRepository.findByUser(userId);
-    } catch (err) {
-      throw new Error(`Erreur réservations utilisateur : ${err.message}`);
-    }
-  }
-
-  async updateBooking(id, updateData) {
-    try {
-      return await this.bookingRepository.updateBooking(id, updateData);
-    } catch (err) {
-      throw new Error(`Erreur mise à jour réservation : ${err.message}`);
-    }
+  async updateBooking(id, data) {
+    const updated = await this.bookingRepository.update(id, data);
+    return formatReservation(updated);
   }
 
   async deleteBooking(id) {
-    try {
-      return await this.bookingRepository.deleteBooking(id);
-    } catch (err) {
-      throw new Error(`Erreur suppression réservation : ${err.message}`);
-    }
+    return await this.bookingRepository.delete(id);
+  }
+
+  async getBookingsByUser(userId) {
+    const bookings = await this.bookingRepository.findByUser(userId);
+    return bookings.map(formatReservation);
   }
 }
 
-export default new BookingService();
+export default BookingService;
