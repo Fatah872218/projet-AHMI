@@ -71,7 +71,7 @@ class EventService {
       const evenement = await this.eventRepository.findById(eventId);
       if (!evenement) throw new Error("Événement introuvable");
 
-      const totalPlaces = await this.bookingRepository.countConfirmedBookings(
+      const totalPlaces = await this.bookingRepository.countReservationsByEvent(
         eventId
       );
 

@@ -1,5 +1,5 @@
 import EventService from "../services/eventService.js";
-import { formatEvenement } from "../utils/utilsFormatDate.js";
+
 import mongoose from "mongoose";
 
 class EventController {
@@ -26,7 +26,7 @@ class EventController {
       const { statut } = req.query;
       const filter = statut ? { statut } : {};
       const events = await this.eventService.getAllEvents(filter);
-      res.status(200).json(events.map(formatEvenement));
+      res.status(200).json(events);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -38,7 +38,7 @@ class EventController {
       const event = await this.eventService.getEventById(req.params.id);
       if (!event)
         return res.status(404).json({ message: "Évènement introuvable" });
-      res.status(200).json(formatEvenement(event));
+      res.status(200).json(event);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -51,7 +51,7 @@ class EventController {
         req.params.id,
         req.body
       );
-      res.status(200).json(formatEvenement(event));
+      res.status(200).json(event);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -72,7 +72,7 @@ class EventController {
     try {
       const { status } = req.params;
       const events = await this.eventService.getEventsByStatus(status);
-      res.status(200).json(events.map(formatEvenement));
+      res.status(200).json(events);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -88,7 +88,7 @@ class EventController {
         statut,
         moderateurId
       );
-      res.status(200).json(formatEvenement(event));
+      res.status(200).json(event);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }

@@ -1,6 +1,5 @@
 //src/controllers/bookingController.js
 import BookingService from "../services/bookingService.js";
-import { formatReservation } from "../utils/utilsFormatDate.js";
 
 import bookingRepository from "../repositories/bookingRepository.js";
 import eventRepository from "../repositories/eventRepository.js"; // 👈 à ne pas oublier
@@ -28,7 +27,7 @@ class BookingController {
       });
       console.log("controller booking", booking);
       "controller booking", booking;
-      res.status(200).json(formatReservation(booking));
+      res.status(200).json(booking);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -39,7 +38,7 @@ class BookingController {
       const booking = await this.bookingService.getBookingById(req.params.id);
       if (!booking)
         return res.status(404).json({ message: "Réservation introuvable" });
-      res.status(200).json(formatReservation(booking));
+      res.status(200).json(booking);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -48,7 +47,7 @@ class BookingController {
   getAllBookings = async (req, res) => {
     try {
       const bookings = await this.bookingService.getAllBookings();
-      res.status(200).json(bookings.map(formatReservation));
+      res.status(200).json(bookings);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -56,9 +55,9 @@ class BookingController {
 
   getMyBookings = async (req, res) => {
     try {
-      const userId = req.utilisateur?.id || "000000000000000000000000";
+      const userId = "680b84c085ba22a4ef354661";
       const bookings = await this.bookingService.getBookingsByUser(userId);
-      res.status(200).json(bookings.map(formatReservation));
+      res.status(200).json(bookings);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -70,7 +69,7 @@ class BookingController {
         req.params.id,
         req.body
       );
-      res.status(200).json(formatReservation(booking));
+      res.status(200).json(booking);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }

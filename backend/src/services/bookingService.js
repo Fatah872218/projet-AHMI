@@ -1,6 +1,6 @@
 //src/services/bookingService.js
 import BookingRepository from "../repositories/bookingRepository.js";
-import { formatReservation } from "../utils/utilsFormatDate.js";
+
 import EventRepository from "../repositories/eventRepository.js"; // 👈 à ne pas oublier
 
 class BookingService {
@@ -21,7 +21,6 @@ class BookingService {
           data.utilisateur,
           data.evenement
         );
-      console.log(" service existingBooking", existingBooking);
 
       const doublonDetecte = !!existingBooking;
       let alerte = "";
@@ -44,6 +43,11 @@ class BookingService {
           `Il ne reste que ${placesRestantes} place(s) disponible(s)`
         );
       }
+      console.log(
+        " service nbReservations placesRestantes",
+        nbReservations,
+        placesRestantes
+      );
 
       const nouvelleReservation = await this.bookingRepository.createBooking(
         data
@@ -63,26 +67,25 @@ class BookingService {
 
   async getAllBookings() {
     const bookings = await this.bookingRepository.findAll();
-    return bookings.map(formatReservation);
+    return bookings;
   }
-
   async getBookingById(id) {
     const booking = await this.bookingRepository.findById(id);
-    return formatReservation(booking);
+    return booking;
   }
 
   async updateBooking(id, data) {
-    const updated = await this.bookingRepository.update(id, data);
-    return formatReservation(updated);
+    const updated = await this.bookingRepository.updateBooking(id, data);
+    return updated;
   }
 
   async deleteBooking(id) {
-    return await this.bookingRepository.delete(id);
+    return await this.bookingRepository.deleteBooking(id);
   }
 
   async getBookingsByUser(userId) {
     const bookings = await this.bookingRepository.findByUser(userId);
-    return bookings.map(formatReservation);
+    return bookings;
   }
 }
 
