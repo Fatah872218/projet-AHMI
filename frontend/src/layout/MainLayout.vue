@@ -3,8 +3,13 @@
     <HeaderComponent />
 
     <main class="p-4">
-      <SearchBarComponent></SearchBarComponent>
-      <TitleComponent></TitleComponent>
+      <SearchBarComponent
+        title="Liste des événements"
+        @update:search="updateSearch"
+        @sort="toggleSortOrder"
+        @filter="openFilterModal"
+      />
+      <TitleComponent title="Liste des événements" />
       <slot></slot>
     </main>
 
@@ -17,6 +22,18 @@ import FooterComponent from '@/components/FooterComponent.vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import SearchBarComponent from '@/components/base/SearchBarComponent.vue'
 import TitleComponent from '@/components/base/TitleComponent.vue'
+
+const updateSearch = (value) => {
+  searchQuery.value = value
+}
+
+const toggleSortOrder = () => {
+  sortAscending.value = !sortAscending.value
+}
+
+const openFilterModal = () => {
+  console.log('Ouvrir les options de filtre...')
+}
 </script>
 
 <style scoped>
