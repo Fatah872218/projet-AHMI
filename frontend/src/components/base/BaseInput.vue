@@ -1,3 +1,4 @@
+<!-- src/components/base/BaseInput.vue -->
 <template>
   <div class="w-full md:w-1/2 mb-sm">
     <label

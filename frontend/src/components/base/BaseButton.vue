@@ -1,3 +1,4 @@
+<!-- src/components/base/BaseButton.vue -->
 <template>
   <button
     :class="[
