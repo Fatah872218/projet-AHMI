@@ -46,19 +46,15 @@
 
         <div class="flex items-center" v-if="evenement?.organisateur?.email">
           <MailIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="text-ahmi-text-secondary font-openSans text-caption ml-2 hidden md:inline">
-            Email:
-          </span>
-          <span class="text-ahmi-text-primary font-openSans text-caption ml-2">
+          <span class="ml-2 text-caption text-ahmi-text-secondary hidden md:inline"> Email: </span>
+          <span class="ml-2 text-caption text-ahmi-text-primary">
             {{ evenement.organisateur.email }}
           </span>
         </div>
 
         <div class="flex items-center" v-if="evenement.lienSiteInternet">
           <GlobeAltIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="text-ahmi-text-secondary font-openSans text-caption ml-2 hidden md:inline">
-            Site Internet:
-          </span>
+          <span class="hidden md:inline ml-2"> Site Internet: </span>
           <a
             :href="evenement.lienSiteInternet"
             class="text-ahmi-text-primary font-openSans text-caption ml-2"
@@ -71,9 +67,7 @@
 
         <div class="flex items-center" v-if="evenement.lienInstagram">
           <PhotographIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="text-ahmi-text-secondary font-openSans text-caption ml-2 hidden md:inline">
-            Instagram:
-          </span>
+          <span class="hidden md:inline ml-2"> Instagram: </span>
           <a
             :href="evenement.lienInstagram"
             class="text-ahmi-text-primary font-openSans text-caption ml-2"

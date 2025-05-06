@@ -1,3 +1,4 @@
+<!-- src//components/base/TitleComponent.vue -->
 <template>
   <div class="flex flex-col md:flex-row items-center justify-between p-4 bg-ahmi-bg">
     <div class="text-ahmi-text-primary font-montserrat text-h1 font-bold">

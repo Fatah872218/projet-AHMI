@@ -1,41 +1,35 @@
-@import './base.css';
+/* === main.css refondu pour AHMI === */
 
+@import './base.css';
 @tailwind utilities;
 
+/* Appliquer à l'app entière */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-  font-family: var(--font-body-family); /* Utilisation de la police définie */
-  color: var(--text-primary); /* Utilisation de la couleur de texte principale */
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem 0;
+  font-family: var(--font-body-family);
+  color: var(--text-primary);
+  background-color: var(--color-bg);
 }
 
+/* Liens cliquables */
 a,
 .green {
   text-decoration: none;
-  color: var(--color-primary); /* Remplacement par la couleur primaire */
-  transition: 0.4s;
+  color: var(--color-primary);
+  transition: background-color 0.3s, color 0.3s;
   padding: 3px;
   border-radius: var(--radius-minimal);
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: var(--color-accent); /* Remplacement par la couleur d'accent */
-    border-radius: var(--radius-minimal);
-  }
+a:hover {
+  background-color: var(--color-accent);
+  color: var(--text-secondary);
+  border-radius: var(--radius-minimal);
 }
 
+/* Gestion des médias responsive : plus besoin de hack de layout */
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+  /* On ne force aucun layout ici */
 }

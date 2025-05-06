@@ -1,3 +1,4 @@
+<!-- src/components/HeaderComponent.vue -->
 <template>
   <header
     class="bg-ahmi-primary text-ahmi-text-invert p-4 flex justify-between items-center font-openSans"
@@ -9,32 +10,64 @@
 
     <!-- Navigation Desktop -->
     <nav class="hidden md:flex space-x-8">
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <span>Nos missions</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <span>Nos valeurs</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <span>Nous rejoindre</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <img src="@/assets/images/main-coupe.png" alt="AHMI" class="h-6" />
         <span class="ml-2">A H M I</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="/events"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
+        <CalendarIcon class="h-6 w-6" />
+        <span class="ml-2 hidden md:inline">Événements</span>
+      </a>
+
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <ShoppingCartIcon class="h-6 w-6" />
         <span class="ml-2">Acheter</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <GiftIcon class="h-6 w-6" />
         <span class="ml-2">Dons</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <ChatIcon class="h-6 w-6" />
         <span class="ml-2">Message</span>
       </a>
-      <a href="#" class="flex items-center hover:text-ahmi-text-secondary">
+      <a
+        href="#"
+        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+      >
         <LoginIcon class="h-6 w-6" />
         <span class="ml-2">Se connecter</span>
       </a>
@@ -60,13 +93,26 @@
         <a href="#" class="block px-4 py-2 text-sm hover:bg-ahmi-surface-secondary"
           >Nous rejoindre</a
         >
+        <a
+          href="/events"
+          class="block px-4 py-2 text-sm hover:bg-ahmi-surface-secondary items-center"
+        >
+          <CalendarIcon class="h-5 w-5 mr-2" />
+        </a>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-import { MenuIcon, ShoppingCartIcon, GiftIcon, ChatIcon, LoginIcon } from '@heroicons/vue/outline'
+import {
+  CalendarIcon,
+  MenuIcon,
+  ShoppingCartIcon,
+  GiftIcon,
+  ChatIcon,
+  LoginIcon,
+} from '@heroicons/vue/outline'
 import BaseButton from '@/components/base/BaseButton.vue'
 
 export default {

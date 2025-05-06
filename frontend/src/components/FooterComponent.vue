@@ -1,3 +1,5 @@
+<!-- src/components/FooterComponent.vue
+//  --> 
 <template>
   <footer class="bg-ahmi-bg text-ahmi-text-primary">
     <div class="container mx-auto px-4 py-8">
