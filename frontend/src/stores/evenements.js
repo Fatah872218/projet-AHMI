@@ -1,3 +1,4 @@
+// src/stores/evenements.js
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
@@ -11,20 +12,21 @@ export const useEvenementsStore = defineStore('evenements', {
   actions: {
     async fetchEvenements() {
       try {
-        const response = await axios.get('/api/evenements')
+        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/evenements')
 
-        console.log('Événements reçus :', response.data) // ✅ ici, response existe bien
+        console.log('Événements reçus :', response.data)
 
         if (Array.isArray(response.data)) {
           this.evenements = response.data
-        } else if (Array.isArray(response.data.data)) {
+        } else if (response.data && Array.isArray(response.data.data)) {
           this.evenements = response.data.data
         } else {
-          console.error('Format inattendu des événements :', response.data)
+          console.warn('Format inattendu des événements :', response.data)
           this.evenements = []
         }
       } catch (error) {
         console.error('Erreur lors du chargement des événements :', error)
+        this.evenements = [] // ⚠️ sécurité : on vide si erreur
       }
     },
   },
