@@ -1,97 +1,88 @@
 <template>
   <div
-    class="bg-ahmi-bg rounded-minimal shadow-md p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center mb-4"
+    class="bg-ahmi-bg rounded-minimal shadow-md p-4 md:p-6 flex flex-col space-y-6 mb-4 h-full overflow-hidden"
   >
-    <!-- Image Section -->
-    <div class="w-full md:w-1/2 mb-4 md:mb-0 md:mr-6">
+    <!-- Bloc 1 - Image -->
+    <div class="w-full h-64 md:h-96">
       <img
         v-if="evenement.imageUrl"
         :src="evenement.imageUrl"
         :alt="evenement.titre"
-        class="w-full h-auto rounded-minimal"
+        class="w-full h-full object-cover rounded-minimal"
       />
     </div>
 
-    <!-- Content Section -->
-    <div class="w-full md:w-1/2">
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-ahmi-primary-title font-montserratAlt font-h1-bold-weight text-h2">
-          {{ evenement.titre }}
-        </h2>
-        <div class="flex items-center">
-          <CalendarIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="text-ahmi-text-secondary font-openSans text-caption ml-2">
-            {{ formatDate(evenement.dateDebut) }}
-          </span>
-        </div>
+    <!-- Bloc 2 - Titre & Date -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+      <h2 class="text-ahmi-primary-title font-montserratAlt font-h1-bold-weight text-h2">
+        {{ evenement.titre }}
+      </h2>
+      <div class="flex items-center">
+        <CalendarIcon class="h-6 w-6 text-ahmi-secondary" />
+        <span class="text-ahmi-text-secondary font-openSans text-caption ml-2">
+          {{ formatDate(evenement.dateDebut) }}
+        </span>
       </div>
+    </div>
 
-      <p class="text-ahmi-text-primary font-openSans text-body mb-4">
-        {{ truncateDescription(evenement.description) }}
+    <!-- Bloc 3 - Description -->
+    <div>
+      <p class="text-ahmi-text-primary font-openSans text-body line-clamp-2">
+        {{ evenement.description }}
       </p>
+    </div>
 
-      <!-- Additional Details -->
-      <div
-        class="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0 md:space-x-4 mb-4"
-      >
-        <div class="flex items-center" v-if="evenement?.lieu?.adresse">
-          <LocationMarkerIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="text-ahmi-text-secondary font-openSans text-caption ml-2 hidden md:inline">
-            Lieu:
-          </span>
-          <span class="text-ahmi-text-primary font-openSans text-caption ml-2">
-            {{ evenement.lieu.adresse }}
-          </span>
-        </div>
-
-        <div class="flex items-center" v-if="evenement?.organisateur?.email">
-          <MailIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="ml-2 text-caption text-ahmi-text-secondary hidden md:inline"> Email: </span>
-          <span class="ml-2 text-caption text-ahmi-text-primary">
-            {{ evenement.organisateur.email }}
-          </span>
-        </div>
-
-        <div class="flex items-center" v-if="evenement.lienSiteInternet">
-          <GlobeAltIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="hidden md:inline ml-2"> Site Internet: </span>
-          <a
-            :href="evenement.lienSiteInternet"
-            class="text-ahmi-text-primary font-openSans text-caption ml-2"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {{ evenement.lienSiteInternet }}
-          </a>
-        </div>
-
-        <div class="flex items-center" v-if="evenement.lienInstagram">
-          <PhotographIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="hidden md:inline ml-2"> Instagram: </span>
-          <a
-            :href="evenement.lienInstagram"
-            class="text-ahmi-text-primary font-openSans text-caption ml-2"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {{ evenement.lienInstagram }}
-          </a>
-        </div>
+    <!-- Bloc 4 - Infos complémentaires -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex items-center" v-if="evenement?.lieu?.adresse">
+        <LocationMarkerIcon class="h-6 w-6 text-ahmi-secondary" />
+        <span class="ml-2 text-caption text-ahmi-text-primary">
+          {{ evenement.lieu.adresse }}
+        </span>
       </div>
 
-      <!-- Actions -->
-      <div class="flex items-center justify-between md:justify-end space-x-4">
-        <button
-          class="bg-ahmi-primary text-ahmi-text-invert font-openSans text-caption px-4 py-2 rounded-minimal"
+      <div class="flex items-center" v-if="evenement?.organisateur?.email">
+        <MailIcon class="h-6 w-6 text-ahmi-secondary" />
+        <span class="ml-2 text-caption text-ahmi-text-primary">
+          {{ evenement.organisateur.email }}
+        </span>
+      </div>
+
+      <div class="flex items-center" v-if="evenement.lienSiteInternet">
+        <GlobeAltIcon class="h-6 w-6 text-ahmi-secondary" />
+        <a
+          :href="evenement.lienSiteInternet"
+          class="ml-2 text-caption text-ahmi-text-primary underline"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          Réserver
-        </button>
-        <div class="flex items-center cursor-pointer" @click="goToEventDetails">
-          <PlusIcon class="h-6 w-6 text-ahmi-secondary" />
-          <span class="text-ahmi-text-secondary font-openSans text-caption ml-2 hidden md:inline">
-            Détails
-          </span>
-        </div>
+          {{ evenement.lienSiteInternet }}
+        </a>
+      </div>
+
+      <div class="flex items-center" v-if="evenement.lienInstagram">
+        <PhotographIcon class="h-6 w-6 text-ahmi-secondary" />
+        <a
+          :href="evenement.lienInstagram"
+          class="ml-2 text-caption text-ahmi-text-primary underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{ evenement.lienInstagram }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Bloc 5 - Actions -->
+    <div class="flex items-center justify-between md:justify-end gap-4">
+      <button
+        class="bg-ahmi-primary text-ahmi-text-invert font-openSans text-caption px-4 py-2 rounded-minimal"
+      >
+        Réserver
+      </button>
+      <div class="flex items-center cursor-pointer" @click="goToEventDetails">
+        <PlusIcon class="h-6 w-6 text-ahmi-secondary" />
+        <span class="text-ahmi-text-secondary font-openSans text-caption ml-2"> Détails </span>
       </div>
     </div>
   </div>
@@ -141,5 +132,5 @@ const goToEventDetails = () => {
 </script>
 
 <style scoped>
-/* Styles additionnels si nécessaires */
+/* Ajoute ici des styles spécifiques si besoin */
 </style>

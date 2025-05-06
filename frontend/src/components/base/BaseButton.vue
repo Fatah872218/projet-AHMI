@@ -28,9 +28,10 @@ const props = defineProps({
     validator: (v) => ['sm', 'md', 'lg'].includes(v),
   },
   rounded: {
-    type: Boolean,
-    default: false,
+    type: String,
+    default: 'minimal', // ou 'md', 'full', etc.
   },
+
   disabled: {
     type: Boolean,
     default: false,

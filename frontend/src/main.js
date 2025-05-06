@@ -1,4 +1,3 @@
-import '@/assets/base.css'
 import '@/assets/main.css'
 import './assets/styles/design-variables.css'
 

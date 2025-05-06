@@ -77,6 +77,7 @@
     <div class="md:hidden relative">
       <BaseButton
         @click="toggleMenu"
+        className="rounded-minimal"
         variant="light"
         size="md"
         :rounded="true"

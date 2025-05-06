@@ -10,7 +10,7 @@
         variant="light"
         size="md"
         rounded
-        :className="'flex items-center space-x-2'"
+        :className="'flex items-center space-x-2 rounded-minimal'"
         @click="$emit('sort')"
       >
         <SortDescendingIcon class="w-6 h-6" />
@@ -21,7 +21,7 @@
         variant="light"
         size="md"
         rounded
-        :className="'flex items-center space-x-2'"
+        :className="'flex items-center space-x-2 rounded-minimal'"
         @click="$emit('filter')"
       >
         <FilterIcon class="w-6 h-6" />
