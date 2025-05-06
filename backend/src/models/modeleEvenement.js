@@ -30,6 +30,11 @@ const evenementSchema = new mongoose.Schema({
   dateCreation: { type: Date, default: Date.now },
   dateModeration: { Date },
   moderateur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Utilisateur (admin qui modère)
+  organisateur: {
+    nom: { type: String },
+    email: { type: String },
+  },
+  lienSiteInternet: { type: String },
 });
 
 export default mongoose.model("Evenement", evenementSchema);

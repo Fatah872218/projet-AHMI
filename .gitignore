@@ -48,3 +48,4 @@ frontend/.env.development
 .vscode/
 
 
+frontend/src/assets/images/Postman-win64-Setup.exe
