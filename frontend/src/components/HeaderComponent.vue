@@ -39,7 +39,8 @@
         href="/events"
         class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
       >
-        <CalendarIcon class="h-6 w-6" />
+        <CalendarIcon class="w-6 h-6 text-gray-500" />
+
         <span class="ml-2 hidden md:inline">Événements</span>
       </a>
 
@@ -77,11 +78,10 @@
     <div class="md:hidden relative">
       <BaseButton
         @click="toggleMenu"
-        className="rounded-minimal"
         variant="light"
         size="md"
-        :rounded="true"
-        class="flex items-center px-3 py-2 border rounded text-ahmi-text-invert border-ahmi-text-invert hover:text-ahmi-text-secondary hover:border-ahmi-text-secondary"
+        :rounded="'true'"
+        class="rounded-minimal flex items-center px-3 py-2 border rounded text-ahmi-text-invert border-ahmi-text-invert hover:text-ahmi-text-secondary hover:border-ahmi-text-secondary"
       >
         <MenuIcon class="h-6 w-6" />
       </BaseButton>
@@ -107,12 +107,12 @@
 
 <script>
 import {
-  CalendarIcon,
   MenuIcon,
   ShoppingCartIcon,
   GiftIcon,
   ChatIcon,
   LoginIcon,
+  CalendarIcon,
 } from '@heroicons/vue/outline'
 import BaseButton from '@/components/base/BaseButton.vue'
 
@@ -124,6 +124,7 @@ export default {
     GiftIcon,
     ChatIcon,
     LoginIcon,
+    CalendarIcon,
     BaseButton,
   },
   data() {

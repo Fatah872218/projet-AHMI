@@ -6,7 +6,7 @@
     <!-- Titre avec options de tri et filtre -->
     <TitleComponent
       title="Liste des événements"
-      @sort="toggleSortOrder"
+      @change-sort="changeSort"
       @filter="openFilterModal"
     />
 
@@ -48,6 +48,7 @@ const loading = ref(true)
 const searchQuery = ref('')
 const sortAsc = ref(false)
 const filterCriteria = ref({ date: null, lieu: '' })
+const sortType = ref('date') // valeurs possibles : "date", "dayNight", "category"
 
 // Liste brute
 const evenements = computed(() => store.allEvenements)
@@ -85,6 +86,27 @@ const filteredEvenements = computed(() => {
       e.lieu?.adresse?.toLowerCase().includes(filterCriteria.value.lieu.toLowerCase())
     )
   }
+  if (sortType.value === 'date') {
+    return filtered.sort((a, b) => new Date(b.dateDebut) - new Date(a.dateDebut))
+  }
+
+  if (sortType.value === 'dayNight') {
+    return filtered.sort((a, b) => {
+      const heureA = new Date(a.dateDebut).getHours()
+      const heureB = new Date(b.dateDebut).getHours()
+
+      const isJour = (h) => h >= 8 && h < 19
+      return isJour(heureB) - isJour(heureA) // trie les événements de jour en haut
+    })
+  }
+
+  if (sortType.value === 'category') {
+    return filtered.sort((a, b) => {
+      const catA = a.categorie?.toLowerCase() || ''
+      const catB = b.categorie?.toLowerCase() || ''
+      return catA.localeCompare(catB)
+    })
+  }
 
   // Tri par date
   return filtered.sort((a, b) => {
@@ -107,5 +129,8 @@ function openFilterModal() {
   const date = prompt('Filtrer par date (AAAA-MM-JJ) :')
   const lieu = prompt('Filtrer par lieu :')
   filterCriteria.value = { date, lieu }
+}
+function changeSort(type) {
+  sortType.value = type
 }
 </script>
