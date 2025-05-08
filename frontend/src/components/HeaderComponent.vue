@@ -9,66 +9,46 @@
     </div>
 
     <!-- Navigation Desktop -->
-    <nav class="hidden md:flex space-x-8">
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
-        <span>Nos missions</span>
-      </a>
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
-        <span>Nos valeurs</span>
-      </a>
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
-        <span>Nous rejoindre</span>
-      </a>
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
-        <img src="@/assets/images/main-coupe.png" alt="AHMI" class="h-6" />
-        <span class="ml-2">A H M I</span>
-      </a>
-      <a
-        href="/events"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
-        <CalendarIcon class="w-6 h-6 text-gray-500" />
+    <nav class="hidden md:flex space-x-8 relative">
+      <!-- Menu déroulant AHMI -->
+      <!-- Menu déroulant AHMI -->
+      <div class="relative group">
+        <div
+          class="flex items-center cursor-pointer text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
+        >
+          <img src="@/assets/images/main-coupe.png" alt="AHMI" class="h-6" />
+          <span class="ml-2">A H M I</span>
+          <ChevronDownIcon class="h-4 w-4 ml-1 mt-0.5" />
+        </div>
 
+        <!-- Sous-menu au survol  -->
+        <div
+          class="absolute left-0 mt-2 w-48 bg-ahmi-surface-primary text-ahmi-text-invert shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50"
+        >
+          <a href="#" class="block px-4 py-2 hover-link-accessible"> Nos missions </a>
+          <a href="#" class="block px-4 py-2 hover-link-accessible"> Nos valeurs </a>
+          <a href="#" class="block px-4 py-2 hover-link-accessible"> Nous rejoindre </a>
+        </div>
+      </div>
+
+      <!-- Autres rubriques -->
+      <a href="/events" class="flex items-center hover-link-accessible-desktop">
+        <CalendarIcon class="w-6 h-6 text-gray-500" />
         <span class="ml-2 hidden md:inline">Événements</span>
       </a>
-
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
+      <a href="#" class="flex items-center hover-link-accessible-desktop transition-colors">
         <ShoppingCartIcon class="h-6 w-6" />
         <span class="ml-2">Acheter</span>
       </a>
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
+      <a href="#" class="flex items-center hover-link-accessible-desktop">
         <GiftIcon class="h-6 w-6" />
         <span class="ml-2">Dons</span>
       </a>
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
+      <a href="#" class="flex items-center hover-link-accessible-desktop">
         <ChatIcon class="h-6 w-6" />
         <span class="ml-2">Message</span>
       </a>
-      <a
-        href="#"
-        class="flex items-center text-ahmi-text-invert hover:text-ahmi-secondary transition-colors"
-      >
+      <a href="#" class="flex items-center hover-link-accessible-desktop">
         <LoginIcon class="h-6 w-6" />
         <span class="ml-2">Se connecter</span>
       </a>
@@ -87,18 +67,17 @@
       </BaseButton>
       <div
         v-if="menuOpen"
-        class="absolute right-0 mt-2 bg-ahmi-primary rounded shadow-lg text-ahmi-text-invert"
+        class="absolute right-0 mt-2 w-64 bg-ahmi-surface-primary rounded shadow-lg text-ahmi-text-invert z-50"
       >
-        <a href="#" class="block px-4 py-2 text-sm hover:bg-ahmi-surface-secondary">Nos missions</a>
-        <a href="#" class="block px-4 py-2 text-sm hover:bg-ahmi-surface-secondary">Nos valeurs</a>
-        <a href="#" class="block px-4 py-2 text-sm hover:bg-ahmi-surface-secondary"
-          >Nous rejoindre</a
-        >
         <a
-          href="/events"
-          class="block px-4 py-2 text-sm hover:bg-ahmi-surface-secondary items-center"
+          v-for="(item, index) in menuItems"
+          :key="index"
+          :href="item.href"
+          class="flex items-center gap-2 px-4 py-2 hover:bg-ahmi-surface-secondary"
         >
-          <CalendarIcon class="h-5 w-5 mr-2" />
+          <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
+          <img v-else-if="item.image" :src="item.image" alt="logo" class="h-6 w-6" />
+          <span>{{ item.label }}</span>
         </a>
       </div>
     </div>
@@ -113,8 +92,13 @@ import {
   ChatIcon,
   LoginIcon,
   CalendarIcon,
+  ClipboardListIcon,
+  HeartIcon,
+  UserGroupIcon,
+  ChevronDownIcon,
 } from '@heroicons/vue/outline'
 import BaseButton from '@/components/base/BaseButton.vue'
+import menuItems from '@/data/menuItems.js'
 
 export default {
   name: 'HeaderComponent',
@@ -125,11 +109,16 @@ export default {
     ChatIcon,
     LoginIcon,
     CalendarIcon,
+    ClipboardListIcon,
+    HeartIcon,
+    UserGroupIcon,
+    ChevronDownIcon,
     BaseButton,
   },
   data() {
     return {
       menuOpen: false,
+      menuItems,
     }
   },
   methods: {
