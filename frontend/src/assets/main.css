@@ -6,6 +6,12 @@
   .font-montserratAlt {
     font-family: 'Montserrat Alternates', sans-serif;
   }
+  .hover-link-accessible {
+    @apply px-4 py-2 rounded-sm hover:bg-ahmi-surface-secondary hover:text-ahmi-text-invert transition-colors;
+  }
+  .hover-link-accessible-desktop {
+    @apply text-ahmi-text-invert hover:text-ahmi-text-invert hover:bg-ahmi-surface-secondary transition-colors rounded px-2;
+  }
 }
 
 @tailwind utilities;

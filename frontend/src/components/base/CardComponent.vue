@@ -33,21 +33,32 @@
     </div>
 
     <!-- Bloc 4 - Infos complémentaires -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="flex items-center" v-if="evenement?.lieu?.adresse">
+    <div
+      v-if="
+        evenement.lieu?.adresse ||
+        evenement.organisateur?.email ||
+        evenement.lienSiteInternet ||
+        evenement.lienInstagram
+      "
+      class="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
+      <!-- Adresse -->
+      <div class="flex items-center">
         <LocationMarkerIcon class="h-6 w-6 text-ahmi-secondary" />
         <span class="ml-2 text-caption text-ahmi-text-primary">
-          {{ evenement.lieu.adresse }}
+          {{ evenement?.lieu?.adresse || 'Adresse non renseignée' }}
         </span>
       </div>
 
-      <div class="flex items-center" v-if="evenement?.organisateur?.email">
+      <!-- Email organisateur -->
+      <div class="flex items-center">
         <MailIcon class="h-6 w-6 text-ahmi-secondary" />
         <span class="ml-2 text-caption text-ahmi-text-primary">
-          {{ evenement.organisateur.email }}
+          {{ evenement?.organisateur?.email || 'Email non fourni' }}
         </span>
       </div>
 
+      <!-- Site Internet -->
       <div class="flex items-center" v-if="evenement.lienSiteInternet">
         <GlobeAltIcon class="h-6 w-6 text-ahmi-secondary" />
         <a
@@ -60,6 +71,7 @@
         </a>
       </div>
 
+      <!-- Instagram -->
       <div class="flex items-center" v-if="evenement.lienInstagram">
         <PhotographIcon class="h-6 w-6 text-ahmi-secondary" />
         <a
@@ -108,12 +120,16 @@ const props = defineProps({
   },
 })
 
+// ✅ Correction ici
+const evenement = props.evenement
+console.log('Événement reçu :', evenement)
+
 const router = useRouter()
 
 const formatDate = (date) => {
   if (!date) return 'Date inconnue'
   try {
-    return format(new Date(date), 'dd MMMM yyyy', { locale: fr })
+    return format(new Date(date), "dd MMMM yyyy 'à' HH:mm", { locale: fr })
   } catch {
     return date
   }
@@ -125,8 +141,8 @@ const truncateDescription = (desc) => {
 }
 
 const goToEventDetails = () => {
-  if (props.evenement?._id) {
-    router.push(`/evenement/${props.evenement._id}`)
+  if (evenement?._id) {
+    router.push(`/evenement/${evenement._id}`)
   }
 }
 </script>
