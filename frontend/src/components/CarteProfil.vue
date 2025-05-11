@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Composant pour afficher les informations du profil utilisateur.
+    <!-- src/components/base/BaseFormWrapper.vue
  -->
     <p>essai !</p>
   </div>

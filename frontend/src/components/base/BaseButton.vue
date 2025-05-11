@@ -5,7 +5,7 @@
       'inline-flex items-center justify-center transition-colors duration-200 font-bold',
       variantClass,
       sizeClass,
-      { 'rounded-full': rounded, rounded: !rounded },
+      { 'rounded-minimal': rounded, rounded: !rounded },
       { 'opacity-50 cursor-not-allowed': disabled },
       className,
     ]"
@@ -14,6 +14,7 @@
     <slot />
   </button>
 </template>
+s
 
 <script setup>
 const props = defineProps({

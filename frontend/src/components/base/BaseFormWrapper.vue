@@ -1,3 +1,5 @@
+<!-- src/components/base/BaseFormWrapper.vue
+ -->
 <template>
   <form
     @submit.prevent="onSubmit"
