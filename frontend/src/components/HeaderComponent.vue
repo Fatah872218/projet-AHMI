@@ -76,9 +76,9 @@
       </BaseButton>
       <!-- Liens fixes mobile -->
       <div class="flex space-x-4 items-center ml-4">
-        <a href="/account" class="text-ahmi-text-invert">
+        <router-link to="/account" class="flex items-center …">
           <UserIcon class="h-6 w-6" />
-        </a>
+        </router-link>
         <a href="/partenaires" class="text-ahmi-text-invert">
           <UsersIcon class="h-6 w-6" />
         </a>

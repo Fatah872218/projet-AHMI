@@ -9,7 +9,7 @@
 
     <div class="relative">
       <input
-        class="block w-full rounded-rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body placeholder:text-ahmi-text-secondary focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md pr-10"
+        class="block w-full rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body placeholder:text-ahmi-text-secondary focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md pr-10"
         :type="typeDeChamp"
         :value="modelValue"
         @input="emit('update:modelValue', $event.target.value)"
@@ -18,7 +18,7 @@
       />
 
       <!-- Si c'est un mot de passe, rendre l’icône cliquable -->
-      <template v-if="type === 'password'">
+      <template v-if="typeDeChamp === 'password'">
         <button
           type="button"
           @click="toggleVisibiliteMotDePasse"

@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import EventsList from '../views/EventList.vue'
 import EventDetails from '../views/EventDetails.vue'
+import AccountView from '@/views/AccountView.vue'
+import PartenaireEventForm from '@/views/PartenaireEventForm.vue'
 
 const routes = [
   {
@@ -38,6 +40,29 @@ const routes = [
     path: '/evenement/:id',
     name: 'eventDetails',
     component: EventDetails,
+  },
+  // Routes partenaires
+  {
+    path: '/partenaires',
+    name: 'partenairesCreate',
+    component: () => import('@/views/PartenaireEventForm.vue'),
+  },
+  {
+    path: '/partenaires/:id',
+    name: 'partenairesEdit',
+    component: () => import('@/views/PartenaireEventForm.vue'),
+    props: true,
+  },
+  // MON COMPTE
+  {
+    path: '/account',
+    name: 'account',
+    component: AccountView,
+  },
+  {
+    path: '/account/proposer-evenement',
+    name: 'proposer-evenement',
+    component: PartenaireEventForm,
   },
 ]
 
