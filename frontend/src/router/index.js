@@ -64,6 +64,12 @@ const routes = [
     name: 'proposer-evenement',
     component: PartenaireEventForm,
   },
+  {
+    path: '/evenement/:id/admin',
+    name: 'EventDetailsAdmin',
+    component: () => import('@/views/EventDetailsAdmin.vue'),
+    meta: { requiresAuth: true, role: 'admin' },
+  },
 ]
 
 const router = createRouter({
