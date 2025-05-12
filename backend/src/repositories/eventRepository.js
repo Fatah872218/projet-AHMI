@@ -44,7 +44,7 @@ class EventRepository {
 
   async findAll(filter = {}) {
     try {
-      return await Evenement.find(filter);
+      return await Evenement.find(filter).populate("createur");
     } catch (err) {
       throw new Error(`Erreur récupération évènements : ${err.message}`);
     }

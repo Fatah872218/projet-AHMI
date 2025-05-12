@@ -9,7 +9,10 @@ class EventService {
 
   async createEvent(data) {
     try {
-      return await this.eventRepository.create(data);
+      return await this.eventRepository.create({
+        ...data,
+        statut: "en_attente",
+      });
     } catch (err) {
       throw new Error(`Erreur création évènement : ${err.message}`);
     }

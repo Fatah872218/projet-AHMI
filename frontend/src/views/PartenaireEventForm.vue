@@ -270,6 +270,7 @@ async function handleSubmit() {
   loading.value = true
   try {
     const payload = { ...form.value, createdBy: form.value.organisateur.id }
+    console.log('Payload:', payload) //
     if (isEdit.value) {
       await updateEvent(route.params.id, payload)
     } else {
