@@ -9,6 +9,8 @@ import utilisateurRoutes from "./routes/routeUtilisateur.js";
 import authRoutes from "./routes/routesAuth.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import categorieRoutes from "./routes/categorieRoutes.js";
+import geocodeRoutes from "./routes/geocodeRoutes.js";
 
 import errorHandler from "./middlewares/errorHandler.js";
 
@@ -33,6 +35,8 @@ app.use("/api/permissions", permissionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/evenements", eventRoutes);
 app.use("/api/reservations", bookingRoutes);
+app.use("/api/", categorieRoutes);
+app.use("/api", geocodeRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route introuvable" });

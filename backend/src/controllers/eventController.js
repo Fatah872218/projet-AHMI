@@ -12,6 +12,7 @@ class EventController {
     try {
       const event = await this.eventService.createEvent({
         ...req.body,
+        statut: "en_attente", // Par défaut
         createur: req.utilisateur?.id, // Si connecté
       });
       res.status(201).json(event);
@@ -24,7 +25,9 @@ class EventController {
   getAllEvents = async (req, res) => {
     try {
       const { statut } = req.query;
-      const filter = statut ? { statut } : {};
+      const filter =
+        req.utilisateur?.role === "admin" ? {} : { statut: "valide" };
+
       const events = await this.eventService.getAllEvents(filter);
       res.status(200).json(events);
     } catch (err) {

@@ -50,8 +50,10 @@ const sortAsc = ref(false)
 const filterCriteria = ref({ date: null, lieu: '' })
 const sortType = ref('date') // valeurs possibles : "date", "dayNight", "category"
 
-// Liste brute
-const evenements = computed(() => store.allEvenements)
+const isDev = true
+const evenements = computed(() =>
+  isDev ? store.allEvenements : store.allEvenements.filter((e) => e.statut === 'valide')
+)
 
 // Récupération des événements
 onMounted(async () => {
