@@ -1,3 +1,4 @@
+<!-- src/views/AccountView.vue -->
 <template>
   <MainLayout>
     <div class="max-w-4xl mx-auto py-8 px-4">
@@ -13,6 +14,13 @@
         >
           Proposer un événement
         </BaseButton>
+      </div>
+      <div
+        v-if="$route.query.success"
+        class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4 text-center"
+      >
+        L'événement a bien été {{ $route.query.success === 'modification' ? 'modifié' : 'créé' }} et
+        soumis pour validation.
       </div>
 
       <!-- Tabs -->

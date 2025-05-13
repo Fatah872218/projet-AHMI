@@ -1,7 +1,8 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose from "mongoose";
+const { Schema, Types } = mongoose;
 const { ObjectId } = Types;
 
-const evenementSchema = new mongoose.Schema({
+const evenementSchema = new Schema({
   titre: { type: String },
   description: { type: String },
   dateDebut: { type: Date },
@@ -14,7 +15,7 @@ const evenementSchema = new mongoose.Schema({
       lng: { type: Number },
     },
   },
-  createur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Users (partenaire qui crée l'événement)
+  createur: { type: ObjectId, ref: "Utilisateur" },
   statut: {
     type: String,
     enum: ["en_attente", "approuve", "rejete", "annule"],
@@ -23,13 +24,18 @@ const evenementSchema = new mongoose.Schema({
   capaciteMax: { type: Number },
   placesDisponibles: { type: Number },
   prix: { type: Number, default: 0 },
-  categories: [{ type: ObjectId, ref: "Categorie" }], // Relation plusieurs-à-plusieurs avec Categories
+  categories: [
+    {
+      type: ObjectId,
+      ref: "Categorie",
+    },
+  ],
   imageUrl: { type: String },
   participationFinanciere: { type: String },
   lienInstagram: { type: String },
   dateCreation: { type: Date, default: Date.now },
-  dateModeration: { Date },
-  moderateur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Utilisateur (admin qui modère)
+  dateModeration: { type: Date },
+  moderateur: { type: ObjectId, ref: "Utilisateur" },
   organisateur: {
     nom: { type: String },
     email: { type: String },

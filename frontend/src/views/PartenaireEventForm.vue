@@ -85,21 +85,21 @@
         v-model="form.participationFinanciere"
         :error="errors.participationFinanciere"
       />
+      <!-- Catégories -->
       <div>
-        <label
-          class="block text-sm md:text-base font-medium text-ahmi-text-primary font-montserrat mb-xs"
-        >
-          Catégories
-        </label>
+        <label class="block text-sm font-medium text-ahmi-text-primary mb-1"> Catégories </label>
         <select
           v-model="form.categories"
           multiple
-          class="block w-full rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md"
+          class="block w-full rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary"
         >
           <option v-for="cat in categories" :key="cat._id" :value="cat._id">
             {{ cat.nom }}
           </option>
         </select>
+        <p v-if="categories.length === 0" class="text-sm text-red-600 mt-2">
+          Aucune catégorie disponible. Vérifiez votre connexion ou contactez l'équipe.
+        </p>
       </div>
 
       <!-- Organisateur (prédéfini) -->
@@ -123,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainLayout from '@/layout/MainLayout.vue'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
@@ -131,22 +131,31 @@ import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { getEventById, getCategories, createEvent, updateEvent } from '@/services/eventService'
 import useAuth from '@/hooks/utiliserAuth.js'
+import { useToast } from 'vue-toastification'
+import { debounce } from 'lodash'
 
-// Récupérer l’utilisateur connecté
 const { user } = useAuth()
+const toast = useToast()
 
 const route = useRoute()
 const router = useRouter()
 const isEdit = ref(!!route.params.id)
 const loading = ref(false)
+const categories = ref([])
 
-// Form data
 const form = ref({
   titre: '',
   description: '',
   dateDebut: '',
   dateFin: '',
-  lieu: { nom: '', adresse: '' },
+  lieu: {
+    nom: '',
+    adresse: '',
+    coordonnees: {
+      lat: 43.2951,
+      lng: -0.3708,
+    },
+  },
   capaciteMax: null,
   prix: null,
   imageUrl: '',
@@ -157,7 +166,6 @@ const form = ref({
   organisateur: { id: '', nom: '', email: '' },
 })
 
-// Erreurs de validation
 const errors = reactive({
   titre: '',
   description: '',
@@ -173,25 +181,18 @@ const errors = reactive({
   participationFinanciere: '',
 })
 
-// Validation simple des champs
 function validate() {
-  // reset
   Object.keys(errors).forEach((key) => (errors[key] = ''))
   let ok = true
 
-  // Titre
   if (!form.value.titre || form.value.titre.trim().length < 3) {
     errors.titre = 'Le titre doit contenir au moins 3 caractères.'
     ok = false
   }
-
-  // Description (max 500)
   if (form.value.description && form.value.description.length > 500) {
     errors.description = 'La description ne peut pas dépasser 500 caractères.'
     ok = false
   }
-
-  // Dates
   if (!form.value.dateDebut) {
     errors.dateDebut = 'La date de début est requise.'
     ok = false
@@ -204,8 +205,6 @@ function validate() {
     errors.dateFin = 'La date de fin doit être après la date de début.'
     ok = false
   }
-
-  // Lieu
   if (!form.value.lieu.nom) {
     errors.lieuNom = 'Le nom du lieu est requis.'
     ok = false
@@ -214,20 +213,15 @@ function validate() {
     errors.lieuAdresse = 'L’adresse est requise.'
     ok = false
   }
-
-  // Capacite
   if (form.value.capaciteMax == null || form.value.capaciteMax < 1) {
     errors.capaciteMax = 'La capacité doit être au moins 1.'
     ok = false
   }
-
-  // Prix
   if (form.value.prix != null && form.value.prix < 0) {
     errors.prix = 'Le prix ne peut pas être négatif.'
     ok = false
   }
 
-  // URLs (simple test)
   ;['imageUrl', 'lienSiteInternet', 'lienInstagram'].forEach((field) => {
     const val = form.value[field]
     if (val) {
@@ -244,20 +238,26 @@ function validate() {
 }
 
 onMounted(async () => {
-  // Préremplir le créateur
   if (user.value) {
     form.value.organisateur.id = user.value.id
     form.value.organisateur.nom = user.value.nom || user.value.name
     form.value.organisateur.email = user.value.email
   }
 
-  // Charger catégories et données pour édition
-  const catRes = await getCategories()
-  categories.value = catRes.data.data || catRes.data
+  try {
+    const catRes = await getCategories()
+    categories.value = catRes.data.data || catRes.data
+  } catch (err) {
+    console.error('Erreur chargement des catégories :', err)
+  }
 
   if (isEdit.value) {
-    const evRes = await getEventById(route.params.id)
-    Object.assign(form.value, evRes.data.data || evRes.data)
+    try {
+      const evRes = await getEventById(route.params.id)
+      Object.assign(form.value, evRes.data.data || evRes.data)
+    } catch (err) {
+      console.error('Erreur chargement événement :', err)
+    }
   }
 })
 
@@ -268,22 +268,90 @@ const resetForm = () => {
 async function handleSubmit() {
   if (!validate()) return
   loading.value = true
+
   try {
-    const payload = { ...form.value, createdBy: form.value.organisateur.id }
-    console.log('Payload:', payload) //
+    const payload = {
+      titre: form.value.titre,
+      description: form.value.description,
+      dateDebut: form.value.dateDebut,
+      dateFin: form.value.dateFin,
+      lieu: {
+        nom: form.value.lieu.nom,
+        adresse: form.value.lieu.adresse,
+        coordonnees: {
+          lat: form.value.lieu.coordonnees.lat,
+          lng: form.value.lieu.coordonnees.lng,
+        },
+      },
+      capaciteMax: form.value.capaciteMax,
+      prix: form.value.prix,
+      imageUrl: form.value.imageUrl,
+      lienSiteInternet: form.value.lienSiteInternet,
+      lienInstagram: form.value.lienInstagram,
+      participationFinanciere: form.value.participationFinanciere,
+      categories: form.value.categories,
+      organisateur: {
+        nom: form.value.organisateur.nom,
+        email: form.value.organisateur.email,
+      },
+    }
+
     if (isEdit.value) {
       await updateEvent(route.params.id, payload)
     } else {
       await createEvent(payload)
+      toast.success(
+        "✅ Merci ! Votre événement a été soumis avec succès et sera vérifié par l'équipe AHMI."
+      )
+      router.push({
+        path: '/account',
+        query: { success: isEdit.value ? 'modification' : 'creation' },
+      })
     }
-    router.push('/events')
   } catch (e) {
     console.error('Erreur lors de la soumission :', e)
-    alert("Impossible de soumettre l'événement.")
+    toast.error("Erreur : échec de la soumission de l'événement.")
   } finally {
     loading.value = false
   }
 }
+
+async function geolocaliserAdresse() {
+  const adresse = form.value.lieu.adresse
+  if (!adresse || adresse.length < 5) return
+
+  try {
+    const url = `http://localhost:5000/api/geocode?q=${encodeURIComponent(adresse)}`
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'ahmi-app/1.0 (contact@ahmi.fr)',
+        'Accept-Language': 'fr',
+      },
+    })
+
+    const data = await response.json()
+
+    if (Array.isArray(data) && data.length > 0 && data[0].lat && data[0].lon) {
+      const coords = data[0]
+      form.value.lieu.coordonnees.lat = parseFloat(coords.lat)
+      form.value.lieu.coordonnees.lng = parseFloat(coords.lon)
+      console.log('Coordonnées mises à jour :', coords)
+    } else {
+      console.warn('Adresse non trouvée ou données incomplètes.', data)
+    }
+  } catch (error) {
+    console.error('Erreur de géolocalisation :', error)
+  }
+}
+
+const debouncedGeoloc = debounce(geolocaliserAdresse, 600)
+
+watch(
+  () => form.value.lieu.adresse,
+  () => {
+    debouncedGeoloc()
+  }
+)
 </script>
 
 <style scoped>

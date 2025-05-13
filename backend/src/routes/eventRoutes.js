@@ -4,9 +4,10 @@ import eventController from "../controllers/eventController.js";
 import middlewareAuth from "../middlewares/middlewareAuth.js";
 import checkRole from "../middlewares/middlewareCheckRole.js";
 import {
-  createEventSchema,
+  eventSchema as createEventSchema,
   updateEventSchema,
 } from "../validations/eventSchemas.js";
+
 import valider from "../middlewares/middlewareValidation.js";
 
 const router = express.Router();
