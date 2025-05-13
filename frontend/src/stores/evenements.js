@@ -1,7 +1,6 @@
 // src/stores/evenements.js
 import { defineStore } from 'pinia'
-import axios from 'axios'
-import { getEventById } from '@/services/eventService'
+import { getEventById, getAllEvents } from '@/services/eventService'
 
 export const useEvenementsStore = defineStore('evenements', {
   state: () => ({
@@ -19,11 +18,10 @@ export const useEvenementsStore = defineStore('evenements', {
   },
 
   actions: {
-    // Récupération de la liste
+    // ✅ Récupération de la liste via service
     async fetchEvenements() {
       try {
-        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/evenements')
-
+        const response = await getAllEvents()
         console.log('Événements reçus :', response.data)
 
         if (Array.isArray(response.data)) {
@@ -36,9 +34,10 @@ export const useEvenementsStore = defineStore('evenements', {
         }
       } catch (error) {
         console.error('Erreur lors du chargement des événements :', error)
-        this.evenements = [] // ⚠️ sécurité : on vide si erreur
+        this.evenements = []
       }
     },
+
     // Récupération d'un seul événement
     async fetchEvenementById(id) {
       this.loadingEvent = true
@@ -53,6 +52,7 @@ export const useEvenementsStore = defineStore('evenements', {
         this.loadingEvent = false
       }
     },
+
     // Nettoyage de l'état de l'événement courant
     clearCurrentEvent() {
       this.currentEvent = null
