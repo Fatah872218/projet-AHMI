@@ -1,8 +1,8 @@
 // routes/eventRoutes.js
 import express from "express";
 import eventController from "../controllers/eventController.js";
-import middlewareAuth from "../middlewares/middlewareAuth.js";
-import checkRole from "../middlewares/middlewareCheckRole.js";
+//import middlewareAuth from "../middlewares/middlewareAuth.js";
+//import checkRole from "../middlewares/middlewareCheckRole.js";
 import {
   eventSchema as createEventSchema,
   updateEventSchema,
@@ -16,7 +16,7 @@ const router = express.Router();
 router.get("/", eventController.getAllEvents);
 router.get(
   "/:id/places-restantes",
-  // middlewareAuth,
+  /* middlewareAuth,*/
   eventController.getPlacesRestantes
 );
 
@@ -25,8 +25,8 @@ router.get("/:id", eventController.getEventById);
 // Routes protégées - partenaire ou admin
 router.post(
   "/",
-  // middlewareAuth,
-  //checkRole("admin", "partenaire"),
+  /* middlewareAuth,
+  checkRole("admin", "partenaire")*/
   valider(createEventSchema),
   eventController.createEvent
 );
@@ -34,8 +34,8 @@ router.post(
 // Mise à jour d’un événement (créateur ou admin)
 router.put(
   "/:id",
-  //middlewareAuth,
-  //checkRole("admin", "partenaire"),
+  /* middlewareAuth,
+  //checkRole("admin", "partenaire"),*/
   valider(updateEventSchema),
   eventController.updateEvent
 );
@@ -43,22 +43,22 @@ router.put(
 // Suppression d’un événement
 router.delete(
   "/:id",
-  //middlewareAuth,
-  //checkRole("admin"),
+  /* middlewareAuth,
+  checkRole("admin"),*/
   eventController.deleteEvent
 );
 
 // Voir les événements par statut (admin uniquement)
 router.get(
   "/statut/:status",
-  //middlewareAuth,
-  // checkRole("admin"),
+  /* middlewareAuth,
+   checkRole("admin"), */
   eventController.getEventsByStatus
 );
 router.patch(
   "/:id/statut",
-  // middlewareAuth,
-  // checkRole("admin"),
+  /* middlewareAuth,
+   checkRole("admin"), */
   eventController.updateStatut
 );
 

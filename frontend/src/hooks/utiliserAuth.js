@@ -1,24 +1,20 @@
-// Hook pour gérer l'état d'authentification.
 // src/hooks/utiliserAuth.js
 import { computed } from 'vue'
-import { useAuthStore } from '@/stores/auth' // ou '@/stores/utilisateur' selon ton store
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/auth'
 
 export default function useAuth() {
   const authStore = useAuthStore()
+  const { utilisateur } = storeToRefs(authStore)
 
-  // user.value contiendra l'objet { id, nom, email, ... }
-  const user = computed(() => authStore.user)
+  const isAuthenticated = computed(() => !!utilisateur.value)
 
-  // booléen pour savoir si on est connecté
-  const isAuthenticated = computed(() => !!authStore.user)
-
-  // éventuellement d’autres helpers, par ex. un logout
   function logout() {
-    authStore.logout()
+    authStore.deconnexion() // nom correct de ta fonction dans auth.js
   }
 
   return {
-    user,
+    user: utilisateur, // ✅ le bon objet réactif (avec rôle)
     isAuthenticated,
     logout,
   }

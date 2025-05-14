@@ -66,7 +66,11 @@ onMounted(async () => {
 const filteredEvenements = computed(() => {
   let filtered = evenements.value
 
-  // Recherche
+  // ⛔ Événements expirés
+  const now = new Date()
+  filtered = filtered.filter((e) => !e.dateFin || new Date(e.dateFin) > now)
+
+  // 🔍 Recherche
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     filtered = filtered.filter((e) =>
@@ -74,7 +78,7 @@ const filteredEvenements = computed(() => {
     )
   }
 
-  // Filtrage par date
+  // 📅 Filtrage par date spécifique
   if (filterCriteria.value.date) {
     filtered = filtered.filter(
       (e) =>
@@ -82,12 +86,14 @@ const filteredEvenements = computed(() => {
     )
   }
 
-  // Filtrage par lieu
+  // 📍 Filtrage par lieu
   if (filterCriteria.value.lieu) {
     filtered = filtered.filter((e) =>
       e.lieu?.adresse?.toLowerCase().includes(filterCriteria.value.lieu.toLowerCase())
     )
   }
+
+  // 📊 Tri
   if (sortType.value === 'date') {
     return filtered.sort((a, b) => new Date(b.dateDebut) - new Date(a.dateDebut))
   }
@@ -96,9 +102,8 @@ const filteredEvenements = computed(() => {
     return filtered.sort((a, b) => {
       const heureA = new Date(a.dateDebut).getHours()
       const heureB = new Date(b.dateDebut).getHours()
-
       const isJour = (h) => h >= 8 && h < 19
-      return isJour(heureB) - isJour(heureA) // trie les événements de jour en haut
+      return isJour(heureB) - isJour(heureA)
     })
   }
 
@@ -110,7 +115,6 @@ const filteredEvenements = computed(() => {
     })
   }
 
-  // Tri par date
   return filtered.sort((a, b) => {
     const dateA = new Date(a.dateDebut)
     const dateB = new Date(b.dateDebut)

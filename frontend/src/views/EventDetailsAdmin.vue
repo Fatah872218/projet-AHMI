@@ -63,12 +63,19 @@
             }}
           </p>
         </div>
-        <div v-if="evenement.categories?.length">
-          <h3 class="font-semibold">Catégories</h3>
-          <ul class="list-disc list-inside">
-            <li v-for="cat in evenement.categories" :key="cat._id">{{ cat.nom }}</li>
-          </ul>
+        <div>
+          <h3 class="font-semibold mb-2">Catégories</h3>
+          <select
+            v-model="evenement.categories"
+            multiple
+            class="w-full border border-gray-300 rounded px-2 py-1"
+          >
+            <option v-for="cat in allCategories" :key="cat._id" :value="cat._id">
+              {{ cat.nom }}
+            </option>
+          </select>
         </div>
+
         <div v-if="evenement.lienSiteInternet">
           <h3 class="font-semibold">Site web</h3>
           <a :href="evenement.lienSiteInternet" target="_blank" rel="noopener" class="underline">
@@ -84,9 +91,20 @@
       </div>
 
       <!-- Boutons -->
-      <div class="flex justify-end">
-        <BaseButton variant="primary" @click="valider">Valider</BaseButton>
-        <BaseButton variant="ghost" @click="rejeter">Rejeter</BaseButton>
+      <div class="flex justify-between items-center gap-4 mt-8">
+        <!-- Bouton retour -->
+        <BaseButton variant="ghost" @click="router.push('/events')">
+          ← Retour à la liste des événements
+        </BaseButton>
+
+        <!-- Actions principales -->
+        <div class="flex gap-2">
+          <BaseButton variant="ghost" @click="rejeter">Rejeter</BaseButton>
+          <BaseButton variant="primary" @click="valider">Valider</BaseButton>
+          <BaseButton variant="secondary" class="ml-4" @click="sauvegarderCategories">
+            Enregistrer les catégories
+          </BaseButton>
+        </div>
       </div>
     </div>
   </MainLayout>
@@ -100,26 +118,44 @@ import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
 import BaseButton from '@/components/base/BaseButton.vue'
 import MainLayout from '@/layout/MainLayout.vue'
-import { updateEventStatus } from '@/services/eventService'
+import { updateEventStatus, getCategories, updateEvent } from '@/services/eventService'
+import { useToast } from 'vue-toastification'
 
 const valider = async () => {
-  await updateEventStatus(evenement.value._id, 'valide')
-  router.push('/events')
+  try {
+    await updateEventStatus(evenement.value._id, 'valide')
+    toast.success('Événement validé avec succès.')
+    router.push('/events')
+  } catch (e) {
+    toast.error('Erreur lors de la validation.')
+    console.error(e)
+  }
 }
 
 const rejeter = async () => {
-  await updateEventStatus(evenement.value._id, 'rejete')
-  router.push('/account')
+  try {
+    await updateEventStatus(evenement.value._id, 'rejete')
+    toast.success('Événement rejeté.')
+    router.push('/account')
+  } catch (e) {
+    toast.error('Erreur lors du rejet.')
+    console.error(e)
+  }
 }
 
 const route = useRoute()
 const router = useRouter()
+const allCategories = ref([])
+const toast = useToast()
 
 const evenement = ref(null)
 const loading = ref(true)
 const error = ref(null)
 
 onMounted(async () => {
+  const catRes = await getCategories()
+  allCategories.value = catRes.data.data || catRes.data
+
   try {
     const res = await axios.get(
       `${import.meta.env.VITE_BACKEND_URL}/api/evenements/${route.params.id}`
@@ -139,6 +175,17 @@ const formatDate = (d) => {
     return format(new Date(d), "dd MMMM yyyy 'à' HH:mm", { locale: fr })
   } catch {
     return d
+  }
+}
+const sauvegarderCategories = async () => {
+  try {
+    await updateEvent(evenement.value._id, {
+      categories: evenement.value.categories,
+    })
+    toast.success('Catégories mises à jour')
+  } catch (e) {
+    toast.error('Erreur lors de la mise à jour des catégories')
+    console.error(e)
   }
 }
 

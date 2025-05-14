@@ -4,6 +4,7 @@ import EventsList from '../views/EventList.vue'
 import EventDetails from '../views/EventDetails.vue'
 import AccountView from '@/views/AccountView.vue'
 import PartenaireEventForm from '@/views/PartenaireEventForm.vue'
+import { useUtilisateurStore } from '@/stores/utilisateur'
 
 const routes = [
   {
@@ -70,11 +71,28 @@ const routes = [
     component: () => import('@/views/EventDetailsAdmin.vue'),
     meta: { requiresAuth: true, role: 'admin' },
   },
+  {
+    path: '/admin/categories',
+    name: 'AdminCategories',
+    component: () => import('@/views/AdminCategories.vue'),
+    meta: { requiresAdmin: true },
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
+
+// router.beforeEach((to, from, next) => {
+//   const utilisateurStore = useUtilisateurStore()
+//   const user = utilisateurStore.utilisateur
+
+//   if (to.meta.requiresAdmin && user?.role !== 'admin') {
+//     return next('/account')
+//   }
+
+//   next()
+// })
 
 export default router

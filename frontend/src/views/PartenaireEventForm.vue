@@ -246,18 +246,25 @@ onMounted(async () => {
 
   try {
     const catRes = await getCategories()
-    categories.value = catRes.data.data || catRes.data
-  } catch (err) {
-    console.error('Erreur chargement des catégories :', err)
-  }
-
-  if (isEdit.value) {
-    try {
-      const evRes = await getEventById(route.params.id)
-      Object.assign(form.value, evRes.data.data || evRes.data)
-    } catch (err) {
-      console.error('Erreur chargement événement :', err)
+    if (Array.isArray(catRes.data)) {
+      categories.value = catRes.data
+      console.log('Catégories récupérées :', categories.value)
+    } else if (Array.isArray(catRes.data.data)) {
+      categories.value = catRes.data.data
+    } else {
+      console.warn('Format de catégories inattendu :', catRes.data)
     }
+
+    if (isEdit.value) {
+      try {
+        const evRes = await getEventById(route.params.id)
+        Object.assign(form.value, evRes.data.data || evRes.data)
+      } catch (err) {
+        console.error('Erreur chargement événement :', err)
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des catégories', error)
   }
 })
 

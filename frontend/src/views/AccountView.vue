@@ -1,9 +1,10 @@
+<!-- src/views/AccountView.vue -->
 <template>
   <MainLayout>
     <div class="max-w-4xl mx-auto py-8 px-4">
       <h1 class="text-h2 font-h2-bold-weight mb-6 text-ahmi-text-brand">Mon compte</h1>
 
-      <div class="flex justify-center mb-6">
+      <div class="flex justify-center mb-6 gap-4 flex-wrap">
         <BaseButton
           variant="primary"
           size="lg"
@@ -11,6 +12,16 @@
           @click="$router.push('/account/proposer-evenement')"
         >
           Proposer un événement
+        </BaseButton>
+
+        <BaseButton
+          v-if="isAdmin"
+          variant="secondary"
+          size="lg"
+          rounded
+          @click="$router.push('/admin/categories')"
+        >
+          Gérer les catégories
         </BaseButton>
       </div>
 
@@ -120,6 +131,8 @@ import MainLayout from '@/layout/MainLayout.vue'
 
 const toast = useToast()
 const { user } = useAuth()
+console.log('Utilisateur connecté :', user.value)
+
 const route = useRoute()
 
 const evenements = ref([])
@@ -128,6 +141,7 @@ const modalVisible = ref(false)
 const eventToDelete = ref(null)
 
 const isAdmin = computed(() => user.value?.role === 'admin')
+//const isAdmin = ref(true)
 
 const tabs = [
   { label: 'Tous', value: 'tous' },

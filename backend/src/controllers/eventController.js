@@ -1,5 +1,5 @@
 import EventService from "../services/eventService.js";
-
+import Categorie from "../models/modeleCategorie.js";
 import mongoose from "mongoose";
 
 class EventController {
@@ -50,6 +50,17 @@ class EventController {
   // Mettre à jour un événement (par créateur ou admin)
   updateEvent = async (req, res) => {
     try {
+      if (req.body.categories && Array.isArray(req.body.categories)) {
+        const existingCats = await Categorie.find({
+          _id: { $in: req.body.categories },
+        });
+
+        if (existingCats.length !== req.body.categories.length) {
+          return res
+            .status(400)
+            .json({ message: "Une ou plusieurs catégories sont invalides." });
+        }
+      }
       const event = await this.eventService.updateEvent(
         req.params.id,
         req.body
