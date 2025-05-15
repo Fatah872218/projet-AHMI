@@ -1,3 +1,4 @@
+<!-- src/components/base/SearchBarComponent.vue -->
 <template>
   <div class="w-full bg-ahmi-bg p-4">
     <form @submit.prevent="handleSubmit" class="flex flex-col md:flex-row items-center gap-4">

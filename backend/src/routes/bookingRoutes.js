@@ -1,8 +1,9 @@
 // routes/bookingRoutes.js
 import express from "express";
 import bookingController from "../controllers/bookingController.js";
+import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
 //import middlewareAuth from "../middlewares/middlewareAuth.js";
-//import checkRole from "../middlewares/middlewareCheckRole.js";
+import checkRole from "../middlewares/middlewareCheckRole.js";
 import {
   createBookingSchema,
   updateBookingSchema,
@@ -14,6 +15,7 @@ const router = express.Router();
 // Créer une réservation (user connecté)
 router.post(
   "/",
+  fakeAuthAdmin,
   //middlewareAuth,
   valider(createBookingSchema),
   bookingController.createBooking
@@ -22,6 +24,7 @@ router.post(
 // Voir une réservation (propriétaire ou admin)
 router.get(
   "/:id",
+  fakeAuthAdmin,
   //middlewareAuth,
   bookingController.getBookingById
 );
@@ -29,6 +32,7 @@ router.get(
 // Modifier sa réservation (user)
 router.put(
   "/:id",
+  fakeAuthAdmin,
   //middlewareAuth,
   valider(updateBookingSchema),
   bookingController.updateBooking
@@ -37,6 +41,7 @@ router.put(
 // Supprimer sa réservation
 router.delete(
   "/:id",
+  fakeAuthAdmin,
   //middlewareAuth,
   bookingController.deleteBooking
 );
@@ -44,6 +49,7 @@ router.delete(
 // Voir toutes ses réservations (user)
 router.get(
   "/utilisateur/mes-reservations",
+  fakeAuthAdmin,
   //middlewareAuth,
   bookingController.getMyBookings
 );
@@ -51,8 +57,9 @@ router.get(
 // Voir toutes les réservations (admin)
 router.get(
   "/",
+  fakeAuthAdmin,
   //middlewareAuth,
-  //checkRole("admin"),
+  checkRole("admin"),
   bookingController.getAllBookings
 );
 

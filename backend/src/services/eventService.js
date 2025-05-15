@@ -20,7 +20,19 @@ class EventService {
 
   async getEventById(id) {
     try {
-      return await this.eventRepository.findById(id);
+      const event = await this.eventRepository.findById(id);
+      if (!event) throw new Error("Événement introuvable");
+
+      const reservations = await this.bookingRepository.findByEventId(id);
+      const totalPlaces = reservations.reduce(
+        (acc, r) => acc + r.nombrePlaces,
+        0
+      );
+
+      const eventObject = event.toObject ? event.toObject() : event;
+      eventObject.placesReservees = totalPlaces;
+
+      return eventObject;
     } catch (err) {
       throw new Error(`Erreur récupération évènement : ${err.message}`);
     }

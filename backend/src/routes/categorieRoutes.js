@@ -1,5 +1,6 @@
 import express from "express";
 import Categorie from "../models/modeleCategorie.js";
+import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
 //import isAdmin from "../middlewares/isAdmin.js";
 //import authMiddleware from "../middlewares/middlewareAuth.js";
 
@@ -7,6 +8,7 @@ const router = express.Router();
 
 router.get(
   "/categories",
+  fakeAuthAdmin,
   /* authMiddleware, isAdmin, */ async (req, res) => {
     try {
       const categories = await Categorie.find();
@@ -20,6 +22,7 @@ router.get(
 // POST une nouvelle catégorie
 router.post(
   "/categories",
+  fakeAuthAdmin,
   /* authMiddleware, isAdmin, */ async (req, res) => {
     const { nom } = req.body;
     if (!nom || nom.trim() === "") {

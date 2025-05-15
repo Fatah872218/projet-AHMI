@@ -1,9 +1,13 @@
 <!-- src/views/EventDetailsAdmin.vue -->
 <template>
   <MainLayout>
-    <div v-if="loading" class="text-center py-8">Chargement de l'événement...</div>
-    <div v-else-if="error" class="text-red-600 text-center py-8">{{ error }}</div>
-    <div v-else class="max-w-4xl mx-auto bg-ahmi-bg p-6 rounded-2xl shadow-md">
+    <output v-if="loading" class="text-center py-8">Chargement de l'événement...</output>
+    <div v-else-if="error" class="text-red-600 text-center py-8" role="alert">{{ error }}</div>
+    <section
+      v-else
+      class="max-w-4xl mx-auto bg-ahmi-bg p-6 rounded-2xl shadow-md"
+      aria-label="Détails administrateur de l'événement"
+    >
       <!-- Image -->
       <img
         v-if="evenement.imageUrl"
@@ -18,10 +22,10 @@
         Du {{ formatDate(evenement.dateDebut) }} au {{ formatDate(evenement.dateFin) }}
       </p>
 
-      <!-- Description complète -->
+      <!-- Description -->
       <p class="text-body mb-6 whitespace-pre-line">{{ evenement.description }}</p>
 
-      <!-- Détails supplémentaires en grille -->
+      <!-- Détails -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <h3 class="font-semibold">Adresse</h3>
@@ -49,10 +53,6 @@
           <h3 class="font-semibold">Places disponibles</h3>
           <p>{{ evenement.placesDisponibles || '—' }} restantes</p>
         </div>
-        <!-- <div>
-          <h3 class="font-semibold">Prix</h3>
-          <p>{{ evenement.prix != null ? evenement.prix + ' €' : '—' }}</p>
-        </div> -->
         <div>
           <h3 class="font-semibold">Participation financière</h3>
           <p>
@@ -78,13 +78,23 @@
 
         <div v-if="evenement.lienSiteInternet">
           <h3 class="font-semibold">Site web</h3>
-          <a :href="evenement.lienSiteInternet" target="_blank" rel="noopener" class="underline">
+          <a
+            :href="evenement.lienSiteInternet"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline"
+          >
             {{ evenement.lienSiteInternet }}
           </a>
         </div>
         <div v-if="evenement.lienInstagram">
           <h3 class="font-semibold">Instagram</h3>
-          <a :href="evenement.lienInstagram" target="_blank" rel="noopener" class="underline">
+          <a
+            :href="evenement.lienInstagram"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline"
+          >
             {{ evenement.lienInstagram }}
           </a>
         </div>
@@ -92,16 +102,19 @@
 
       <!-- Boutons -->
       <div class="flex justify-between items-center gap-4 mt-8">
-        <!-- Bouton retour -->
         <BaseButton variant="ghost" @click="router.push('/events')">
           ← Retour à la liste des événements
         </BaseButton>
 
-        <!-- Actions principales -->
         <div class="flex gap-2">
-          <BaseButton variant="ghost" @click="rejeter">Rejeter</BaseButton>
-          <BaseButton variant="primary" @click="valider">Valider</BaseButton>
-          <BaseButton variant="secondary" class="ml-4" @click="sauvegarderCategories">
+          <BaseButton :disabled="loading" variant="ghost" @click="rejeter">Rejeter</BaseButton>
+          <BaseButton :disabled="loading" variant="primary" @click="valider">Valider</BaseButton>
+          <BaseButton
+            :disabled="loading"
+            variant="secondary"
+            class="ml-4"
+            @click="sauvegarderCategories"
+          >
             Enregistrer les catégories
           </BaseButton>
         </div>
@@ -121,9 +134,18 @@ import MainLayout from '@/layout/MainLayout.vue'
 import { updateEventStatus, getCategories, updateEvent } from '@/services/eventService'
 import { useToast } from 'vue-toastification'
 
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+
+const evenement = ref(null)
+const loading = ref(true)
+const error = ref(null)
+const allCategories = ref([])
+
 const valider = async () => {
   try {
-    await updateEventStatus(evenement.value._id, 'valide')
+    await updateEventStatus(evenement.value._id, 'approuve')
     toast.success('Événement validé avec succès.')
     router.push('/events')
   } catch (e) {
@@ -143,40 +165,6 @@ const rejeter = async () => {
   }
 }
 
-const route = useRoute()
-const router = useRouter()
-const allCategories = ref([])
-const toast = useToast()
-
-const evenement = ref(null)
-const loading = ref(true)
-const error = ref(null)
-
-onMounted(async () => {
-  const catRes = await getCategories()
-  allCategories.value = catRes.data.data || catRes.data
-
-  try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/evenements/${route.params.id}`
-    )
-    evenement.value = res.data.data || res.data
-  } catch (e) {
-    error.value = "Impossible de charger l'événement."
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
-})
-
-const formatDate = (d) => {
-  if (!d) return '—'
-  try {
-    return format(new Date(d), "dd MMMM yyyy 'à' HH:mm", { locale: fr })
-  } catch {
-    return d
-  }
-}
 const sauvegarderCategories = async () => {
   try {
     await updateEvent(evenement.value._id, {
@@ -189,9 +177,34 @@ const sauvegarderCategories = async () => {
   }
 }
 
-/*function reserve() {
-  router.push(`/evenement/${route.params.id}/reserver`)
-}*/
+const formatDate = (d) => {
+  if (!d) return '—'
+  try {
+    const parsed = new Date(d)
+    return isNaN(parsed)
+      ? d
+      : format(parsed, "dd MMMM yyyy 'à' HH:mm", { locale: fr })
+  } catch {
+    return d
+  }
+}
+
+onMounted(async () => {
+  try {
+    const catRes = await getCategories()
+    allCategories.value = catRes.data.data || catRes.data
+
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/api/evenements/${route.params.id}`
+    )
+    evenement.value = res.data.data || res.data
+  } catch (e) {
+    error.value = "Impossible de charger l'événement."
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>

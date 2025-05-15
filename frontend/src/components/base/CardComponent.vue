@@ -1,3 +1,4 @@
+<!-- src/components/base/CardComponent.vue -->
 <template>
   <div
     class="bg-ahmi-bg rounded-minimal shadow-md p-4 md:p-6 flex flex-col space-y-6 mb-4 h-full overflow-hidden"
@@ -88,10 +89,14 @@
     <!-- Bloc 5 - Actions -->
     <div class="flex items-center justify-between md:justify-end gap-4">
       <button
-        class="bg-ahmi-primary text-ahmi-text-invert font-openSans text-caption px-4 py-2 rounded-minimal"
+        :aria-disabled="!user"
+        v-if="!isExpired"
+        @click="handleReservation"
+        class="bg-ahmi-primary text-ahmi-text-invert px-6 py-2 rounded-xl font-semibold hover:bg-ahmi-secondary transition"
       >
         Réserver
       </button>
+
       <div class="flex items-center cursor-pointer" @click="goToEventDetails">
         <PlusIcon class="h-6 w-6 text-ahmi-secondary" />
         <span class="text-ahmi-text-secondary font-openSans text-caption ml-2"> Détails </span>
@@ -112,6 +117,8 @@ import {
 import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
 import { useRouter } from 'vue-router'
+import useAuth from '@/hooks/utiliserAuth'
+import { useToast } from 'vue-toastification'
 
 const props = defineProps({
   evenement: {
@@ -120,9 +127,10 @@ const props = defineProps({
   },
 })
 
-// ✅ Correction ici
 const evenement = props.evenement
 console.log('Événement reçu :', evenement)
+const { user } = useAuth()
+const toast = useToast()
 
 const router = useRouter()
 
@@ -145,6 +153,17 @@ const goToEventDetails = () => {
     router.push(`/evenement/${evenement._id}`)
   }
 }
+
+function handleReservation() {
+  if (!utilisateur.value) {
+    toast.warning('Vous devez être connecté pour réserver.')
+    return
+  }
+  router.push(`/evenement/${evenement._id}/reserver`)
+}
+const isExpired = computed(() => {
+  return new Date(evenement.dateFin) < new Date()
+})
 </script>
 
 <style scoped>

@@ -77,6 +77,18 @@ const routes = [
     component: () => import('@/views/AdminCategories.vue'),
     meta: { requiresAdmin: true },
   },
+  {
+    path: '/reservation/:id/modifier',
+    name: 'modifierReservation',
+    component: () => import('@/views/ReservationEdit.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/evenement/:id/reserver',
+    name: 'reservationCreate',
+    component: () => import('@/views/ReservationCreate.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
@@ -84,15 +96,19 @@ const router = createRouter({
   routes,
 })
 
-// router.beforeEach((to, from, next) => {
-//   const utilisateurStore = useUtilisateurStore()
-//   const user = utilisateurStore.utilisateur
+router.beforeEach((to, from, next) => {
+  const utilisateurStore = useUtilisateurStore()
+  const user = utilisateurStore.utilisateur
 
-//   if (to.meta.requiresAdmin && user?.role !== 'admin') {
-//     return next('/account')
-//   }
+  if (to.meta.requiresAdmin && user?.role !== 'admin') {
+    return next('/account')
+  }
 
-//   next()
-// })
+  if (to.meta.requiresAuth && !user) {
+    return next('/connexion') // ou la page de login
+  }
+
+  next()
+})
 
 export default router

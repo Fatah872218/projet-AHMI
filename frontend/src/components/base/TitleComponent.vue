@@ -1,3 +1,4 @@
+<!-- src/components/base/TitleComponent.vue -->
 <template>
   <div
     class="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-ahmi-bg space-y-4 md:space-y-0"

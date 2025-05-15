@@ -6,7 +6,8 @@ import {
   schemaConnexion,
   schemaMiseAJourUtilisateur,
 } from "../validations/schemasUtilisateur.js";
-//import checkRole from "../middlewares/middlewareCheckRole.js";
+import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
+import checkRole from "../middlewares/middlewareCheckRole.js";
 
 //import middlewareAuth from "../middlewares/middlewareAuth.js";
 
@@ -32,25 +33,33 @@ router.post("/auth/login", valider(schemaConnexion), (req, res) =>
 router.get("/utilisateur", (req, res) =>
  utilisateurController.obtenirProfil(req, res)
 );*/
-router.get("/profil", /* middlewareAuth,*/ utilisateurController.obtenirProfil);
+router.get(
+  "/profil",
+  fakeAuthAdmin,
+  /* middlewareAuth,*/ utilisateurController.obtenirProfil
+);
 /*  modifier utilisateur:
 router.patch("/:id", (req, res) => utilisateurController.update(req, res));*/
 router.put(
   "/profil",
+  fakeAuthAdmin,
   /* middlewareAuth,*/ utilisateurController.mettreAJourProfil
 );
 
 // supprimer un utilisateur:
 router.delete(
   "/:id",
+  fakeAuthAdmin,
   /* middlewareAuth,*/
   utilisateurController.supprimerUtilisateur
 );
 
 router.post(
   "/:id/roles",
+  fakeAuthAdmin,
   /* middlewareAuth,
-  checkRole("admin"),*/
+   */
+  checkRole("admin"),
   utilisateurController.assignerRole
 );
 

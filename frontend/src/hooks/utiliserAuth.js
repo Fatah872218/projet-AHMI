@@ -14,7 +14,7 @@ export default function useAuth() {
   }
 
   return {
-    user: utilisateur, // ✅ le bon objet réactif (avec rôle)
+    utilisateur, // ✅ le bon objet réactif (avec rôle)
     isAuthenticated,
     logout,
   }

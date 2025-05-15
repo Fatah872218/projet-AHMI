@@ -1,8 +1,12 @@
+<!-- src/views/EventDetails.vue -->
 <template>
   <MainLayout>
     <div v-if="loading" class="text-center py-8">Chargement de l'événement...</div>
     <div v-else-if="error" class="text-red-600 text-center py-8">{{ error }}</div>
-    <div v-else class="max-w-4xl mx-auto bg-ahmi-bg p-6 rounded-2xl shadow-md">
+    <div
+      v-else
+      class="max-w-4xl mx-auto bg-ahmi-bg p-6 rounded-2xl shadow-md aria-label='Détails de l'événement'"
+    >
       <!-- Image -->
       <img
         v-if="evenement.imageUrl"
@@ -64,13 +68,23 @@
         </div>
         <div v-if="evenement.lienSiteInternet">
           <h3 class="font-semibold">Site web</h3>
-          <a :href="evenement.lienSiteInternet" target="_blank" rel="noopener" class="underline">
+          <a
+            :href="evenement.lienSiteInternet"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline"
+          >
             {{ evenement.lienSiteInternet }}
           </a>
         </div>
         <div v-if="evenement.lienInstagram">
           <h3 class="font-semibold">Instagram</h3>
-          <a :href="evenement.lienInstagram" target="_blank" rel="noopener" class="underline">
+          <a
+            :href="evenement.lienInstagram"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline"
+          >
             {{ evenement.lienInstagram }}
           </a>
         </div>
@@ -79,7 +93,9 @@
       <!-- Bouton de réservation -->
       <div class="flex justify-end">
         <button
-          @click="reserve"
+          :aria-disabled="!user"
+          v-if="!isExpired"
+          @click="handleReservation"
           class="bg-ahmi-primary text-ahmi-text-invert px-6 py-2 rounded-xl font-semibold hover:bg-ahmi-secondary transition"
         >
           Réserver
@@ -96,9 +112,13 @@ import axios from 'axios'
 import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
 import MainLayout from '@/layout/MainLayout.vue'
+import useAuth from '@/hooks/utiliserAuth'
+import { useToast } from 'vue-toastification'
 
 const route = useRoute()
 const router = useRouter()
+const { user } = useAuth()
+const toast = useToast()
 
 const evenement = ref(null)
 const loading = ref(true)
@@ -121,7 +141,8 @@ onMounted(async () => {
 const formatDate = (d) => {
   if (!d) return '—'
   try {
-    return format(new Date(d), "dd MMMM yyyy 'à' HH:mm", { locale: fr })
+    const parsed = new Date(d)
+    return isNaN(parsed) ? d : format(parsed, "dd MMMM yyyy 'à' HH:mm", { locale: fr })
   } catch {
     return d
   }
@@ -130,6 +151,16 @@ const formatDate = (d) => {
 function reserve() {
   router.push(`/evenement/${route.params.id}/reserver`)
 }
+function handleReservation() {
+  if (!utilisateur.value) {
+    toast.warning('Vous devez être connecté pour réserver.')
+    return
+  }
+  router.push(`/evenement/${route.params.id}/reserver`)
+}
+const isExpired = computed(() => {
+  return new Date(evenement.dateFin) < new Date()
+})
 </script>
 
 <style scoped>

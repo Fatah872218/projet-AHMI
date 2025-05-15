@@ -238,10 +238,10 @@ function validate() {
 }
 
 onMounted(async () => {
-  if (user.value) {
-    form.value.organisateur.id = user.value.id
-    form.value.organisateur.nom = user.value.nom || user.value.name
-    form.value.organisateur.email = user.value.email
+  if (utilisateur.value) {
+    form.value.organisateur.id = utilisateur.value.id
+    form.value.organisateur.nom = utilisateur.value.nom || utilisateur.value.name
+    form.value.organisateur.email = utilisateur.value.email
   }
 
   try {
