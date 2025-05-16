@@ -7,9 +7,10 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const { createFakeUser } = require("./createUser.cjs");
 
+import { createRoleIfNotExists } from "../repositories/roleRepository.js"; // 🔥 Ajout important
+
 dotenv.config();
 
-// Fake data
 const fakeEvents = [
   {
     titre: "Atelier Cuisine Orientale",
@@ -22,10 +23,10 @@ const fakeEvents = [
       adresse: "15 rue des Saveurs, Marseille",
       coordonnees: { lat: 43.2965, lng: 5.3698 },
     },
-    createur: new mongoose.Types.ObjectId(), // à remplacer par un vrai ID partenaire
+    createur: new mongoose.Types.ObjectId(), // temporaire
     capaciteMax: 30,
     placesDisponibles: 30,
-    statut: "approuve",
+    statut: "valide",
     prix: 5,
     categories: [],
   },
@@ -42,7 +43,7 @@ const fakeEvents = [
     createur: new mongoose.Types.ObjectId(),
     capaciteMax: 50,
     placesDisponibles: 50,
-    statut: "approuve",
+    statut: "valide",
     prix: 0,
     categories: [],
   },
@@ -51,11 +52,16 @@ const fakeEvents = [
 const seed = async () => {
   try {
     await connectDB();
+
+    // 💡 Création des rôles si non existants
+    await createRoleIfNotExists("admin");
+    await createRoleIfNotExists("partenaire");
+    console.log("✅ Rôles injectés avec succès");
+
     const user = await createFakeUser();
     fakeEvents[0].createur = user._id;
-    console.log(`Utilisateur fictif créé : ${user.email}`);
 
-    await Evenement.deleteMany(); // vide les anciens événements
+    await Evenement.deleteMany();
     const result = await Evenement.insertMany(fakeEvents);
     console.log(`${result.length} événements ont été insérés.`);
     process.exit();

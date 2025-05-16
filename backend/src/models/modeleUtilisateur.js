@@ -24,7 +24,11 @@ const utilisateurSchema = new mongoose.Schema(
       newsletter: { type: Boolean },
       rappelEvenement: { type: Boolean },
     },
-    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }], // Relation plusieurs-à-plusieurs avec Roles
+    role: {
+      type: String,
+      enum: ["admin", "partenaire", "user"],
+      default: "user",
+    },
 
     isActif: { type: Boolean, default: false },
     activationCode: { type: String },

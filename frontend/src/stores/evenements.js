@@ -18,7 +18,7 @@ export const useEvenementsStore = defineStore('evenements', {
   },
 
   actions: {
-    // ✅ Récupération de la liste via service
+    // Récupération de la liste via service
     async fetchEvenements() {
       try {
         const response = await getAllEvents()

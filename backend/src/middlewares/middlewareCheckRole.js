@@ -3,15 +3,16 @@ import Utilisateur from "../models/modeleUtilisateur.js";
 const checkRole = (...rolesAutorises) => {
   return async (req, res, next) => {
     try {
+      // SIMULATION TEMPORAIRE
+      if (req.utilisateur?.role === "admin") {
+        return next();
+      }
+
       const utilisateur = await Utilisateur.findById(
         req.utilisateur.id
       ).populate("roles");
 
-      if (
-        !utilisateur ||
-        !utilisateur.roles ||
-        utilisateur.roles.length === 0
-      ) {
+      if (!utilisateur || !utilisateur.roles?.length) {
         return res.status(403).json({ message: "Aucun rôle assigné" });
       }
 
@@ -21,7 +22,6 @@ const checkRole = (...rolesAutorises) => {
         return next();
       }
 
-      // Vérifie si un rôle correspond aux rôles autorisés pour cette route
       const aUnRoleAutorise = nomsRoles.some((role) =>
         rolesAutorises.includes(role)
       );

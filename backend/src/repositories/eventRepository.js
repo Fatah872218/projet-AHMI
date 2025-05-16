@@ -28,7 +28,11 @@ class EventRepository {
 
   async update(id, updateData) {
     try {
-      return await Evenement.findByIdAndUpdate(id, updateData, { new: true });
+      const updated = await Evenement.findByIdAndUpdate(id, updateData, {
+        new: true,
+      });
+
+      return updated;
     } catch (err) {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);
     }

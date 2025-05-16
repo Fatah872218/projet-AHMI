@@ -19,6 +19,6 @@ export const getEventsByStatus = (status) => api.get(`/evenements/statut/${statu
 
 // Mettre à jour le statut d'un événement
 export const updateEventStatus = (id, status) =>
-  api.patch(`/api/evenements/${id}/statut`, { statut: status })
+  api.patch(`/evenements/${id}/statut`, { statut: status })
 
 export const deleteEvent = (id) => api.delete(`/evenements/${id}`)

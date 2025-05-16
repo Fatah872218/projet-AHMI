@@ -6,9 +6,10 @@ import {
   schemaConnexion,
   schemaMiseAJourUtilisateur,
 } from "../validations/schemasUtilisateur.js";
+import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
 import checkRole from "../middlewares/middlewareCheckRole.js";
 
-import middlewareAuth from "../middlewares/middlewareAuth.js";
+//import middlewareAuth from "../middlewares/middlewareAuth.js";
 
 const router = express.Router();
 
@@ -28,25 +29,36 @@ router.post("/auth/login", valider(schemaConnexion), (req, res) =>
   utilisateurController.connecter(req, res)
 );
 
-// Récupérer l'utilisateur connecté (protégé par authMiddleware)
-//router.get("/utilisateur", (req, res) =>
-// utilisateurController.obtenirProfil(req, res)
-//);
-router.get("/profil", middlewareAuth, utilisateurController.obtenirProfil);
-// modifier utilisateur:
-//router.patch("/:id", (req, res) => utilisateurController.update(req, res));
-router.put("/profil", middlewareAuth, utilisateurController.mettreAJourProfil);
+/* Récupérer l'utilisateur connecté (protégé par authMiddleware)
+router.get("/utilisateur", (req, res) =>
+ utilisateurController.obtenirProfil(req, res)
+);*/
+router.get(
+  "/profil",
+  fakeAuthAdmin,
+  /* middlewareAuth,*/ utilisateurController.obtenirProfil
+);
+/*  modifier utilisateur:
+router.patch("/:id", (req, res) => utilisateurController.update(req, res));*/
+router.put(
+  "/profil",
+  fakeAuthAdmin,
+  /* middlewareAuth,*/ utilisateurController.mettreAJourProfil
+);
 
 // supprimer un utilisateur:
 router.delete(
   "/:id",
-  middlewareAuth,
+  fakeAuthAdmin,
+  /* middlewareAuth,*/
   utilisateurController.supprimerUtilisateur
 );
 
 router.post(
   "/:id/roles",
-  middlewareAuth,
+  fakeAuthAdmin,
+  /* middlewareAuth,
+   */
   checkRole("admin"),
   utilisateurController.assignerRole
 );

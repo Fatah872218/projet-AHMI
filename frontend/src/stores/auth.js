@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
   const chargement = ref(false)
   const erreur = ref(null)
 
+  // 🔐 Authentification réelle
   const connexion = async (identifiants) => {
     chargement.value = true
     erreur.value = null
@@ -39,6 +40,9 @@ export const useAuthStore = defineStore('auth', () => {
     jeton.value = null
     utilisateur.value = null
     localStorage.removeItem('token')
+
+    const utilisateurStore = useUtilisateurStore()
+    utilisateurStore.setUtilisateur(null)
   }
 
   const motDePasseOublie = async (email) => {
@@ -47,6 +51,24 @@ export const useAuthStore = defineStore('auth', () => {
 
   const reinitialiser = async (tokenReset, nouveauMotDePasse) => {
     return await reinitialiserMotDePasse(tokenReset, nouveauMotDePasse)
+  }
+
+  // 🧪 Simulation pour démo/développement
+  const simulerConnexion = (role = 'admin') => {
+    utilisateur.value = {
+      id: '1234567890',
+      nom: 'Admin Démo',
+      email: 'admin@demo.fr',
+      role,
+    }
+
+    console.warn('🧪 Utilisateur simulé :', utilisateur.value)
+
+    const utilisateurStore = useUtilisateurStore()
+    utilisateurStore.setUtilisateur(utilisateur.value)
+
+    jeton.value = 'fake-token'
+    localStorage.setItem('token', jeton.value)
   }
 
   return {
@@ -58,5 +80,6 @@ export const useAuthStore = defineStore('auth', () => {
     deconnexion,
     motDePasseOublie,
     reinitialiser,
+    simulerConnexion, // ✅ bien exportée
   }
 })

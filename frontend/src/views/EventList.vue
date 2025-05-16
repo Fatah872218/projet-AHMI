@@ -1,3 +1,4 @@
+<!-- src/views/EventList.vue -->
 <template>
   <MainLayout>
     <!-- Barre de recherche -->
@@ -11,23 +12,37 @@
     />
 
     <!-- Indicateur de chargement -->
-    <div v-if="loading" class="text-center py-4">Chargement des événements...</div>
+    <div v-if="loading" class="text-center py-4" role="status">Chargement des événements...</div>
 
     <!-- Liste des événements -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 max-w-screen-xl mx-auto">
+    <section
+      v-else
+      aria-label="Liste des événements approuvés"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 md:px-8 max-w-screen-xl mx-auto"
+    >
       <CardComponent
         v-for="evenement in filteredEvenements"
         :key="evenement._id"
         :evenement="evenement"
       />
-    </div>
+    </section>
 
     <!-- Aucun événement -->
     <div
       v-if="!loading && filteredEvenements.length === 0"
       class="text-center mt-4 text-ahmi-text-secondary"
+      role="alert"
     >
       Aucun événement trouvé.
+    </div>
+
+    <!-- Résumé du nombre -->
+    <div
+      v-if="filteredEvenements.length > 0"
+      class="text-center text-sm text-gray-500 mt-2"
+      aria-live="polite"
+    >
+      {{ filteredEvenements.length }} évènement(s) trouvé(s)
     </div>
   </MainLayout>
 </template>
@@ -50,31 +65,37 @@ const sortAsc = ref(false)
 const filterCriteria = ref({ date: null, lieu: '' })
 const sortType = ref('date') // valeurs possibles : "date", "dayNight", "category"
 
+// Simulation dev (désactive si auth présente)
 const isDev = true
+
+// Liste brute des événements (filtrés selon statut si non admin)
 const evenements = computed(() =>
-  isDev ? store.allEvenements : store.allEvenements.filter((e) => e.statut === 'valide')
+  isDev ? store.allEvenements : store.allEvenements.filter((e) => e.statut === 'approuve')
 )
 
-// Récupération des événements
+// Récupération initiale
 onMounted(async () => {
   await store.fetchEvenements()
-  console.log('Évènements récupérés :', store.allEvenements)
   loading.value = false
 })
 
-// Liste filtrée
+// Liste finale filtrée et triée
 const filteredEvenements = computed(() => {
   let filtered = evenements.value
 
-  // Recherche
+  // Exclusion des événements passés
+  const now = new Date()
+  filtered = filtered.filter((e) => !e.dateFin || new Date(e.dateFin) > now)
+
+  // Recherche textuelle
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     filtered = filtered.filter((e) =>
-      [e.titre, e.description, e?.lieu?.adresse].some((field) => field?.toLowerCase().includes(q))
+      [e?.titre, e?.description, e?.lieu?.adresse].some((f) => (f || '').toLowerCase().includes(q))
     )
   }
 
-  // Filtrage par date
+  // Filtre par date
   if (filterCriteria.value.date) {
     filtered = filtered.filter(
       (e) =>
@@ -82,12 +103,14 @@ const filteredEvenements = computed(() => {
     )
   }
 
-  // Filtrage par lieu
+  // Filtre par lieu
   if (filterCriteria.value.lieu) {
     filtered = filtered.filter((e) =>
-      e.lieu?.adresse?.toLowerCase().includes(filterCriteria.value.lieu.toLowerCase())
+      e?.lieu?.adresse?.toLowerCase().includes(filterCriteria.value.lieu.toLowerCase())
     )
   }
+
+  // Tri dynamique
   if (sortType.value === 'date') {
     return filtered.sort((a, b) => new Date(b.dateDebut) - new Date(a.dateDebut))
   }
@@ -96,9 +119,8 @@ const filteredEvenements = computed(() => {
     return filtered.sort((a, b) => {
       const heureA = new Date(a.dateDebut).getHours()
       const heureB = new Date(b.dateDebut).getHours()
-
       const isJour = (h) => h >= 8 && h < 19
-      return isJour(heureB) - isJour(heureA) // trie les événements de jour en haut
+      return isJour(heureB) - isJour(heureA)
     })
   }
 
@@ -110,7 +132,6 @@ const filteredEvenements = computed(() => {
     })
   }
 
-  // Tri par date
   return filtered.sort((a, b) => {
     const dateA = new Date(a.dateDebut)
     const dateB = new Date(b.dateDebut)
@@ -118,7 +139,7 @@ const filteredEvenements = computed(() => {
   })
 })
 
-// Méthodes
+// Méthodes d’interaction
 function updateSearch(query) {
   searchQuery.value = query
 }
@@ -132,6 +153,7 @@ function openFilterModal() {
   const lieu = prompt('Filtrer par lieu :')
   filterCriteria.value = { date, lieu }
 }
+
 function changeSort(type) {
   sortType.value = type
 }
