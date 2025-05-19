@@ -2,8 +2,10 @@ import { fileURLToPath } from 'node:url'
 import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
 import viteConfig from './vite.config'
 
+const resolvedViteConfig = viteConfig({ mode: 'test' }) // Appeler la fonction avec un mode approprié
+
 export default mergeConfig(
-  viteConfig,
+  resolvedViteConfig,
   defineConfig({
     test: {
       environment: 'jsdom',

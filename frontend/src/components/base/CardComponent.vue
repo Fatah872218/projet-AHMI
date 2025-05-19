@@ -89,7 +89,7 @@
     <!-- Bloc 5 - Actions -->
     <div class="flex items-center justify-between md:justify-end gap-4">
       <button
-        :aria-disabled="!user"
+        :aria-disabled="!utilisateur"
         v-if="!isExpired"
         @click="handleReservation"
         class="bg-ahmi-primary text-ahmi-text-invert px-6 py-2 rounded-xl font-semibold hover:bg-ahmi-secondary transition"
@@ -117,8 +117,10 @@ import {
 import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
 import { useRouter } from 'vue-router'
-import useAuth from '@/hooks/utiliserAuth'
+//import useAuth from '@/hooks/utiliserAuth'
 import { useToast } from 'vue-toastification'
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   evenement: {
@@ -129,7 +131,8 @@ const props = defineProps({
 
 const evenement = props.evenement
 console.log('Événement reçu :', evenement)
-const { user } = useAuth()
+const authStore = useAuthStore()
+const utilisateur = computed(() => authStore.utilisateur)
 const toast = useToast()
 
 const router = useRouter()

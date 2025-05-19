@@ -101,6 +101,15 @@ class BookingRepository {
       );
     }
   }
+  async findByEventId(eventId) {
+    try {
+      return await Reservation.find({ evenement: eventId });
+    } catch (err) {
+      throw new Error(
+        `Erreur recherche réservations par événement : ${err.message}`
+      );
+    }
+  }
 }
 
 export default BookingRepository;

@@ -24,25 +24,30 @@ export const eventSchema = Joi.object({
   }),
 
   lieu: Joi.object({
-    nom: Joi.string().allow("").optional(), // plus requis
-    adresse: Joi.string().required().messages({
-      "string.empty": "L'adresse du lieu est requise",
+    rue: Joi.string().min(3).required().messages({
+      "string.base": "La rue doit être une chaîne de caractères",
+      "string.empty": "La rue est obligatoire",
+    }),
+    codePostal: Joi.string()
+      .pattern(/^\d{5}$/)
+      .required()
+      .messages({
+        "string.pattern.base": "Le code postal doit comporter 5 chiffres",
+        "any.required": "Le code postal est requis",
+      }),
+    commune: Joi.string().min(2).required().messages({
+      "string.empty": "La commune est requise",
     }),
     coordonnees: Joi.object({
-      lat: Joi.number().required(),
-      lng: Joi.number().required(),
-    }).required(),
+      lat: Joi.number().optional,
+      lng: Joi.number().optional,
+    }).optional(),
   }).required(),
 
   capaciteMax: Joi.number().integer().positive().required().messages({
     "number.base": "La capacité doit être un nombre",
     "number.positive": "La capacité doit être supérieure à zéro",
     "any.required": "La capacité est requise",
-  }),
-
-  prix: Joi.number().min(0).default(0).messages({
-    "number.base": "Le prix doit être un nombre",
-    "number.min": "Le prix ne peut pas être négatif",
   }),
 
   imageUrl: Joi.string().uri().optional().allow("").messages({
@@ -57,7 +62,10 @@ export const eventSchema = Joi.object({
     "string.uri": "Le lien Instagram doit être une URL valide",
   }),
 
-  participationFinanciere: Joi.string().allow("").optional(),
+  participationFinanciere: Joi.number().min(0).default(0).messages({
+    "number.base": "Le prix doit être un nombre",
+    "number.min": "Le prix ne peut pas être négatif",
+  }),
 
   categories: Joi.array().items(Joi.string().length(24)).optional().messages({
     "string.length": "L'identifiant de catégorie est invalide",
@@ -76,15 +84,17 @@ export const updateEventSchema = Joi.object({
   dateDebut: Joi.date().iso(),
   dateFin: Joi.date().iso(),
   lieu: Joi.object({
-    nom: Joi.string().allow(""),
-    adresse: Joi.string(),
+    rue: Joi.string().min(3),
+    codePostal: Joi.string().pattern(/^\d{5}$/),
+    commune: Joi.string().min(2),
     coordonnees: Joi.object({
       lat: Joi.number(),
       lng: Joi.number(),
-    }),
-  }),
+    }).optional(), //
+  }).optional(),
+
   capaciteMax: Joi.number().min(1),
-  prix: Joi.number().min(0),
+
   imageUrl: Joi.string().uri().allow(""),
   lienSiteInternet: Joi.string().uri().allow(""),
   lienInstagram: Joi.string().uri().allow(""),

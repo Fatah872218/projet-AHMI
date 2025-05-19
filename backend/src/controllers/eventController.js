@@ -1,6 +1,7 @@
 import EventService from "../services/eventService.js";
 import Categorie from "../models/modeleCategorie.js";
 import mongoose from "mongoose";
+import { updateEventSchema } from "../validations/eventSchemas.js";
 
 class EventController {
   constructor() {
@@ -13,7 +14,7 @@ class EventController {
       const event = await this.eventService.createEvent({
         ...req.body,
         statut: "en_attente", // Par défaut
-        createur: req.utilisateur?.id, // Si connecté
+        createur: req.utilisateur?.id || req.body.createur, // Si connecté
       });
       res.status(201).json(event);
     } catch (err) {
@@ -24,13 +25,21 @@ class EventController {
   // Récupérer tous les événements (validés ou tout selon les rôles)
   getAllEvents = async (req, res) => {
     try {
-      const { statut } = req.query;
+      console.log(" Requête reçue pour getAllEvents");
+      console.log(" Utilisateur connecté (req.utilisateur) :", req.utilisateur);
+
+      console.log("Utilisateur courant dans getAllEvents :", req.utilisateur);
+
       const filter =
-        req.utilisateur?.role === "admin" ? {} : { statut: "valide" };
+        req.utilisateur?.role === "admin" ? {} : { statut: "approuve" };
+
+      console.log(" Filtre utilisé pour getAllEvents :", filter);
 
       const events = await this.eventService.getAllEvents(filter);
+      console.log(" Événements retournés :", events.length);
       res.status(200).json(events);
     } catch (err) {
+      console.error(" Erreur dans getAllEvents :", err.message);
       res.status(500).json({ message: err.message });
     }
   };
@@ -50,6 +59,17 @@ class EventController {
   // Mettre à jour un événement (par créateur ou admin)
   updateEvent = async (req, res) => {
     try {
+      // Étape 1 : validation via Joi
+      const { error } = updateEventSchema.validate(req.body, {
+        abortEarly: false,
+      });
+      if (error) {
+        return res.status(400).json({
+          message: "Erreur de validation",
+          details: error.details.map((d) => d.message),
+        });
+      }
+      // Validation des catégories si présentes dans la bdd
       if (req.body.categories && Array.isArray(req.body.categories)) {
         const existingCats = await Categorie.find({
           _id: { $in: req.body.categories },
@@ -61,6 +81,7 @@ class EventController {
             .json({ message: "Une ou plusieurs catégories sont invalides." });
         }
       }
+
       const event = await this.eventService.updateEvent(
         req.params.id,
         req.body

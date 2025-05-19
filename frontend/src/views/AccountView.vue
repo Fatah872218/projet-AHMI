@@ -36,6 +36,11 @@ const tabs = [
 onMounted(async () => {
   try {
     const res = await getAllEvents()
+    console.log('Événements reçus :', res.data)
+
+    console.log(' Tous les événements récupérés :', res.data)
+    console.log('🙋 Utilisateur courant :', utilisateur.value)
+
     evenements.value = res.data.filter((e) => new Date(e.dateFin) > new Date())
 
     const res2 = await getMyBookings()
@@ -84,6 +89,7 @@ const confirmerSuppression = async () => {
     toast.success('Événement supprimé.')
   } catch (e) {
     toast.error('Échec de la suppression.')
+    console.error(e)
   } finally {
     modalVisible.value = false
   }
@@ -97,6 +103,7 @@ const changerStatut = async (id, nouveauStatut) => {
     toast.success(`Statut mis à jour.`)
   } catch (e) {
     toast.error('Erreur lors du changement de statut.')
+    console.error(e)
   }
 }
 
@@ -121,6 +128,7 @@ const modifierPlaces = async (booking, delta) => {
     toast.success('Réservation mise à jour')
   } catch (e) {
     toast.error('Erreur mise à jour réservation')
+    console.error(e)
   }
 }
 
@@ -131,8 +139,12 @@ const supprimerReservation = async (id) => {
     toast.success('Réservation supprimée.')
   } catch (e) {
     toast.error('Erreur suppression.')
+    console.error(e)
   }
 }
+//const estCreateur = (event) => {
+// return event.createur === utilisateur.value.id || event.createur?._id === utilisateur.value.id
+//}
 </script>
 
 <template>
@@ -206,7 +218,9 @@ const supprimerReservation = async (id) => {
                   >Gérer</BaseButton
                 >
               </template>
-              <template v-else-if="event.createur?.id === user.id">
+              <template v-else-if="String(event.createur) === utilisateur.value.id">
+                <!-- version robuste : <template v-else-if="estCreateur(event)">
+ -->
                 <BaseButton
                   size="sm"
                   variant="secondary"

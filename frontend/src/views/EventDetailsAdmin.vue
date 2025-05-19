@@ -15,15 +15,61 @@
         :alt="evenement.titre"
         class="w-full h-64 object-cover rounded-2xl mb-6"
       />
+      <div>
+        <label for="image" class="block font-semibold mb-1">image</label>
+        <input
+          id="image"
+          v-model="evenement.imageUrl"
+          type="img"
+          class="w-full border border-gray-300 rounded px-3 py-2"
+        />
+      </div>
 
       <!-- Titre & dates -->
       <h1 class="text-h1 font-h1-bold-family mb-2">{{ evenement.titre }}</h1>
-      <p class="text-caption text-ahmi-text-secondary mb-6">
-        Du {{ formatDate(evenement.dateDebut) }} au {{ formatDate(evenement.dateFin) }}
-      </p>
+      <div>
+        <label for="titre" class="block font-semibold mb-1">Titre</label>
+        <input
+          id="titre"
+          v-model="evenement.titre"
+          type="text"
+          class="w-full border border-gray-300 rounded px-3 py-2"
+        />
+      </div>
+      <!-- Dates -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block font-semibold mb-1">Date de début</label>
+          <input
+            type="datetime-local"
+            v-model="dateDebut"
+            class="w-full border border-gray-300 rounded px-3 py-2"
+          />
+          <p class="text-sm text-gray-500 mt-1">Actuelle : {{ formatDate(evenement.dateDebut) }}</p>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Date de fin</label>
+          <input
+            type="datetime-local"
+            v-model="dateFin"
+            class="w-full border border-gray-300 rounded px-3 py-2"
+          />
+          <p class="text-sm text-gray-500 mt-1">Actuelle : {{ formatDate(evenement.dateFin) }}</p>
+        </div>
+      </div>
 
       <!-- Description -->
       <p class="text-body mb-6 whitespace-pre-line">{{ evenement.description }}</p>
+      <div>
+        <label for="description" class="block font-semibold mb-1">Description</label>
+        <textarea
+          id="description"
+          v-model="evenement.description"
+          rows="4"
+          class="w-full border border-gray-300 rounded px-3 py-2"
+        ></textarea>
+      </div>
 
       <!-- Détails -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -31,6 +77,34 @@
           <h3 class="font-semibold">Adresse</h3>
           <p>{{ evenement.lieu?.adresse || 'Non renseignée' }}</p>
         </div>
+        <!-- Adresse structurée -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div>
+            <label class="block font-semibold mb-1">Rue</label>
+            <input
+              v-model="adresseRue"
+              type="text"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Code postal</label>
+            <input
+              v-model="codePostal"
+              type="text"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Commune</label>
+            <input
+              v-model="commune"
+              type="text"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+        </div>
+
         <div>
           <h3 class="font-semibold">Organisateur</h3>
           <p>
@@ -49,6 +123,16 @@
           <h3 class="font-semibold">Capacité maximum</h3>
           <p>{{ evenement.capaciteMax || '—' }} personnes</p>
         </div>
+        <div>
+          <label for="Capacité Max" class="block font-semibold mb-1">Capacité Max</label>
+          <input
+            id="capacité Max"
+            v-model="evenement.capaciteMax"
+            type="number"
+            class="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+
         <div>
           <h3 class="font-semibold">Places disponibles</h3>
           <p>{{ evenement.placesDisponibles || '—' }} restantes</p>
@@ -86,6 +170,15 @@
           >
             {{ evenement.lienSiteInternet }}
           </a>
+          <div>
+            <label for="Site Web" class="block font-semibold mb-1">Site Web</label>
+            <input
+              id="Site Web"
+              v-model="evenement.lienSiteInternet"
+              type="text"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
         </div>
         <div v-if="evenement.lienInstagram">
           <h3 class="font-semibold">Instagram</h3>
@@ -97,7 +190,25 @@
           >
             {{ evenement.lienInstagram }}
           </a>
+          <div>
+            <label for="Instagram" class="block font-semibold mb-1">instagram</label>
+            <input
+              id="instagram"
+              v-model="evenement.lienInstagram"
+              type="text"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
         </div>
+      </div>
+      <!-- Résumé après sauvegarde -->
+      <div v-if="modificationEffectuee" class="bg-green-100 text-green-800 p-4 rounded-lg mb-6">
+        Modifications enregistrées :
+        <ul class="list-disc list-inside text-sm mt-2">
+          <li><strong>Date de début :</strong> {{ formatDate(dateDebut) }}</li>
+          <li><strong>Date de fin :</strong> {{ formatDate(dateFin) }}</li>
+          <li><strong>Adresse :</strong> {{ adresseRue }}, {{ codePostal }} {{ commune }}</li>
+        </ul>
       </div>
 
       <!-- Boutons -->
@@ -117,9 +228,17 @@
           >
             Enregistrer les catégories
           </BaseButton>
+          <BaseButton
+            :disabled="loading"
+            variant="primary"
+            class="ml-4"
+            @click="sauvegarderModifications"
+          >
+            Enregistrer les modifications
+          </BaseButton>
         </div>
       </div>
-    </div>
+    </section>
   </MainLayout>
 </template>
 
@@ -142,6 +261,16 @@ const evenement = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const allCategories = ref([])
+
+const adresse = ref('')
+const adresseRue = ref('')
+const codePostal = ref('')
+const commune = ref('')
+
+const dateDebut = ref(null)
+const dateFin = ref(null)
+
+const modificationEffectuee = ref(false)
 
 const valider = async () => {
   try {
@@ -176,14 +305,49 @@ const sauvegarderCategories = async () => {
     console.error(e)
   }
 }
+const sauvegarderModifications = async () => {
+  try {
+    const lieu = {
+      rue: adresseRue.value,
+      codePostal: codePostal.value,
+      commune: commune.value,
+    }
+
+    const payload = {
+      titre: evenement.value.titre,
+      description: evenement.value.description,
+      imageUrl: evenement.value.imageUrl,
+      capaciteMax: evenement.value.capaciteMax,
+      participationFinanciere: evenement.value.participationFinanciere,
+      lienSiteInternet: evenement.value.lienSiteInternet,
+      lienInstagram: evenement.value.lienInstagram,
+      categories: evenement.value.categories,
+      dateDebut: dateDebut.value,
+      dateFin: dateFin.value,
+      lieu, // injecté séparément
+    }
+
+    await updateEvent(evenement.value._id, payload)
+
+    // Mettre à jour localement les champs affichés
+    evenement.value.dateDebut = dateDebut.value
+    evenement.value.dateFin = dateFin.value
+    evenement.value.lieu = lieu
+
+    modificationEffectuee.value = true
+
+    toast.success('Modifications enregistrées avec succès.')
+  } catch (e) {
+    toast.error("Erreur lors de l'enregistrement.")
+    console.error(e)
+  }
+}
 
 const formatDate = (d) => {
   if (!d) return '—'
   try {
     const parsed = new Date(d)
-    return isNaN(parsed)
-      ? d
-      : format(parsed, "dd MMMM yyyy 'à' HH:mm", { locale: fr })
+    return isNaN(parsed) ? d : format(parsed, "dd MMMM yyyy 'à' HH:mm", { locale: fr })
   } catch {
     return d
   }
@@ -197,7 +361,16 @@ onMounted(async () => {
     const res = await axios.get(
       `${import.meta.env.VITE_BACKEND_URL}/api/evenements/${route.params.id}`
     )
+    console.log('Réponse backend', res)
     evenement.value = res.data.data || res.data
+
+    adresse.value = evenement.value?.lieu?.adresse || ''
+    adresseRue.value = evenement.value?.lieu?.rue || ''
+    codePostal.value = evenement.value?.lieu?.codePostal || ''
+    commune.value = evenement.value?.lieu?.commune || ''
+
+    dateDebut.value = evenement.value?.dateDebut
+    dateFin.value = evenement.value?.dateFin
   } catch (e) {
     error.value = "Impossible de charger l'événement."
     console.error(e)

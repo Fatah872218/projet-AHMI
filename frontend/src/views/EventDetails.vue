@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { format } from 'date-fns'
@@ -117,7 +117,7 @@ import { useToast } from 'vue-toastification'
 
 const route = useRoute()
 const router = useRouter()
-const { user } = useAuth()
+const { utilisateur } = useAuth()
 const toast = useToast()
 
 const evenement = ref(null)
