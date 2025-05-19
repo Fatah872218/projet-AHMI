@@ -59,16 +59,14 @@ class EventController {
   // Mettre à jour un événement (par créateur ou admin)
   updateEvent = async (req, res) => {
     try {
+      console.log(" Requête reçue (updateEvent) :", req.body);
       // Étape 1 : validation via Joi
-      const { error } = updateEventSchema.validate(req.body, {
-        abortEarly: false,
-      });
+      const { error } = updateEventSchema.validate(req.body);
       if (error) {
-        return res.status(400).json({
-          message: "Erreur de validation",
-          details: error.details.map((d) => d.message),
-        });
+        console.error("Erreur de validation Joi:", error.details);
+        return res.status(400).json({ error: error.details[0].message });
       }
+
       // Validation des catégories si présentes dans la bdd
       if (req.body.categories && Array.isArray(req.body.categories)) {
         const existingCats = await Categorie.find({
@@ -82,13 +80,23 @@ class EventController {
         }
       }
 
-      const event = await this.eventService.updateEvent(
+      const updatedEvent = await this.eventService.updateEvent(
         req.params.id,
-        req.body
+        req.body,
+        { new: true, runValidators: true }
       );
-      res.status(200).json(event);
+
+      if (!updatedEvent) {
+        return res.status(404).json({ message: "Événement non trouvé." });
+      }
+
+      res.status(200).json(updatedEvent);
     } catch (err) {
-      res.status(400).json({ message: err.message });
+      console.error("❌ Erreur updateEvent :", err);
+      res.status(400).json({
+        message: "Erreur lors de la mise à jour de l'événement",
+        error: err.message,
+      });
     }
   };
 

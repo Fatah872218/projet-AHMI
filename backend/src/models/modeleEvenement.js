@@ -29,7 +29,10 @@ const evenementSchema = new Schema({
   },
   capaciteMax: { type: Number, required: true },
   placesDisponibles: { type: Number },
-  participationFinanciere: { type: Number, default: 0 },
+  participationFinanciere: {
+    type: Number,
+    default: 0,
+  },
 
   categories: [
     {
@@ -37,9 +40,10 @@ const evenementSchema = new Schema({
       ref: "Categorie",
     },
   ],
-  imageUrl: { type: String },
-  lienInstagram: { type: String },
-  lienSiteInternet: { type: String },
+  imageUrl: { type: String, default: "", required: false },
+
+  lienInstagram: { type: String, default: "", required: false },
+  lienSiteInternet: { type: String, default: "", required: false },
 
   dateCreation: { type: Date, default: Date.now },
   dateModeration: { type: Date },

@@ -50,15 +50,15 @@ export const eventSchema = Joi.object({
     "any.required": "La capacité est requise",
   }),
 
-  imageUrl: Joi.string().uri().optional().allow("").messages({
+  imageUrl: Joi.string().uri().optional().allow(null, "").messages({
     "string.uri": "L'URL de l'image est invalide",
   }),
 
-  lienSiteInternet: Joi.string().uri().optional().allow("").messages({
+  lienSiteInternet: Joi.string().uri().optional().allow(null, "").messages({
     "string.uri": "Le lien du site doit être une URL valide",
   }),
 
-  lienInstagram: Joi.string().uri().optional().allow("").messages({
+  lienInstagram: Joi.string().uri().optional().allow(null, "").messages({
     "string.uri": "Le lien Instagram doit être une URL valide",
   }),
 
@@ -98,7 +98,11 @@ export const updateEventSchema = Joi.object({
   imageUrl: Joi.string().uri().allow(""),
   lienSiteInternet: Joi.string().uri().allow(""),
   lienInstagram: Joi.string().uri().allow(""),
-  participationFinanciere: Joi.string().allow(""),
+  participationFinanciere: Joi.number().min(0).optional().messages({
+    "number.base": "Le prix doit être un nombre",
+    "number.min": "Le prix ne peut pas être négatif",
+  }),
+
   categories: Joi.array().items(Joi.string()),
   organisateur: Joi.object({
     nom: Joi.string(),
