@@ -134,7 +134,7 @@ import useAuth from '@/hooks/utiliserAuth.js'
 import { useToast } from 'vue-toastification'
 import { debounce } from 'lodash'
 
-const { user } = useAuth()
+const { utilisateur } = useAuth()
 const toast = useToast()
 
 const route = useRoute()
@@ -301,18 +301,19 @@ async function handleSubmit() {
         nom: form.value.organisateur.nom,
         email: form.value.organisateur.email,
       },
+      createur: form.value.organisateur.id, //
     }
 
     if (isEdit.value) {
       await updateEvent(route.params.id, payload)
     } else {
-      await createEvent(payload)
+      await createEvent(payload) //
       toast.success(
-        "✅ Merci ! Votre événement a été soumis avec succès et sera vérifié par l'équipe AHMI."
+        "Merci ! Votre événement a été soumis avec succès et sera vérifié par l'équipe AHMI."
       )
       router.push({
         path: '/account',
-        query: { success: isEdit.value ? 'modification' : 'creation' },
+        query: { success: 'creation' },
       })
     }
   } catch (e) {

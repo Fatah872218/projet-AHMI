@@ -23,9 +23,10 @@ class EventService {
       const event = await this.eventRepository.findById(id);
       if (!event) throw new Error("Événement introuvable");
 
+      // récupération des réservations liées à l'événement
       const reservations = await this.bookingRepository.findByEventId(id);
       const totalPlaces = reservations.reduce(
-        (acc, r) => acc + r.nombrePlaces,
+        (acc, r) => acc + (r.nombrePlaces || 1),
         0
       );
 
@@ -53,6 +54,7 @@ class EventService {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);
     }
   }
+
   async updateStatut(id, statut, moderateurId) {
     try {
       const updateFields = {
@@ -81,6 +83,7 @@ class EventService {
       throw new Error(`Erreur filtrage des évènements : ${err.message}`);
     }
   }
+
   async getPlacesRestantes(eventId) {
     try {
       const evenement = await this.eventRepository.findById(eventId);

@@ -14,7 +14,7 @@ import valider from "../middlewares/middlewareValidation.js";
 const router = express.Router();
 
 // Routes publiques (tout le monde)
-router.get("/", eventController.getAllEvents);
+router.get("/", fakeAuthAdmin, eventController.getAllEvents);
 router.get(
   "/:id/places-restantes",
   fakeAuthAdmin,
@@ -22,7 +22,7 @@ router.get(
   eventController.getPlacesRestantes
 );
 
-router.get("/:id", eventController.getEventById);
+router.get("/:id", fakeAuthAdmin, eventController.getEventById);
 
 // Routes protégées - partenaire ou admin
 router.post(

@@ -1,5 +1,5 @@
 <!-- src/components/FooterComponent.vue
-//  --> 
+//  -->
 <template>
   <footer class="bg-ahmi-bg text-ahmi-text-primary">
     <div class="container mx-auto px-4 py-8">
@@ -79,7 +79,7 @@
         </a>
       </div>
       <div class="mt-8 text-center">
-        <p class="text-caption">Site réalisé par Younel, Fatah et Elise | Copyright© 2025 AHMI</p>
+        <p class="text-caption">Site réalisé par Yolo2064, Fatah et Elise | Copyright© 2025 AHMI</p>
       </div>
     </div>
   </footer>

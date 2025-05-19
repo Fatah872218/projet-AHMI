@@ -53,22 +53,30 @@ export const useAuthStore = defineStore('auth', () => {
     return await reinitialiserMotDePasse(tokenReset, nouveauMotDePasse)
   }
 
-  // 🧪 Simulation pour démo/développement
+  //  Simulation pour démo/développement
   const simulerConnexion = (role = 'admin') => {
     utilisateur.value = {
-      id: '1234567890',
+      id: '64cd1f4c3b278baf7f0a6c93',
       nom: 'Admin Démo',
       email: 'admin@demo.fr',
       role,
     }
 
-    console.warn('🧪 Utilisateur simulé :', utilisateur.value)
+    const fakeToken = 'FAUX_TOKEN_TEST_DEV'
+    localStorage.setItem('token', fakeToken)
+    jeton.value = fakeToken
+
+    console.warn(' Utilisateur simulé :', utilisateur.value)
 
     const utilisateurStore = useUtilisateurStore()
     utilisateurStore.setUtilisateur(utilisateur.value)
 
     jeton.value = 'fake-token'
     localStorage.setItem('token', jeton.value)
+  }
+  // ✅ Simulation automatique si token local présent
+  if (!utilisateur.value && localStorage.getItem('token')) {
+    simulerConnexion('admin')
   }
 
   return {
