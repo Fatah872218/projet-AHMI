@@ -59,5 +59,11 @@ export const useEvenementsStore = defineStore('evenements', {
       this.errorEvent = null
       this.loadingEvent = false
     },
+    updateEvenementLocal(id, data) {
+      const index = this.evenements.findIndex((e) => e._id === id)
+      if (index !== -1) {
+        this.evenements[index] = { ...this.evenements[index], ...data }
+      }
+    },
   },
 })
