@@ -20,20 +20,18 @@
       aria-label="Liste des événements approuvés"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 md:px-8 max-w-screen-xl mx-auto"
     >
-      <CardComponent
-        v-for="evenement in filteredEvenements"
-        :key="evenement._id"
-        :evenement="evenement"
-      />
+      <div v-for="event in evenementsApprouves" :key="event._id">
+        <CardComponent :evenement="event" />
+      </div>
     </section>
 
     <!-- Aucun événement -->
     <div
-      v-if="!loading && filteredEvenements.length === 0"
+      v-if="filteredEvenements.length === 0"
       class="text-center mt-4 text-ahmi-text-secondary"
       role="alert"
     >
-      Aucun événement trouvé.
+      Aucun événement appouvé trouvé.
     </div>
 
     <!-- Résumé du nombre -->
@@ -48,12 +46,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { useEvenementsStore } from '@/stores/evenements'
 import CardComponent from '@/components/base/CardComponent.vue'
 import MainLayout from '@/layout/MainLayout.vue'
 import SearchBarComponent from '@/components/base/SearchBarComponent.vue'
 import TitleComponent from '@/components/base/TitleComponent.vue'
+import { eventBus } from '@/eventBus'
 
 // Store Pinia
 const store = useEvenementsStore()
@@ -76,8 +75,13 @@ const evenements = computed(() =>
 // Récupération initiale
 onMounted(async () => {
   await store.fetchEvenements()
+  eventBus.on('refresh-events', store.fetchEvenements)
   loading.value = false
 })
+
+const evenementsApprouves = computed(() =>
+  store.allEvenements.filter((event) => event.statut === 'approuve')
+)
 
 // Liste finale filtrée et triée
 const filteredEvenements = computed(() => {
@@ -157,4 +161,8 @@ function openFilterModal() {
 function changeSort(type) {
   sortType.value = type
 }
+
+onUnmounted(() => {
+  eventBus.off('refresh-events', store.fetchEvenements)
+})
 </script>

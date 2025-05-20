@@ -202,6 +202,7 @@ import MainLayout from '@/layout/MainLayout.vue'
 import { updateEventStatus, getCategories, updateEvent } from '@/services/eventService'
 import { formatDateForInput, toISOStringFromInput } from '@/utils/date'
 import { useEvenementsStore } from '@/stores/evenements'
+import { eventBus } from '@/eventBus'
 
 const route = useRoute()
 const router = useRouter()
@@ -223,7 +224,7 @@ const modificationEffectuee = ref(false)
 const valider = async () => {
   try {
     await updateEventStatus(evenement.value._id, 'approuve')
-    await store.fetchEvenements() // recharge tout après modification
+    eventBus.emit('refresh-events')
 
     toast.success('Événement validé.')
     router.push('/events')
@@ -236,6 +237,8 @@ const valider = async () => {
 const rejeter = async () => {
   try {
     await updateEventStatus(evenement.value._id, 'rejete')
+    eventBus.emit('refresh-events')
+
     toast.success('Événement rejeté.')
     router.push('/account')
   } catch (e) {
@@ -278,7 +281,7 @@ const sauvegarderModifications = async () => {
 
     await updateEvent(evenement.value._id, payload)
     store.updateEvenementLocal(evenement.value._id, payload)
-    await store.fetchEvenements() // recharge tout après modification
+    eventBus.emit('refresh-events')
 
     Object.assign(evenement.value, {
       dateDebut: dateDebut.value,

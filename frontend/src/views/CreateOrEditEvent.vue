@@ -352,6 +352,8 @@ const handleSubmit = async () => {
       toast.success('Événement mis à jour.')
     } else {
       await createEvent(payload)
+      await store.fetchEvenements()
+
       toast.success('Événement soumis avec succès !')
       router.push({ path: '/account', query: { success: 'creation' } })
     }
