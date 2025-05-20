@@ -4,6 +4,7 @@ import EventsList from '../views/EventList.vue'
 import EventDetails from '../views/EventDetails.vue'
 import AccountView from '@/views/AccountView.vue'
 import PartenaireEventForm from '@/views/PartenaireEventForm.vue'
+import CreateOrEditEvent from '@/views/CreateOrEditEvent.vue'
 import { useUtilisateurStore } from '@/stores/utilisateur'
 
 const routes = [
@@ -54,6 +55,18 @@ const routes = [
     component: () => import('@/views/PartenaireEventForm.vue'),
     props: true,
   },
+  // Routes creation et edition d'événements
+  {
+    path: '/event',
+    name: 'eventCreate',
+    component: () => import('@/views/CreateOrEditEvent.vue'),
+  },
+  {
+    path: '/event/:id',
+    name: 'eventEdit',
+    component: () => import('@/views/CreateOrEditEvent.vue'),
+    props: true,
+  },
   // MON COMPTE
   {
     path: '/account',
@@ -63,7 +76,7 @@ const routes = [
   {
     path: '/account/proposer-evenement',
     name: 'proposer-evenement',
-    component: PartenaireEventForm,
+    component: CreateOrEditEvent,
   },
   {
     path: '/evenement/:id/admin',

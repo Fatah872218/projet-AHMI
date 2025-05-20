@@ -28,7 +28,11 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <h3 class="font-semibold">Adresse</h3>
-          <p>{{ evenement.lieu?.adresse || 'Non renseignée' }}</p>
+          <p>
+            {{ evenement.lieu?.rue || '' }},
+            {{ evenement.lieu?.codePostal || '' }}
+            {{ evenement.lieu?.commune || '' }}
+          </p>
         </div>
         <div>
           <h3 class="font-semibold">Organisateur</h3>
@@ -93,7 +97,7 @@
       <!-- Bouton de réservation -->
       <div class="flex justify-end">
         <button
-          :aria-disabled="!user"
+          :aria-disabled="!utilisateur"
           v-if="!isExpired"
           @click="handleReservation"
           class="bg-ahmi-primary text-ahmi-text-invert px-6 py-2 rounded-xl font-semibold hover:bg-ahmi-secondary transition"
@@ -114,6 +118,8 @@ import fr from 'date-fns/locale/fr'
 import MainLayout from '@/layout/MainLayout.vue'
 import useAuth from '@/hooks/utiliserAuth'
 import { useToast } from 'vue-toastification'
+import { useEvenementsStore } from '@/stores/evenements'
+const store = useEvenementsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -126,10 +132,16 @@ const error = ref(null)
 
 onMounted(async () => {
   try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/evenements/${route.params.id}`
-    )
-    evenement.value = res.data.data || res.data
+    // si store vide, on recharge
+    if (store.allEvenements.length === 0) {
+      await store.fetchEvenements()
+    }
+    evenement.value = store.allEvenements.find((e) => e._id === route.params.id)
+
+    if (!evenement.value) {
+      await store.fetchEvenementById(route.params.id)
+      evenement.value = store.evenementActuel
+    }
   } catch (e) {
     error.value = "Impossible de charger l'événement."
     console.error(e)
@@ -159,7 +171,7 @@ function handleReservation() {
   router.push(`/evenement/${route.params.id}/reserver`)
 }
 const isExpired = computed(() => {
-  return new Date(evenement.dateFin) < new Date()
+  return new Date(evenement.value?.dateFin) < new Date()
 })
 </script>
 

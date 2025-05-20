@@ -1,126 +1,187 @@
+<!-- frontend/src/views/CreateOrEditEvent.vue -->
 <template>
   <MainLayout>
-    <BaseFormWrapper
-      :title="isEdit ? 'Modifier un événement' : 'Créer un événement'"
-      :loading="loading"
-      @submit="handleSubmit"
+    <form
+      @submit.prevent="handleSubmit"
+      class="max-w-5xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-6"
     >
-      <!-- Groupe : Informations essentielles -->
-      <BaseInput label="Titre*" v-model="form.titre" required :error="errors.titre" />
-      <BaseInput
-        label="Date de début*"
-        type="datetime-local"
-        v-model="form.dateDebut"
-        required
-        :error="errors.dateDebut"
-      />
-      <BaseInput
-        label="Date de fin*"
-        type="datetime-local"
-        v-model="form.dateFin"
-        required
-        :error="errors.dateFin"
-      />
-      <BaseInput
-        label="Capacité max*"
-        type="number"
-        v-model.number="form.capaciteMax"
-        min="1"
-        required
-        :error="errors.capaciteMax"
-      />
+      <h1 class="text-2xl font-bold mb-4">
+        {{ isEdit ? 'Modifier un événement' : 'Créer un événement' }}
+      </h1>
 
-      <!-- Groupe : Lieu structuré -->
-      <h2 class="mt-6 font-semibold text-lg">Lieu</h2>
-      <BaseInput label="Rue*" v-model="form.lieu.rue" required :error="errors.lieuRue" />
-      <BaseInput
-        label="Code postal*"
-        v-model="form.lieu.codePostal"
-        required
-        :error="errors.lieuCP"
-      />
-      <BaseInput
-        label="Commune*"
-        v-model="form.lieu.commune"
-        required
-        :error="errors.lieuCommune"
-      />
+      <!-- Informations essentielles -->
+      <div class="space-y-4">
+        <BaseInput
+          label="Titre"
+          v-model="form.titre"
+          required
+          :error="errors.titre"
+          :description="'Nom public de l’événement visible dans les listes.'"
+        />
 
-      <!-- Groupe : Champs complémentaires (déroulable) -->
-      <details class="mt-6">
-        <summary class="cursor-pointer font-semibold text-base text-blue-600 mb-2">
-          Champs complémentaires
+        <div>
+          <label for="event-description" class="text-sm font-medium text-ahmi-text-primary"
+            >Description <span class="text-red-600">*</span></label
+          >
+          <textarea
+            id="event-description"
+            v-model="form.description"
+            rows="6"
+            class="w-full border rounded px-4 py-2 text-base"
+            placeholder="Décrivez brièvement l’événement..."
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">Maximum 500 caractères</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BaseInput
+            label="Date de début"
+            type="datetime-local"
+            v-model="form.dateDebut"
+            required
+            :error="errors.dateDebut"
+            :description="'Date et heure de début de l’événement.'"
+          />
+          <BaseInput
+            label="Date de fin"
+            type="datetime-local"
+            v-model="form.dateFin"
+            required
+            :error="errors.dateFin"
+            :description="'Date et heure de fin (doit être postérieure).'"
+          />
+        </div>
+      </div>
+
+      <!-- Adresse -->
+      <fieldset class="border rounded p-4">
+        <legend class="text-lg font-semibold">
+          Lieu de l’événement <span class="text-red-600">*</span>
+        </legend>
+
+        <BaseInput
+          label="Rue"
+          v-model="form.lieu.rue"
+          required
+          :error="errors.rue"
+          :description="'Ex: 10 rue Victor Hugo'"
+        />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BaseInput
+            label="Code postal"
+            v-model="form.lieu.codePostal"
+            required
+            :error="errors.codePostal"
+          />
+          <BaseInput label="Commune" v-model="form.lieu.commune" required :error="errors.commune" />
+        </div>
+      </fieldset>
+
+      <!-- Options supplémentaires dépliables -->
+      <details class="border rounded p-4">
+        <summary class="cursor-pointer font-semibold text-ahmi-text-primary mb-2">
+          Options complémentaires
         </summary>
         <div class="mt-4 space-y-4">
           <BaseInput
-            label="Description"
-            v-model="form.description"
-            type="textarea"
-            :error="errors.description"
+            label="Capacité maximum"
+            type="number"
+            v-model.number="form.capaciteMax"
+            required
+            :error="errors.capaciteMax"
+            :description="'Nombre maximal de participants.'"
           />
           <BaseInput
-            label="Prix (€)"
+            label="Participation financière (€)"
+            type="number"
+            v-model.number="form.participationFinanciere"
+            :description="'Montant demandé aux participants.'"
+          />
+          <BaseInput
+            label="Prix"
             type="number"
             v-model.number="form.prix"
             min="0"
-            step="0.01"
             :error="errors.prix"
           />
           <BaseInput
-            label="Participation financière"
-            v-model="form.participationFinanciere"
-            :error="errors.participationFinanciere"
-          />
-          <BaseInput
-            label="URL de l'image"
+            label="Image (URL)"
             type="url"
             v-model="form.imageUrl"
-            :error="errors.imageUrl"
+            :description="'Coller un lien direct (format jpg/png). Sinon, téléversez une image ci-dessous.'"
           />
+          <!-- ✅ Uploader une image localement si pas d’URL -->
+          <div v-if="!form.imageUrl" class="mt-2">
+            <label for="event-image-upload" class="text-sm font-medium text-ahmi-text-primary">
+              Ou téléversez une image :
+            </label>
+            <input
+              id="event-image-upload"
+              type="file"
+              accept="image/*"
+              @change="handleImageUpload"
+              class="mt-1 text-sm text-gray-600"
+            />
+
+            <!-- ✅ Aperçu de l'image si choisie -->
+            <div v-if="form.imageFile" class="mt-2">
+              <img
+                :src="imagePreview"
+                alt="Aperçu"
+                class="max-w-xs max-h-40 rounded shadow border"
+              />
+            </div>
+          </div>
           <BaseInput
-            label="Site web"
+            label="Site Web"
+            :description="'Vous pouvez coller une URL avec ou sans https://'"
             type="url"
             v-model="form.lienSiteInternet"
             :error="errors.lienSiteInternet"
           />
           <BaseInput
-            label="Instagram"
+            label="Lien Instagram"
             type="url"
             v-model="form.lienInstagram"
+            :description="'Vous pouvez coller une URL avec ou sans https://'"
             :error="errors.lienInstagram"
           />
         </div>
       </details>
 
       <!-- Catégories -->
-      <div class="mt-6">
-        <label class="block text-sm font-medium text-ahmi-text-primary mb-1">Catégories</label>
+      <div>
+        <label for="event-categories" class="block text-sm font-medium mb-1">
+          Catégories <span class="text-red-600">*</span>
+        </label>
         <select
+          id="event-categories"
           v-model="form.categories"
           multiple
-          class="block w-full rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary"
+          class="w-full border rounded px-4 py-2"
         >
-          <option v-for="cat in categories" :key="cat._id" :value="cat._id">{{ cat.nom }}</option>
+          <option v-for="cat in categories" :key="cat._id" :value="cat._id">
+            {{ cat.nom }}
+          </option>
         </select>
-        <p v-if="categories.length === 0" class="text-sm text-red-600 mt-2">
-          Aucune catégorie disponible. Vérifiez votre connexion ou contactez l'équipe.
-        </p>
       </div>
 
       <!-- Organisateur -->
-      <h2 class="mt-6 font-semibold text-lg">Organisateur</h2>
-      <BaseInput label="Nom" v-model="form.organisateur.nom" />
-      <BaseInput label="Email" type="email" v-model="form.organisateur.email" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <BaseInput label="Nom de l'organisateur" v-model="form.organisateur.nom" disabled />
+        <BaseInput label="Email" type="email" v-model="form.organisateur.email" disabled />
+      </div>
 
       <!-- Boutons -->
-      <template #submitLabel>{{ isEdit ? 'Modifier' : 'Créer' }}</template>
-      <template #footer>
-        <BaseButton variant="ghost" size="md" @click="resetForm"> Annuler </BaseButton>
-      </template>
-    </BaseFormWrapper>
+      <div class="flex justify-between items-center mt-8">
+        <BaseButton variant="ghost" @click="resetForm">Annuler</BaseButton>
+        <BaseButton type="submit" variant="primary" :loading="loading">
+          {{ isEdit ? 'Modifier' : 'Créer' }}
+        </BaseButton>
+      </div>
+    </form>
   </MainLayout>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -128,7 +189,6 @@ import { useToast } from 'vue-toastification'
 import { debounce } from 'lodash'
 
 import MainLayout from '@/layout/MainLayout.vue'
-import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { getEventById, getCategories, createEvent, updateEvent } from '@/services/eventService'
@@ -142,7 +202,6 @@ const router = useRouter()
 const isEdit = ref(!!route.params.id)
 const loading = ref(false)
 const categories = ref([])
-
 const imagePreview = ref('')
 
 const form = ref({
@@ -154,6 +213,7 @@ const form = ref({
   prix: null,
   participationFinanciere: '',
   imageUrl: '',
+  imageFile: null,
   lienSiteInternet: '',
   lienInstagram: '',
   categories: [],
@@ -182,7 +242,7 @@ const errors = reactive({
   participationFinanciere: '',
 })
 
-function validate() {
+const validate = () => {
   Object.keys(errors).forEach((key) => (errors[key] = ''))
   let ok = true
 
@@ -240,14 +300,13 @@ function validate() {
   ;['imageUrl', 'lienSiteInternet', 'lienInstagram'].forEach((field) => {
     let val = form.value[field]
     if (val) {
-      // Ajouter https:// si manquant
       if (!/^https?:\/\//i.test(val)) {
         val = 'https://' + val
       }
 
       try {
         new URL(val)
-        form.value[field] = val // Réinjecte la version corrigée
+        form.value[field] = val
       } catch {
         errors[field] = 'URL invalide.'
         ok = false
@@ -258,7 +317,7 @@ function validate() {
   return ok
 }
 
-async function handleSubmit() {
+const handleSubmit = async () => {
   if (!validate()) return
   loading.value = true
 
@@ -308,7 +367,7 @@ const resetForm = () => {
   router.push(isEdit.value ? '/events' : '/account')
 }
 
-async function geolocaliserAdresse() {
+const geolocaliserAdresse = async () => {
   const adresse = `${form.value.lieu.rue}, ${form.value.lieu.codePostal} ${form.value.lieu.commune}`
   if (!adresse || adresse.length < 5) return
 
@@ -332,22 +391,6 @@ watch(
   debouncedGeoloc
 )
 
-onMounted(async () => {
-  if (utilisateur.value) {
-    form.value.organisateur.nom = utilisateur.value.nom || utilisateur.value.name || ''
-    form.value.organisateur.email = utilisateur.value.email || ''
-    form.value.organisateur.id = utilisateur.value.id
-  }
-
-  const catRes = await getCategories()
-  categories.value = catRes.data.data || catRes.data
-
-  if (isEdit.value) {
-    const evRes = await getEventById(route.params.id)
-    Object.assign(form.value, evRes.data.data || evRes.data)
-  }
-})
-
 const handleImageUpload = (e) => {
   const file = e.target.files[0]
   if (!file) return
@@ -365,6 +408,22 @@ const handleImageUpload = (e) => {
   }
   reader.readAsDataURL(file)
 }
+
+onMounted(async () => {
+  if (utilisateur.value) {
+    form.value.organisateur.nom = utilisateur.value.nom || utilisateur.value.name || ''
+    form.value.organisateur.email = utilisateur.value.email || ''
+    form.value.organisateur.id = utilisateur.value.id
+  }
+
+  const catRes = await getCategories()
+  categories.value = catRes.data.data || catRes.data
+
+  if (isEdit.value) {
+    const evRes = await getEventById(route.params.id)
+    Object.assign(form.value, evRes.data.data || evRes.data)
+  }
+})
 </script>
 
 <style scoped>

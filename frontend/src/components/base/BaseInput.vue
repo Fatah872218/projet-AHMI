@@ -1,10 +1,11 @@
-<!-- src/components/base/BaseInput.vue -->
+<!-- frontend/src/components/base/BaseInput.vue -->
 <template>
   <div class="w-full md:w-1/2 mb-sm">
     <label
       class="block text-sm md:text-base font-medium text-ahmi-text-primary font-montserrat mb-xs"
     >
       {{ label }}
+      <span v-if="required" class="text-red-600">*</span>
     </label>
 
     <div class="relative">
@@ -38,6 +39,12 @@
       </template>
     </div>
 
+    <!-- ✅ Affichage de la description -->
+    <p v-if="description" class="text-xs text-gray-500 mt-1 font-openSans">
+      {{ description }}
+    </p>
+
+    <!-- Erreur -->
     <p v-if="error" class="text-caption text-ahmi-error mt-xs font-openSans">
       {{ error }}
     </p>
@@ -59,6 +66,7 @@ const props = defineProps({
     default: false,
   },
   error: String,
+  description: String, // ✅ ajout ici
 })
 
 const emit = defineEmits(['update:modelValue'])

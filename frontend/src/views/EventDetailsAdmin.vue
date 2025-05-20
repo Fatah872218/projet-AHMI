@@ -1,4 +1,4 @@
-<!-- src/views/EventDetailsAdmin.vue -->
+<!-- frontend/src/views/EventDetailsAdmin.vue -->
 <template>
   <MainLayout>
     <output v-if="loading" class="text-center py-8">Chargement de l'événement...</output>
@@ -223,6 +223,8 @@ const modificationEffectuee = ref(false)
 const valider = async () => {
   try {
     await updateEventStatus(evenement.value._id, 'approuve')
+    await store.fetchEvenements() // recharge tout après modification
+
     toast.success('Événement validé.')
     router.push('/events')
   } catch (e) {
@@ -276,6 +278,7 @@ const sauvegarderModifications = async () => {
 
     await updateEvent(evenement.value._id, payload)
     store.updateEvenementLocal(evenement.value._id, payload)
+    await store.fetchEvenements() // recharge tout après modification
 
     Object.assign(evenement.value, {
       dateDebut: dateDebut.value,
