@@ -1,5 +1,13 @@
 import EventRepository from "../repositories/eventRepository.js";
 import BookingRepository from "../repositories/bookingRepository.js";
+import sanitizeHtml from "sanitize-html";
+
+const cleanString = (input) => {
+  return sanitizeHtml(input, {
+    allowedTags: ["b", "i", "em", "strong", "u"],
+    allowedAttributes: {},
+  });
+};
 
 class EventService {
   constructor() {
@@ -9,8 +17,27 @@ class EventService {
 
   async createEvent(data) {
     try {
-      return await this.eventRepository.create({
+      const cleanedData = {
         ...data,
+        titre: cleanString(data.titre),
+        description: cleanString(data.description),
+        lienSiteInternet: cleanString(data.lienSiteInternet),
+        lienInstagram: cleanString(data.lienInstagram),
+        imageUrl: cleanString(data.imageUrl),
+        participationFinanciere: cleanString(data.participationFinanciere),
+        lieu: {
+          ...data.lieu,
+          rue: cleanString(data.lieu?.rue),
+          codePostal: cleanString(data.lieu?.codePostal),
+          commune: cleanString(data.lieu?.commune),
+        },
+        organisateur: {
+          nom: cleanString(data.organisateur?.nom),
+          email: cleanString(data.organisateur?.email),
+        },
+      };
+      return await this.eventRepository.create({
+        ...cleanedData,
         statut: "en_attente",
       });
     } catch (err) {

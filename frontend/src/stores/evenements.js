@@ -60,9 +60,9 @@ export const useEvenementsStore = defineStore('evenements', {
       this.loadingEvent = false
     },
     updateEvenementLocal(id, data) {
-      const index = this.evenements.findIndex((e) => e._id === id)
+      const index = this.allEvenements.findIndex((e) => e._id === id)
       if (index !== -1) {
-        this.evenements[index] = { ...this.evenements[index], ...data }
+        this.allEvenements[index] = { ...this.allEvenements[index], ...data }
       }
     },
   },

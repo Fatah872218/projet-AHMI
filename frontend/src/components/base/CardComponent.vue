@@ -47,7 +47,11 @@
       <div class="flex items-center">
         <LocationMarkerIcon class="h-6 w-6 text-ahmi-secondary" />
         <span class="ml-2 text-caption text-ahmi-text-primary">
-          {{ evenement?.lieu?.adresse || 'Adresse non renseignée' }}
+          {{
+            [evenement?.lieu?.rue, evenement?.lieu?.codePostal, evenement?.lieu?.commune]
+              .filter(Boolean)
+              .join(', ') || 'Adresse non renseignée'
+          }}
         </span>
       </div>
 

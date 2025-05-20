@@ -12,7 +12,7 @@
     />
 
     <!-- Indicateur de chargement -->
-    <div v-if="loading" class="text-center py-4" role="status">Chargement des événements...</div>
+    <output v-if="loading" class="text-center py-4">Chargement des événements...</output>
 
     <!-- Liste des événements -->
     <section
