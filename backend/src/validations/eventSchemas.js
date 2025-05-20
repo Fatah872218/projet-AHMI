@@ -39,8 +39,8 @@ export const eventSchema = Joi.object({
       "string.empty": "La commune est requise",
     }),
     coordonnees: Joi.object({
-      lat: Joi.number().optional,
-      lng: Joi.number().optional,
+      lat: Joi.number().optional(),
+      lng: Joi.number().optional(),
     }).optional(),
   }).required(),
 
@@ -62,10 +62,14 @@ export const eventSchema = Joi.object({
     "string.uri": "Le lien Instagram doit être une URL valide",
   }),
 
-  participationFinanciere: Joi.number().min(0).default(0).messages({
-    "number.base": "Le prix doit être un nombre",
-    "number.min": "Le prix ne peut pas être négatif",
-  }),
+  participationFinanciere: Joi.number()
+    .min(0)
+    .optional()
+    .allow(null, "")
+    .messages({
+      "number.base": "Le prix doit être un nombre",
+      "number.min": "Le prix ne peut pas être négatif",
+    }),
 
   categories: Joi.array().items(Joi.string().length(24)).optional().messages({
     "string.length": "L'identifiant de catégorie est invalide",

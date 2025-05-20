@@ -193,6 +193,8 @@ import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { getEventById, getCategories, createEvent, updateEvent } from '@/services/eventService'
 import useAuth from '@/hooks/utiliserAuth.js'
+import { useEvenementsStore } from '@/stores/evenements'
+const store = useEvenementsStore()
 
 const { utilisateur } = useAuth()
 const toast = useToast()
@@ -328,8 +330,10 @@ const handleSubmit = async () => {
       dateDebut: form.value.dateDebut,
       dateFin: form.value.dateFin,
       capaciteMax: form.value.capaciteMax,
-      prix: form.value.prix,
-      participationFinanciere: form.value.participationFinanciere,
+      prix: form.value.prix != null ? Number(form.value.prix) : null, // Convertir en nombre
+
+      participationFinanciere: Number(form.value.participationFinanciere) || 0, // Convertir en nombre
+
       imageUrl: form.value.imageUrl,
       lienSiteInternet: form.value.lienSiteInternet,
       lienInstagram: form.value.lienInstagram,
@@ -351,13 +355,54 @@ const handleSubmit = async () => {
       await updateEvent(route.params.id, payload)
       toast.success('Événement mis à jour.')
     } else {
+      console.log('Payload envoyé :', payload)
+
       await createEvent(payload)
+      //await store.fetchEvenements()
+
       toast.success('Événement soumis avec succès !')
       router.push({ path: '/account', query: { success: 'creation' } })
     }
   } catch (e) {
-    console.error(e)
-    toast.error('Échec de la soumission.')
+    console.error('Erreur catched dans handleSubmit :', e)
+
+    const data = e.response?.data
+    const champMap = {
+      titre: 'titre',
+      description: 'description',
+      dateDebut: 'dateDebut',
+      dateFin: 'dateFin',
+      capaciteMax: 'capaciteMax',
+      prix: 'prix',
+      participationFinanciere: 'participationFinanciere',
+      lienSiteInternet: 'lienSiteInternet',
+      lienInstagram: 'lienInstagram',
+      imageUrl: 'imageUrl',
+      'lieu.rue': 'lieuRue',
+      'lieu.codePostal': 'lieuCP',
+      'lieu.commune': 'lieuCommune',
+      'lieu.coordonnees.lat': 'lieuRue', // ou champ caché, selon affichage
+      'lieu.coordonnees.lng': 'lieuRue',
+    }
+
+    if (data?.erreurs && Array.isArray(data.erreurs)) {
+      // Réinitialiser les erreurs actuelles
+      Object.keys(errors).forEach((key) => (errors[key] = ''))
+
+      data.erreurs.forEach((msg) => {
+        const entry = Object.entries(champMap).find(([joiKey]) => msg.includes(joiKey))
+        if (entry) {
+          const [, champVue] = entry
+          errors[champVue] = msg
+        }
+      })
+
+      toast.error('Veuillez corriger les erreurs dans le formulaire.')
+    } else {
+      toast.error(data?.message || 'Échec de la soumission.')
+    }
+
+    loading.value = false
   } finally {
     loading.value = false
   }

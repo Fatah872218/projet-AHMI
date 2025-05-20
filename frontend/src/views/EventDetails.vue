@@ -132,16 +132,8 @@ const error = ref(null)
 
 onMounted(async () => {
   try {
-    // si store vide, on recharge
-    if (store.allEvenements.length === 0) {
-      await store.fetchEvenements()
-    }
-    evenement.value = store.allEvenements.find((e) => e._id === route.params.id)
-
-    if (!evenement.value) {
-      await store.fetchEvenementById(route.params.id)
-      evenement.value = store.evenementActuel
-    }
+    await store.fetchEvenementById(route.params.id)
+    evenement.value = store.evenementActuel
   } catch (e) {
     error.value = "Impossible de charger l'événement."
     console.error(e)
