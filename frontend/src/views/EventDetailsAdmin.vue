@@ -202,7 +202,7 @@ import MainLayout from '@/layout/MainLayout.vue'
 import { updateEventStatus, getCategories, updateEvent } from '@/services/eventService'
 import { formatDateForInput, toISOStringFromInput } from '@/utils/date'
 import { useEvenementsStore } from '@/stores/evenements'
-import { eventBus } from '@/eventBus'
+import { eventBus } from '../utils/eventBus.js'
 
 const route = useRoute()
 const router = useRouter()

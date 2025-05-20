@@ -16,6 +16,7 @@
         @input="emit('update:modelValue', $event.target.value)"
         :required="required"
         :aria-invalid="!!error"
+        :aria-describedby="error ? `${label}-error` : null"
       />
 
       <!-- Si c'est un mot de passe, rendre l’icône cliquable -->
@@ -45,7 +46,7 @@
     </p>
 
     <!-- Erreur -->
-    <p v-if="error" class="text-caption text-ahmi-error mt-xs font-openSans">
+    <p v-if="error" :id="`${label}-error`" class="text-caption text-red-600 mt-1 font-openSans">
       {{ error }}
     </p>
   </div>

@@ -20,7 +20,8 @@
       aria-label="Liste des événements approuvés"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 md:px-8 max-w-screen-xl mx-auto"
     >
-      <div v-for="event in evenementsApprouves" :key="event._id">
+      +
+      <div v-for="event in filteredEvenements" :key="event._id">
         <CardComponent :evenement="event" />
       </div>
     </section>
@@ -52,7 +53,7 @@ import CardComponent from '@/components/base/CardComponent.vue'
 import MainLayout from '@/layout/MainLayout.vue'
 import SearchBarComponent from '@/components/base/SearchBarComponent.vue'
 import TitleComponent from '@/components/base/TitleComponent.vue'
-import { eventBus } from '@/eventBus'
+import { eventBus } from '@/utils/eventBus.js'
 
 // Store Pinia
 const store = useEvenementsStore()
@@ -79,17 +80,11 @@ onMounted(async () => {
   loading.value = false
 })
 
-const evenementsApprouves = computed(() =>
-  store.allEvenements.filter((event) => event.statut === 'approuve')
-)
+const evenementsApprouves = computed(() => store.evenementsApprouvesValides)
 
 // Liste finale filtrée et triée
 const filteredEvenements = computed(() => {
-  let filtered = evenements.value
-
-  // Exclusion des événements passés
-  const now = new Date()
-  filtered = filtered.filter((e) => !e.dateFin || new Date(e.dateFin) > now)
+  let filtered = evenementsApprouves.value
 
   // Recherche textuelle
   if (searchQuery.value) {

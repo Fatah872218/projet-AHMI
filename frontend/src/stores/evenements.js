@@ -15,6 +15,12 @@ export const useEvenementsStore = defineStore('evenements', {
     evenementActuel: (state) => state.currentEvent,
     isLoadingEvent: (state) => state.loadingEvent,
     errorEventMsg: (state) => state.errorEvent,
+    evenementsApprouvesValides: (state) => {
+      const now = new Date()
+      return state.allEvenements.filter(
+        (event) => event.statut === 'approuve' && (!event.dateFin || new Date(event.dateFin) > now)
+      )
+    },
   },
 
   actions: {
