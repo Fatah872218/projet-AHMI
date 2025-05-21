@@ -44,10 +44,9 @@ export const eventSchema = Joi.object({
     }).optional(),
   }).required(),
 
-  capaciteMax: Joi.number().integer().positive().required().messages({
+  capaciteMax: Joi.number().integer().positive().optional().messages({
     "number.base": "La capacité doit être un nombre",
     "number.positive": "La capacité doit être supérieure à zéro",
-    "any.required": "La capacité est requise",
   }),
 
   imageUrl: Joi.string().uri().optional().allow(null, "").messages({
@@ -97,7 +96,7 @@ export const updateEventSchema = Joi.object({
     }).optional(), //
   }).optional(),
 
-  capaciteMax: Joi.number().min(1),
+  capaciteMax: Joi.number().min(1).optional(),
 
   imageUrl: Joi.string().uri().allow(""),
   lienSiteInternet: Joi.string().uri().allow(""),

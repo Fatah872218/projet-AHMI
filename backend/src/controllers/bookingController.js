@@ -23,10 +23,9 @@ class BookingController {
 
       const booking = await this.bookingService.createBooking({
         ...req.body,
-        //utilisateur: mockUserId, // req.utilisateur.id,
+        utilisateur: "680b84c085ba22a4ef354661", // req.utilisateur.id,
       });
       console.log("controller booking", booking);
-      "controller booking", booking;
       res.status(200).json(booking);
     } catch (err) {
       res.status(400).json({ message: err.message });

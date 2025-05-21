@@ -1,3 +1,4 @@
+<!-- frontend/src/views/ReservationCreate.vue -->
 <template>
   <MainLayout>
     <div class="max-w-2xl mx-auto py-10 px-4">

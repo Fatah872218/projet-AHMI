@@ -69,6 +69,14 @@ class EventRepository {
       throw new Error(`Erreur changement de statut : ${err.message}`);
     }
   }
+
+  async incrementPlacesReservees(eventId, delta) {
+    return await Evenement.findByIdAndUpdate(
+      eventId,
+      { $inc: { placesReservees: delta } },
+      { new: true }
+    );
+  }
 }
 
 export default EventRepository;

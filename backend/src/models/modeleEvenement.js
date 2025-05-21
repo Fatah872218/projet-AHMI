@@ -27,8 +27,8 @@ const evenementSchema = new Schema({
     enum: ["en_attente", "approuve", "rejete", "annule"],
     default: "en_attente",
   },
-  capaciteMax: { type: Number, required: true },
-  placesDisponibles: { type: Number },
+  capaciteMax: { type: Number },
+  placesReservees: { type: Number },
   participationFinanciere: {
     type: Number,
     default: 0,

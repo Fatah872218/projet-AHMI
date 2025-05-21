@@ -11,6 +11,7 @@ import BaseConfirmDialog from '@/components/base/BaseConfirmDialog.vue'
 import CounterInput from '@/components/base/CounterInput.vue'
 import { getAllEvents, deleteEvent, updateEventStatus } from '@/services/eventService'
 import { getMyBookings, updateBooking, deleteBooking } from '@/services/bookingService'
+import { eventBus } from '@/utils/eventBus'
 
 const { utilisateur } = useAuth()
 console.log('Utilisateur connecté :', utilisateur.value)
@@ -49,6 +50,7 @@ onMounted(async () => {
     toast.error('Erreur lors du chargement des données.')
     console.error(e)
   }
+  console.clear()
 })
 
 const evenementsFiltres = computed(() => {
@@ -124,7 +126,20 @@ const modifierPlaces = async (booking, delta) => {
   try {
     await updateBooking(booking._id, { nombrePlaces: nouvelleValeur })
     booking.nombrePlaces = nouvelleValeur
-    booking.evenement.placesReservees = dejaReserve - booking.nombrePlaces + nouvelleValeur
+    // Recharge les réservations pour forcer la synchro
+    const res2 = await getMyBookings()
+    reservations.value = res2.data
+    // Met à jour l'événement correspondant
+    const i = evenements.value.findIndex((e) => e._id === booking.evenement._id)
+    if (i !== -1) {
+      evenements.value[i].placesReservees = dejaReserve - booking.nombrePlaces + nouvelleValeur
+    }
+    // Met à jour l'événement dans la liste des réservations
+    const j = reservations.value.findIndex((r) => r._id === booking._id)
+    if (j !== -1) {
+      reservations.value[j].evenement.placesReservees =
+        dejaReserve - booking.nombrePlaces + nouvelleValeur
+    }
     toast.success('Réservation mise à jour')
   } catch (e) {
     toast.error('Erreur mise à jour réservation')
@@ -142,6 +157,12 @@ const supprimerReservation = async (id) => {
     console.error(e)
   }
 }
+const calculPlacesRestantes = (event) => {
+  if (!event || !event.capaciteMax) return 'illimité'
+  const reservees = event.placesReservees || 0
+  return event.capaciteMax - reservees
+}
+
 //const estCreateur = (event) => {
 // return event.createur === utilisateur.value.id || event.createur?._id === utilisateur.value.id
 //}
@@ -210,6 +231,14 @@ const supprimerReservation = async (id) => {
                 :class="getBadgeClass(event.statut)"
                 >{{ event.statut }}</span
               >
+              <p class="text-sm text-gray-600">
+                Réservées : {{ event.placesReservees || 0 }} /
+                {{ event.capaciteMax || 'illimité' }} —
+                <span class="text-green-600">
+                  {{ calculPlacesRestantes(event) }} place(s) restante(s)
+                </span>
+              </p>
+
               <template v-if="isAdmin">
                 <BaseButton
                   size="sm"
@@ -242,16 +271,27 @@ const supprimerReservation = async (id) => {
       <!-- Réservations -->
       <div v-else-if="activeTab === 'reservations' && reservations.length">
         <ul class="space-y-3">
-          <li v-for="r in reservations" :key="r._id" class="bg-white rounded shadow p-4">
+          <li
+            v-for="r in reservations"
+            :key="r._id"
+            v-if="r.evenement"
+            class="bg-white rounded shadow p-4"
+          >
             <div class="flex justify-between items-center mb-2">
               <div>
                 <strong>{{ r.evenement?.titre }}</strong>
                 <p class="text-sm text-gray-600">{{ r.evenement?.lieu?.adresse }}</p>
                 <p class="text-sm text-gray-500">{{ formatDate(r.evenement?.dateDebut) }}</p>
                 <p class="text-sm text-gray-500">
-                  Réservées : {{ r.nombrePlaces }} / {{ r.evenement.capaciteMax }} —
+                  Réservées : {{ r.nombrePlaces }} / {{ r.evenement.capaciteMax || 'illimité' }} —
                   <span class="text-green-600">
-                    {{ r.evenement.placesDisponibles }} places restantes
+                    {{ calculPlacesRestantes(r.evenement) }} place(s) restante(s)
+                  </span>
+                  <span
+                    v-if="calculPlacesRestantes(r.evenement) <= 0 && r.evenement.capaciteMax"
+                    class="text-red-600"
+                  >
+                    (Complet)
                   </span>
                 </p>
               </div>
