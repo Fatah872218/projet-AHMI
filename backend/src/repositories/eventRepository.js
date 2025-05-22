@@ -20,7 +20,10 @@ class EventRepository {
 
   async getEventById(id) {
     try {
-      return await Evenement.findById(id);
+      return await Evenement.findById(id)
+        .populate("categories") // ➕ récupère les noms
+        .populate("createur")
+        .populate("moderateur");
     } catch (err) {
       throw new Error(`Erreur récupération évènement par ID : ${err.message}`);
     }
@@ -48,7 +51,9 @@ class EventRepository {
 
   async findAll(filter = {}) {
     try {
-      return await Evenement.find(filter).populate("createur");
+      return await Evenement.find(filter)
+        .populate("createur")
+        .populate("categories");
     } catch (err) {
       throw new Error(`Erreur récupération évènements : ${err.message}`);
     }
@@ -68,6 +73,14 @@ class EventRepository {
     } catch (err) {
       throw new Error(`Erreur changement de statut : ${err.message}`);
     }
+  }
+
+  async incrementPlacesReservees(eventId, delta) {
+    return await Evenement.findByIdAndUpdate(
+      eventId,
+      { $inc: { placesReservees: delta } },
+      { new: true }
+    );
   }
 }
 

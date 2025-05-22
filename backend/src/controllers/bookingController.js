@@ -23,10 +23,9 @@ class BookingController {
 
       const booking = await this.bookingService.createBooking({
         ...req.body,
-        //utilisateur: mockUserId, // req.utilisateur.id,
+        utilisateur: "680b84c085ba22a4ef354661", // req.utilisateur.id,
       });
       console.log("controller booking", booking);
-      "controller booking", booking;
       res.status(200).json(booking);
     } catch (err) {
       res.status(400).json({ message: err.message });
@@ -55,8 +54,9 @@ class BookingController {
 
   getMyBookings = async (req, res) => {
     try {
-      const userId = "680b84c085ba22a4ef354661";
-      const bookings = await this.bookingService.getBookingsByUser(userId);
+      //const userId = "680b84c085ba22a4ef354661";
+      //const bookings = await this.bookingService.getBookingsByUser(userId);
+      const bookings = await this.bookingService.getAllBookings(); // simulate admin
       res.status(200).json(bookings);
     } catch (err) {
       res.status(500).json({ message: err.message });

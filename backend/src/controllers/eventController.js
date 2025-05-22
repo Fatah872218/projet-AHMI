@@ -144,6 +144,15 @@ class EventController {
       res.status(400).json({ message: err.message });
     }
   };
+  getPlacesReservees = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const total = await bookingRepository.countReservationsByEvent(id);
+      res.json({ total });
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
+  };
 }
 
 export default new EventController();

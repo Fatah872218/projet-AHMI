@@ -11,6 +11,7 @@ import BaseConfirmDialog from '@/components/base/BaseConfirmDialog.vue'
 import CounterInput from '@/components/base/CounterInput.vue'
 import { getAllEvents, deleteEvent, updateEventStatus } from '@/services/eventService'
 import { getMyBookings, updateBooking, deleteBooking } from '@/services/bookingService'
+import { eventBus } from '@/utils/eventBus'
 
 const { utilisateur } = useAuth()
 console.log('Utilisateur connecté :', utilisateur.value)
@@ -44,11 +45,13 @@ onMounted(async () => {
     evenements.value = res.data.filter((e) => new Date(e.dateFin) > new Date())
 
     const res2 = await getMyBookings()
+    console.log('Réservations récupérées :', res2.data)
     reservations.value = res2.data
   } catch (e) {
     toast.error('Erreur lors du chargement des données.')
     console.error(e)
   }
+  console.clear()
 })
 
 const evenementsFiltres = computed(() => {
@@ -124,7 +127,20 @@ const modifierPlaces = async (booking, delta) => {
   try {
     await updateBooking(booking._id, { nombrePlaces: nouvelleValeur })
     booking.nombrePlaces = nouvelleValeur
-    booking.evenement.placesReservees = dejaReserve - booking.nombrePlaces + nouvelleValeur
+    // Recharge les réservations pour forcer la synchro
+    const res2 = await getMyBookings()
+    reservations.value = res2.data
+    // Met à jour l'événement correspondant
+    const i = evenements.value.findIndex((e) => e._id === booking.evenement._id)
+    if (i !== -1) {
+      evenements.value[i].placesReservees = dejaReserve - booking.nombrePlaces + nouvelleValeur
+    }
+    // Met à jour l'événement dans la liste des réservations
+    const j = reservations.value.findIndex((r) => r._id === booking._id)
+    if (j !== -1) {
+      reservations.value[j].evenement.placesReservees =
+        dejaReserve - booking.nombrePlaces + nouvelleValeur
+    }
     toast.success('Réservation mise à jour')
   } catch (e) {
     toast.error('Erreur mise à jour réservation')
@@ -142,6 +158,37 @@ const supprimerReservation = async (id) => {
     console.error(e)
   }
 }
+const calculPlacesRestantes = (event) => {
+  if (!event || !event.capaciteMax) return 'illimité'
+  const reservees = event.placesReservees || 0
+  return event.capaciteMax - reservees
+}
+const estPasse = (evenement) => {
+  return new Date(evenement.dateDebut) < new Date()
+}
+const reservationsRegroupees = computed(() => {
+  const map = new Map()
+
+  for (const r of reservations.value) {
+    if (!r.evenement || !r.utilisateur) continue
+
+    const key = `${r.utilisateur._id}_${r.evenement._id}`
+    if (!map.has(key)) {
+      map.set(key, {
+        ...r,
+        nombrePlaces: r.nombrePlaces,
+        idsReservations: [r._id],
+      })
+    } else {
+      const exist = map.get(key)
+      exist.nombrePlaces += r.nombrePlaces
+      exist.idsReservations.push(r._id)
+    }
+  }
+
+  return Array.from(map.values())
+})
+
 //const estCreateur = (event) => {
 // return event.createur === utilisateur.value.id || event.createur?._id === utilisateur.value.id
 //}
@@ -210,6 +257,14 @@ const supprimerReservation = async (id) => {
                 :class="getBadgeClass(event.statut)"
                 >{{ event.statut }}</span
               >
+              <p class="text-sm text-gray-600">
+                Réservées : {{ event.placesReservees || 0 }} /
+                {{ event.capaciteMax || 'illimité' }} —
+                <span class="text-green-600">
+                  {{ calculPlacesRestantes(event) }} place(s) restante(s)
+                </span>
+              </p>
+
               <template v-if="isAdmin">
                 <BaseButton
                   size="sm"
@@ -242,28 +297,69 @@ const supprimerReservation = async (id) => {
       <!-- Réservations -->
       <div v-else-if="activeTab === 'reservations' && reservations.length">
         <ul class="space-y-3">
-          <li v-for="r in reservations" :key="r._id" class="bg-white rounded shadow p-4">
+          <li
+            v-for="r in reservationsRegroupees.filter((r) => r?.evenement)"
+            :key="r.idsReservations.join('_')"
+            :class="[
+              'rounded shadow p-4 border-l-4',
+              estPasse(r.evenement)
+                ? 'bg-gray-200 opacity-70 cursor-not-allowed border-gray-400'
+                : 'bg-white border-ahmi-primary',
+            ]"
+          >
             <div class="flex justify-between items-center mb-2">
               <div>
-                <strong>{{ r.evenement?.titre }}</strong>
+                <router-link
+                  :to="`/evenement/${r.evenement?._id}`"
+                  class="text-ahmi-primary font-semibold hover:underline"
+                >
+                  {{ r.evenement?.titre }}
+                </router-link>
+
                 <p class="text-sm text-gray-600">{{ r.evenement?.lieu?.adresse }}</p>
                 <p class="text-sm text-gray-500">{{ formatDate(r.evenement?.dateDebut) }}</p>
-                <p class="text-sm text-gray-500">
-                  Réservées : {{ r.nombrePlaces }} / {{ r.evenement.capaciteMax }} —
+                <p class="text-sm text-gray-600">
+                  Réservées : {{ r.nombrePlaces }} / {{ r.evenement?.capaciteMax || 'illimité' }} —
                   <span class="text-green-600">
-                    {{ r.evenement.placesDisponibles }} places restantes
+                    {{ calculPlacesRestantes(r.evenement) }} place(s) restante(s)
+                  </span>
+                  <span
+                    v-if="calculPlacesRestantes(r.evenement) <= 0 && r.evenement.capaciteMax"
+                    class="text-red-600"
+                  >
+                    (Complet)
                   </span>
                 </p>
+                <p class="text-sm text-gray-500">
+                  Utilisateur : <strong>{{ r.utilisateur?.nom || 'inconnu' }}</strong> ({{
+                    r.utilisateur?.email
+                  }})
+                </p>
+                <p class="text-xs text-gray-400">Réservation ID : {{ r._id }}</p>
               </div>
               <div class="flex items-center gap-3">
-                <CounterInput v-model="r.nombrePlaces" :max="r.evenement.capaciteMax" />
-                <BaseButton variant="secondary" size="sm" @click="modifierPlaces(r, 1)"
-                  >+</BaseButton
+                <CounterInput
+                  v-model="r.nombrePlaces"
+                  :max="r.evenement.capaciteMax"
+                  :disabled="estPasse(r.evenement)"
+                />
+
+                <BaseButton
+                  variant="primary"
+                  size="sm"
+                  class="flex items-center gap-1"
+                  :disabled="estPasse(r.evenement)"
+                  @click="modifierPlaces({ ...r, _id: r.idsReservations[0] }, 0, true)"
                 >
-                <BaseButton variant="secondary" size="sm" @click="modifierPlaces(r, -1)"
-                  >−</BaseButton
+                  Valider
+                </BaseButton>
+
+                <BaseButton
+                  variant="ghost"
+                  size="sm"
+                  @click="supprimerReservation(r._id)"
+                  :disabled="estPasse(r.evenement)"
                 >
-                <BaseButton variant="ghost" size="sm" @click="supprimerReservation(r._id)">
                   🗑️
                 </BaseButton>
               </div>

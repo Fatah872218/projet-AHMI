@@ -133,13 +133,17 @@ const error = ref(null)
 onMounted(async () => {
   try {
     await store.fetchEvenementById(route.params.id)
-    evenement.value = store.evenementActuel
+    const eventActuel = store.evenementActuel
+    evenement.value = JSON.parse(JSON.stringify(eventActuel)) // copie propre
   } catch (e) {
     error.value = "Impossible de charger l'événement."
     console.error(e)
   } finally {
     loading.value = false
   }
+})
+watch(evenement, (val) => {
+  console.log('🔍 Catégories dans EventDetails.vue :', val?.categories)
 })
 
 const formatDate = (d) => {

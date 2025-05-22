@@ -10,6 +10,7 @@ class BookingService {
   }
 
   async createBooking(data) {
+    console.log(data);
     try {
       /* const existingBooking =
         await this.bookingRepository.findBookingByUserAndEvent(
@@ -53,11 +54,17 @@ class BookingService {
         data
       );
       console.log("nouvelle Reservation", nouvelleReservation);
-
+      // Met à jour le champ placesReservees sur l'événement
+      await this.eventRepository.incrementPlacesReservees(
+        data.evenement,
+        data.nombrePlaces
+      );
       return {
         nouvelleReservation,
         alerte,
         doublonDetecte,
+        placesRestantes,
+        nbReservations,
       };
       //return nouvelleReservation;
     } catch (error) {
@@ -75,12 +82,37 @@ class BookingService {
   }
 
   async updateBooking(id, data) {
+    const booking = await this.bookingRepository.findById(id);
+    if (!booking) throw new Error("Réservation introuvable");
+
+    const ancienneQuantite = booking.nombrePlaces;
+    const nouvelleQuantite = data.nombrePlaces;
+
+    const diff = nouvelleQuantite - ancienneQuantite;
+
     const updated = await this.bookingRepository.updateBooking(id, data);
+
+    if (diff !== 0) {
+      await this.eventRepository.incrementPlacesReservees(
+        booking.evenement._id || booking.evenement,
+        diff
+      );
+    }
+
     return updated;
   }
 
   async deleteBooking(id) {
-    return await this.bookingRepository.deleteBooking(id);
+    const booking = await this.bookingRepository.findById(id);
+    if (!booking) throw new Error("Réservation introuvable");
+
+    await this.bookingRepository.deleteBooking(id);
+    await this.eventRepository.incrementPlacesReservees(
+      booking.evenement._id || booking.evenement,
+      -booking.nombrePlaces
+    );
+
+    return { message: "Réservation annulée et événement mis à jour." };
   }
 
   async getBookingsByUser(userId) {

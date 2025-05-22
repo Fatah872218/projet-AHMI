@@ -62,7 +62,7 @@
       </div>
 
       <!-- Description -->
-      <p class="text-body mb-6 whitespace-pre-line">{{ evenement.description }}</p>
+
       <div>
         <label for="description" class="block font-semibold mb-1">Description</label>
         <textarea
@@ -164,13 +164,37 @@
       </div>
 
       <!-- Résumé -->
-      <div v-if="modificationEffectuee" class="bg-green-100 text-green-800 p-4 rounded-lg mb-6">
-        <ul class="list-disc list-inside text-sm">
-          <li><strong>Date de début :</strong> {{ formatDate(dateDebut) }}</li>
-          <li><strong>Date de fin :</strong> {{ formatDate(dateFin) }}</li>
-          <li><strong>Adresse :</strong> {{ adresseRue }}, {{ codePostal }} {{ commune }}</li>
-        </ul>
+
+      <div class="mt-8 bg-gray-50 p-4 rounded-lg border">
+        <h2 class="text-lg font-bold mb-2">📊 Réservations</h2>
+        <p class="text-sm text-gray-700">
+          Réservées :
+          <strong>{{ evenement.placesReservees || 0 }}</strong> /
+          <strong>{{ evenement.capaciteMax || 'illimité' }}</strong>
+        </p>
+        <p class="text-sm text-gray-700">
+          Places restantes :
+          <strong class="text-green-700">
+            {{
+              evenement.capaciteMax ? evenement.capaciteMax - evenement.placesReservees : 'illimité'
+            }}
+          </strong>
+        </p>
       </div>
+
+      <p
+        v-if="confirmationMessage"
+        :class="[
+          'text-sm text-center font-medium px-4 py-2 rounded mb-4 border',
+          confirmationType === 'error'
+            ? 'bg-red-50 text-red-700 border-red-300'
+            : confirmationType === 'info'
+            ? 'bg-blue-50 text-blue-700 border-blue-300'
+            : 'bg-green-50 text-green-700 border-green-300',
+        ]"
+      >
+        {{ confirmationMessage }}
+      </p>
 
       <!-- Boutons -->
       <div class="flex justify-between items-center gap-4 mt-8">
@@ -221,12 +245,16 @@ const dateDebut = ref('')
 const dateFin = ref('')
 const modificationEffectuee = ref(false)
 
+const confirmationMessage = ref('')
+const confirmationType = ref('') // 'success' | 'error' | 'info'
+
 const valider = async () => {
   try {
     await updateEventStatus(evenement.value._id, 'approuve')
     eventBus.emit('refresh-events')
 
     toast.success('Événement validé.')
+    showConfirmation('✅ Événement validé avec succès.')
     router.push('/events')
   } catch (e) {
     toast.error('Erreur lors de la validation.')
@@ -240,6 +268,7 @@ const rejeter = async () => {
     eventBus.emit('refresh-events')
 
     toast.success('Événement rejeté.')
+    showConfirmation(' Événement rejeté.')
     router.push('/account')
   } catch (e) {
     toast.error('Erreur lors du rejet.')
@@ -251,6 +280,7 @@ const sauvegarderCategories = async () => {
   try {
     await updateEvent(evenement.value._id, { categories: evenement.value.categories })
     toast.success('Catégories enregistrées.')
+    showConfirmation('📁 Catégories enregistrées.')
   } catch (e) {
     toast.error('Erreur lors de l’enregistrement des catégories.')
     console.error(e)
@@ -291,6 +321,7 @@ const sauvegarderModifications = async () => {
 
     modificationEffectuee.value = true
     toast.success('Modifications enregistrées.')
+    showConfirmation('✅ Modifications enregistrées.')
   } catch (e) {
     toast.error("Erreur lors de l'enregistrement.")
     console.error(e)
@@ -305,6 +336,14 @@ const formatDate = (d) => {
   } catch {
     return d
   }
+}
+const showConfirmation = (message, type = 'success') => {
+  confirmationMessage.value = message
+  confirmationType.value = type
+  setTimeout(() => {
+    confirmationMessage.value = ''
+    confirmationType.value = ''
+  }, 3000)
 }
 
 onMounted(async () => {
