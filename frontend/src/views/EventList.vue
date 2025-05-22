@@ -76,6 +76,7 @@ const evenements = computed(() =>
 // Récupération initiale
 onMounted(async () => {
   await store.fetchEvenements()
+  console.log(evenementsApprouves.value[0])
   eventBus.on('refresh-events', store.fetchEvenements)
   loading.value = false
 })

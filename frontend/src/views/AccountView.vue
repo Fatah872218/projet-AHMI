@@ -166,6 +166,28 @@ const calculPlacesRestantes = (event) => {
 const estPasse = (evenement) => {
   return new Date(evenement.dateDebut) < new Date()
 }
+const reservationsRegroupees = computed(() => {
+  const map = new Map()
+
+  for (const r of reservations.value) {
+    if (!r.evenement || !r.utilisateur) continue
+
+    const key = `${r.utilisateur._id}_${r.evenement._id}`
+    if (!map.has(key)) {
+      map.set(key, {
+        ...r,
+        nombrePlaces: r.nombrePlaces,
+        idsReservations: [r._id],
+      })
+    } else {
+      const exist = map.get(key)
+      exist.nombrePlaces += r.nombrePlaces
+      exist.idsReservations.push(r._id)
+    }
+  }
+
+  return Array.from(map.values())
+})
 
 //const estCreateur = (event) => {
 // return event.createur === utilisateur.value.id || event.createur?._id === utilisateur.value.id
@@ -276,9 +298,14 @@ const estPasse = (evenement) => {
       <div v-else-if="activeTab === 'reservations' && reservations.length">
         <ul class="space-y-3">
           <li
-            v-for="r in reservations.filter((r) => r?.evenement)"
-            :key="r._id"
-            class="[ 'rounded shadow p-4 border-l-4', 'transition-all duration-200', estPasse(r.evenement) ? 'bg-gray-200 opacity-70 cursor-not-allowed' border-gray-400 : 'bg-white border-ahmi-primary' ]"
+            v-for="r in reservationsRegroupees.filter((r) => r?.evenement)"
+            :key="r.idsReservations.join('_')"
+            :class="[
+              'rounded shadow p-4 border-l-4',
+              estPasse(r.evenement)
+                ? 'bg-gray-200 opacity-70 cursor-not-allowed border-gray-400'
+                : 'bg-white border-ahmi-primary',
+            ]"
           >
             <div class="flex justify-between items-center mb-2">
               <div>
@@ -316,20 +343,17 @@ const estPasse = (evenement) => {
                   :max="r.evenement.capaciteMax"
                   :disabled="estPasse(r.evenement)"
                 />
+
                 <BaseButton
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
-                  @click="modifierPlaces(r, 1)"
+                  class="flex items-center gap-1"
                   :disabled="estPasse(r.evenement)"
-                  >+</BaseButton
+                  @click="modifierPlaces({ ...r, _id: r.idsReservations[0] }, 0, true)"
                 >
-                <BaseButton
-                  variant="secondary"
-                  size="sm"
-                  @click="modifierPlaces(r, -1)"
-                  :disabled="estPasse(r.evenement)"
-                  >−</BaseButton
-                >
+                  Valider
+                </BaseButton>
+
                 <BaseButton
                   variant="ghost"
                   size="sm"
