@@ -45,6 +45,7 @@ onMounted(async () => {
     evenements.value = res.data.filter((e) => new Date(e.dateFin) > new Date())
 
     const res2 = await getMyBookings()
+    console.log('Réservations récupérées :', res2.data)
     reservations.value = res2.data
   } catch (e) {
     toast.error('Erreur lors du chargement des données.')
@@ -162,6 +163,9 @@ const calculPlacesRestantes = (event) => {
   const reservees = event.placesReservees || 0
   return event.capaciteMax - reservees
 }
+const estPasse = (evenement) => {
+  return new Date(evenement.dateDebut) < new Date()
+}
 
 //const estCreateur = (event) => {
 // return event.createur === utilisateur.value.id || event.createur?._id === utilisateur.value.id
@@ -272,18 +276,23 @@ const calculPlacesRestantes = (event) => {
       <div v-else-if="activeTab === 'reservations' && reservations.length">
         <ul class="space-y-3">
           <li
-            v-for="r in reservations"
+            v-for="r in reservations.filter((r) => r?.evenement)"
             :key="r._id"
-            v-if="r.evenement"
-            class="bg-white rounded shadow p-4"
+            class="[ 'rounded shadow p-4 border-l-4', 'transition-all duration-200', estPasse(r.evenement) ? 'bg-gray-200 opacity-70 cursor-not-allowed' border-gray-400 : 'bg-white border-ahmi-primary' ]"
           >
             <div class="flex justify-between items-center mb-2">
               <div>
-                <strong>{{ r.evenement?.titre }}</strong>
+                <router-link
+                  :to="`/evenement/${r.evenement?._id}`"
+                  class="text-ahmi-primary font-semibold hover:underline"
+                >
+                  {{ r.evenement?.titre }}
+                </router-link>
+
                 <p class="text-sm text-gray-600">{{ r.evenement?.lieu?.adresse }}</p>
                 <p class="text-sm text-gray-500">{{ formatDate(r.evenement?.dateDebut) }}</p>
-                <p class="text-sm text-gray-500">
-                  Réservées : {{ r.nombrePlaces }} / {{ r.evenement.capaciteMax || 'illimité' }} —
+                <p class="text-sm text-gray-600">
+                  Réservées : {{ r.nombrePlaces }} / {{ r.evenement?.capaciteMax || 'illimité' }} —
                   <span class="text-green-600">
                     {{ calculPlacesRestantes(r.evenement) }} place(s) restante(s)
                   </span>
@@ -294,16 +303,39 @@ const calculPlacesRestantes = (event) => {
                     (Complet)
                   </span>
                 </p>
+                <p class="text-sm text-gray-500">
+                  Utilisateur : <strong>{{ r.utilisateur?.nom || 'inconnu' }}</strong> ({{
+                    r.utilisateur?.email
+                  }})
+                </p>
+                <p class="text-xs text-gray-400">Réservation ID : {{ r._id }}</p>
               </div>
               <div class="flex items-center gap-3">
-                <CounterInput v-model="r.nombrePlaces" :max="r.evenement.capaciteMax" />
-                <BaseButton variant="secondary" size="sm" @click="modifierPlaces(r, 1)"
+                <CounterInput
+                  v-model="r.nombrePlaces"
+                  :max="r.evenement.capaciteMax"
+                  :disabled="estPasse(r.evenement)"
+                />
+                <BaseButton
+                  variant="secondary"
+                  size="sm"
+                  @click="modifierPlaces(r, 1)"
+                  :disabled="estPasse(r.evenement)"
                   >+</BaseButton
                 >
-                <BaseButton variant="secondary" size="sm" @click="modifierPlaces(r, -1)"
+                <BaseButton
+                  variant="secondary"
+                  size="sm"
+                  @click="modifierPlaces(r, -1)"
+                  :disabled="estPasse(r.evenement)"
                   >−</BaseButton
                 >
-                <BaseButton variant="ghost" size="sm" @click="supprimerReservation(r._id)">
+                <BaseButton
+                  variant="ghost"
+                  size="sm"
+                  @click="supprimerReservation(r._id)"
+                  :disabled="estPasse(r.evenement)"
+                >
                   🗑️
                 </BaseButton>
               </div>
