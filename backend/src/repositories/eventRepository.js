@@ -12,7 +12,10 @@ class EventRepository {
 
   async findById(id) {
     try {
-      return await Evenement.findById(id).populate("createur moderateur");
+      return await Evenement.findById(id)
+        .populate("categories") // ➕
+        .populate("createur")
+        .populate("moderateur");
     } catch (err) {
       throw new Error(`Erreur recherche évènement : ${err.message}`);
     }

@@ -59,6 +59,7 @@ class EventService {
 
       const eventObject = event.toObject ? event.toObject() : event;
       eventObject.placesReservees = totalPlaces;
+      eventObject.placesDisponibles = event.capaciteMax - totalPlaces;
 
       return eventObject;
     } catch (err) {
