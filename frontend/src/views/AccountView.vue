@@ -226,7 +226,7 @@ const validerPlaces = async (r) => {
 
 <template>
   <MainLayout>
-    <div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <h1 class="text-h2 font-bold text-ahmi-text-brand mb-6">Mon compte</h1>
 
       <!-- Actions -->
@@ -251,16 +251,23 @@ const validerPlaces = async (r) => {
       </div>
 
       <!-- Onglets -->
-      <div class="flex flex-wrap justify-center gap-3 mb-6">
+      <div
+        class="flex flex-wrap justify-center gap-3 mb-6"
+        role="tablist"
+        aria-label="Onglets de filtrage"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.value"
           @click="activeTab = tab.value"
+          role="tab"
+          :aria-selected="activeTab === tab.value"
           :class="[
-            'px-4 py-2 rounded-full font-semibold transition',
+            'px-4 py-2 text-sm sm:text-base rounded-full font-semibold transition',
             activeTab === tab.value
               ? 'bg-ahmi-primary text-white'
               : 'bg-ahmi-accent text-ahmi-text-primary',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-ahmi-secondary',
           ]"
         >
           {{ tab.label }}
@@ -270,15 +277,21 @@ const validerPlaces = async (r) => {
       <!-- Événements -->
       <div v-if="activeTab !== 'reservations' && evenementsFiltres.length">
         <ul class="space-y-3">
-          <li
+          <article
             v-for="event in evenementsFiltres"
             :key="event._id"
-            class="bg-white rounded shadow p-4 flex justify-between items-center"
+            class="bg-white rounded shadow p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
           >
             <div>
-              <div class="font-semibold">{{ event.titre }}</div>
+              <h2 itemprop="name" class="font-semibold">{{ event.titre }}</h2>
               <div class="text-sm text-gray-500">
-                {{ formatDate(event.dateDebut) }} – {{ formatDate(event.dateFin) }}
+                <time :datetime="event.dateDebut" itemprop="startDate">
+                  {{ formatDate(event.dateDebut) }}
+                </time>
+                –
+                <time :datetime="event.dateFin" itemprop="endDate">
+                  {{ formatDate(event.dateFin) }}
+                </time>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -320,25 +333,31 @@ const validerPlaces = async (r) => {
                 <!-- Gérer les catégories -->
               </template>
             </div>
-          </li>
+          </article>
         </ul>
       </div>
 
       <!-- Réservations -->
-      <div v-else-if="activeTab === 'reservations' && reservations.length">
+      <section
+        v-else-if="activeTab === 'reservations' && reservations.length"
+        aria-labelledby="section-mes-reservations"
+      >
+        <h2 id="section-mes-reservations" class="sr-only">Mes réservations</h2>
         <ul class="space-y-3">
           <li
             v-for="r in reservationsRegroupees.filter((r) => r?.evenement)"
             :key="r.idsReservations.join('_')"
             :class="[
               'rounded shadow p-4 border-l-4',
+              'overflow-hidden break-words',
               estPasse(r.evenement)
                 ? 'bg-gray-200 opacity-70 cursor-not-allowed border-gray-400'
                 : 'bg-white border-ahmi-primary',
             ]"
           >
-            <div class="flex justify-between items-center mb-2">
-              <div>
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <!-- Bloc infos -->
+              <div class="flex-1 min-w-0">
                 <router-link
                   :to="`/evenement/${r.evenement?._id}`"
                   class="text-ahmi-primary font-semibold hover:underline"
@@ -367,7 +386,9 @@ const validerPlaces = async (r) => {
                 </p>
                 <p class="text-xs text-gray-400">Réservation ID : {{ r._id }}</p>
               </div>
-              <div class="flex items-center gap-3">
+
+              <!-- Bloc actions -->
+              <div class="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap justify-end">
                 <CounterInput
                   v-model="placesToUpdate[r.idsReservations[0]]"
                   :max="r.evenement.capaciteMax"
@@ -388,6 +409,8 @@ const validerPlaces = async (r) => {
                   size="sm"
                   @click="supprimerReservation(r._id)"
                   :disabled="estPasse(r.evenement)"
+                  aria-label="Supprimer la réservation"
+                  class="focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                 >
                   🗑️
                 </BaseButton>
@@ -395,7 +418,7 @@ const validerPlaces = async (r) => {
             </div>
           </li>
         </ul>
-      </div>
+      </section>
 
       <div v-else class="text-center text-gray-500 py-12">
         <p>Aucun contenu à afficher dans cet onglet.</p>
