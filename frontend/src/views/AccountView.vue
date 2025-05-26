@@ -1,6 +1,6 @@
 <!-- src/views/AccountView.vue -->
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
 import { useToast } from 'vue-toastification'
@@ -33,6 +33,7 @@ const tabs = [
   { label: 'Rejeté', value: 'rejete' },
   { label: 'Mes réservations', value: 'reservations' },
 ]
+const placesToUpdate = reactive({})
 
 onMounted(async () => {
   try {
@@ -121,7 +122,6 @@ const modifierPlaces = async (booking, delta) => {
 
   if (nouvelleValeur > placesRestantes) {
     toast.warning('Pas assez de places disponibles.')
-    return
   }
 
   try {
@@ -188,6 +188,36 @@ const reservationsRegroupees = computed(() => {
 
   return Array.from(map.values())
 })
+// À chaque fois que la liste des réservations change, on initialise la valeur éditable
+watch(
+  () => reservationsRegroupees.value,
+  (liste) => {
+    liste.forEach((r) => {
+      const id = r.idsReservations[0]
+      // si pas encore défini, on l’initialize à la valeur courante
+      if (!(id in placesToUpdate)) {
+        placesToUpdate[id] = r.nombrePlaces
+      }
+    })
+  },
+  { immediate: true }
+)
+// 1) on marque la fonction async
+const validerPlaces = async (r) => {
+  const id = r.idsReservations[0]
+  const delta = placesToUpdate[id] - r.nombrePlaces
+
+  try {
+    // 2) await pour attendre la fin de la mise à jour
+    await modifierPlaces({ ...r, _id: id }, delta)
+    // 3) une fois que c'est ok, on remet à jour l'affichage local
+    placesToUpdate[id] = r.nombrePlaces + delta
+  } catch (e) {
+    //  un peu de feedback en cas d'erreur
+    console.error('Impossible de valider les places', e)
+    toast.error('Échec de la validation des places.')
+  }
+}
 
 //const estCreateur = (event) => {
 // return event.createur === utilisateur.value.id || event.createur?._id === utilisateur.value.id
@@ -339,7 +369,7 @@ const reservationsRegroupees = computed(() => {
               </div>
               <div class="flex items-center gap-3">
                 <CounterInput
-                  v-model="r.nombrePlaces"
+                  v-model="placesToUpdate[r.idsReservations[0]]"
                   :max="r.evenement.capaciteMax"
                   :disabled="estPasse(r.evenement)"
                 />
@@ -347,9 +377,8 @@ const reservationsRegroupees = computed(() => {
                 <BaseButton
                   variant="primary"
                   size="sm"
-                  class="flex items-center gap-1"
                   :disabled="estPasse(r.evenement)"
-                  @click="modifierPlaces({ ...r, _id: r.idsReservations[0] }, 0, true)"
+                  @click="validerPlaces(r)"
                 >
                   Valider
                 </BaseButton>
