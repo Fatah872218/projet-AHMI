@@ -1,7 +1,7 @@
 //src/services/bookingService.js
 import BookingRepository from "../repositories/bookingRepository.js";
 
-import EventRepository from "../repositories/eventRepository.js"; // 👈 à ne pas oublier
+import EventRepository from "../repositories/eventRepository.js"; //
 
 class BookingService {
   constructor() {
@@ -10,7 +10,7 @@ class BookingService {
   }
 
   async createBooking(data) {
-    console.log(data);
+    console.log("📥 Données reçues pour création réservation :", data);
     try {
       /* const existingBooking =
         await this.bookingRepository.findBookingByUserAndEvent(
@@ -34,16 +34,26 @@ class BookingService {
       if (!event) {
         throw new Error("Événement introuvable");
       }
-
       const nbReservations =
         await this.bookingRepository.countReservationsByEvent(data.evenement);
-      const placesRestantes = event.capaciteMax - nbReservations;
+      const capaciteMax = event.capaciteMax;
 
-      if (data.nombrePlaces > placesRestantes) {
-        throw new Error(
-          `Il ne reste que ${placesRestantes} place(s) disponible(s)`
-        );
+      let placesRestantes = null;
+
+      if (typeof capaciteMax === "number") {
+        placesRestantes = capaciteMax - nbReservations;
+
+        if (placesRestantes < 0) {
+          throw new Error("Nombre de places restantes invalide (négatif)");
+        }
+
+        if (data.nombrePlaces > placesRestantes) {
+          throw new Error(
+            `Il ne reste que ${placesRestantes} place(s) disponible(s)`
+          );
+        }
       }
+
       console.log(
         " service nbReservations placesRestantes",
         nbReservations,
@@ -53,7 +63,7 @@ class BookingService {
       const nouvelleReservation = await this.bookingRepository.createBooking(
         data
       );
-      console.log("nouvelle Reservation", nouvelleReservation);
+      console.log("reservation créée", nouvelleReservation);
       // Met à jour le champ placesReservees sur l'événement
       await this.eventRepository.incrementPlacesReservees(
         data.evenement,
@@ -68,6 +78,7 @@ class BookingService {
       };
       //return nouvelleReservation;
     } catch (error) {
+      console.error("Erreur création réservation :", error.message);
       throw new Error(`Erreur création réservation : ${error.message}`);
     }
   }
@@ -87,16 +98,31 @@ class BookingService {
 
     const ancienneQuantite = booking.nombrePlaces;
     const nouvelleQuantite = data.nombrePlaces;
-
     const diff = nouvelleQuantite - ancienneQuantite;
+
+    // 🔒 Ajout du contrôle ici
+    const event = await this.eventRepository.getEventById(
+      booking.evenement._id || booking.evenement
+    );
+    if (!event) throw new Error("Événement introuvable");
+
+    const nbTotalReserve =
+      await this.bookingRepository.countReservationsByEvent(event._id);
+
+    const capaciteMax = event.capaciteMax;
+    if (capaciteMax !== undefined && capaciteMax !== null) {
+      const placesRestantes = capaciteMax - nbTotalReserve + ancienneQuantite;
+      if (nouvelleQuantite > placesRestantes) {
+        throw new Error(
+          `Il ne reste que ${placesRestantes} place(s) disponible(s)`
+        );
+      }
+    }
 
     const updated = await this.bookingRepository.updateBooking(id, data);
 
     if (diff !== 0) {
-      await this.eventRepository.incrementPlacesReservees(
-        booking.evenement._id || booking.evenement,
-        diff
-      );
+      await this.eventRepository.incrementPlacesReservees(event._id, diff);
     }
 
     return updated;

@@ -79,9 +79,20 @@ class EventRepository {
   }
 
   async incrementPlacesReservees(eventId, delta) {
+    const event = await Evenement.findById(eventId);
+    if (!event) throw new Error("Événement introuvable");
+
+    const nouvelleValeur = (event.placesReservees || 0) + delta;
+
+    if (nouvelleValeur < 0) {
+      throw new Error(
+        "Impossible d'avoir un nombre de places réservées négatif"
+      );
+    }
+
     return await Evenement.findByIdAndUpdate(
       eventId,
-      { $inc: { placesReservees: delta } },
+      { placesReservees: nouvelleValeur },
       { new: true }
     );
   }

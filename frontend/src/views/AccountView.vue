@@ -158,11 +158,7 @@ const supprimerReservation = async (id) => {
     console.error(e)
   }
 }
-const calculPlacesRestantes = (event) => {
-  if (!event || !event.capaciteMax) return 'illimité'
-  const reservees = event.placesReservees || 0
-  return event.capaciteMax - reservees
-}
+
 const estPasse = (evenement) => {
   return new Date(evenement.dateDebut) < new Date()
 }
@@ -304,7 +300,8 @@ const validerPlaces = async (r) => {
                 Réservées : {{ event.placesReservees || 0 }} /
                 {{ event.capaciteMax || 'illimité' }} —
                 <span class="text-green-600">
-                  {{ calculPlacesRestantes(event) }} place(s) restante(s)
+                  {{ event.placesDisponibles === Infinity ? 'illimité' : event.placesDisponibles }}
+                  place(s) restante(s)
                 </span>
               </p>
 
@@ -370,15 +367,21 @@ const validerPlaces = async (r) => {
                 <p class="text-sm text-gray-600">
                   Réservées : {{ r.nombrePlaces }} / {{ r.evenement?.capaciteMax || 'illimité' }} —
                   <span class="text-green-600">
-                    {{ calculPlacesRestantes(r.evenement) }} place(s) restante(s)
+                    {{
+                      r.evenement?.placesDisponibles === Infinity
+                        ? 'illimité'
+                        : r.evenement?.placesDisponibles
+                    }}
+                    place(s) restante(s)
                   </span>
                   <span
-                    v-if="calculPlacesRestantes(r.evenement) <= 0 && r.evenement.capaciteMax"
+                    v-if="r.evenement?.placesDisponibles === 0 && r.evenement?.capaciteMax"
                     class="text-red-600"
                   >
                     (Complet)
                   </span>
                 </p>
+
                 <p class="text-sm text-gray-500">
                   Utilisateur : <strong>{{ r.utilisateur?.nom || 'inconnu' }}</strong> ({{
                     r.utilisateur?.email

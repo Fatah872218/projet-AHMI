@@ -58,8 +58,11 @@ class EventService {
       );
 
       const eventObject = event.toObject ? event.toObject() : event;
+
       eventObject.placesReservees = totalPlaces;
-      eventObject.placesDisponibles = event.capaciteMax - totalPlaces;
+      eventObject.placesDisponibles = event.capaciteMax
+        ? Math.max(event.capaciteMax - totalPlaces, 0)
+        : Infinity;
 
       return eventObject;
     } catch (err) {
@@ -69,7 +72,25 @@ class EventService {
 
   async getAllEvents(filter = {}) {
     try {
-      return await this.eventRepository.findAll(filter);
+      const events = await this.eventRepository.findAll(filter);
+      const allWithCounts = await Promise.all(
+        events.map(async (event) => {
+          const reservations = await this.bookingRepository.findByEventId(
+            event._id
+          );
+          const totalPlaces = reservations.reduce(
+            (acc, r) => acc + (r.nombrePlaces || 1),
+            0
+          );
+          const e = event.toObject();
+          e.placesReservees = totalPlaces;
+          e.placesDisponibles = event.capaciteMax
+            ? Math.max(event.capaciteMax - totalPlaces, 0)
+            : Infinity;
+          return e;
+        })
+      );
+      return allWithCounts;
     } catch (err) {
       throw new Error(`Erreur récupération des évènements : ${err.message}`);
     }

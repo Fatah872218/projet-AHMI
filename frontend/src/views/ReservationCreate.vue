@@ -25,15 +25,16 @@
 
         <!-- Sélection du nombre de places -->
         <div class="flex items-center gap-4">
-          <label class="font-medium">Nombre de places :</label>
-          <CounterInput v-model="places" :max="placesDisponibles" :min="1" />
+          <label class="font-medium" for="places-input">Nombre de places :</label>
+          <CounterInput id="places-input" v-model="places" :max="placesDisponibles" :min="1" />
         </div>
+        <p v-if="placesDisponibles <= 0" class="text-red-600">Cet événement est complet.</p>
 
         <BaseButton
           variant="primary"
           size="lg"
           class="w-full"
-          :disabled="places < 1 || places > placesDisponibles || sending"
+          :disabled="places < 1 || places > placesDisponibles || placesDisponibles <= 0"
           @click="validerReservation"
         >
           Valider ma réservation
@@ -96,6 +97,19 @@ const formatDate = (d) => {
 }
 
 const validerReservation = async () => {
+  console.log('DATA ENVOYÉE POUR RÉSERVATION:', {
+    evenement: evenement.value._id,
+    nombrePlaces: places.value,
+  })
+
+  if (!evenement.value?._id || places.value < 1) {
+    toast.error('Événement ou nombre de places invalide.')
+    return
+  }
+  console.log('typeof evenement.value._id =', typeof evenement.value._id)
+  console.log('evenement.value._id =', evenement.value._id)
+  console.log('longueur =', evenement.value._id?.length)
+
   sending.value = true
   try {
     await createBooking({
@@ -105,8 +119,9 @@ const validerReservation = async () => {
     toast.success('Réservation enregistrée')
     router.push('/account')
   } catch (e) {
-    toast.error('Erreur lors de la réservation')
-    console.error(e)
+    toast.error(e?.response?.data?.message || 'Erreur lors de la réservation')
+    console.error('Erreur complète Axios:', e)
+    console.error('Détails Joi si dispo:', e?.response?.data?.details)
   } finally {
     sending.value = false
   }
