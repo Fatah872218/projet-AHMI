@@ -52,10 +52,14 @@
           <h3 class="font-semibold">Capacité maximum</h3>
           <p>{{ evenement.capaciteMax || '—' }} personnes</p>
         </div>
-        <div>
-          <h3 class="font-semibold">Places disponibles</h3>
-          <p>{{ evenement.placesDisponibles || '—' }} restantes</p>
-        </div>
+        <p>
+          {{
+            evenement.placesDisponibles === Infinity
+              ? 'illimité'
+              : evenement.placesDisponibles + ' place(s) restante(s)'
+          }}
+        </p>
+
         <div>
           <h3 class="font-semibold">Prix</h3>
           <p>{{ evenement.prix != null ? evenement.prix + ' €' : '—' }}</p>

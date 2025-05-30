@@ -7,9 +7,18 @@
         <div class="mb-4 md:mb-0">
           <h3 class="text-h3 font-bold">A.H.M.I</h3>
           <p class="text-body">Aide Humanitaire du Motard Interdépartementale</p>
-          <p class="text-body">5 rue Jean Zay, 64 000 PAU</p>
+          <p class="text-body">impasse Odeau, 64 140 LONS</p>
           <p class="text-body">Tél : 06 07 95 25 64</p>
           <p class="text-body">association.ahmi@gmail.com</p>
+        </div>
+        <div class="mb-4 md:mb-0">
+          <h3 class="text-h3 font-bold">Local dépôt</h3>
+          <p class="text-body">Du Mardi au Mercredi, 10-18h</p>
+          <p class="text-body">5, rue Jean Zay</p>
+          <p class="text-body">64000 PAU</p>
+          <a href="https://www.ahmi-boutique.com" target="_blank" class="inline-block">
+            <OfficeBuildingIcon class="w-6 h-6 text-blue-500 hover:text-blue-700" />
+          </a>
         </div>
         <div class="mb-4 md:mb-0">
           <h3 class="text-h3 font-bold">Boutique solidaire</h3>
@@ -93,7 +102,8 @@ import {
   ChatAltIcon, // Pour Facebook
   PhoneIcon, // Pour WhatsApp
   ChatIcon, // Pour Telegram
-  BriefcaseIcon, // Pour LinkedIn
+  BriefcaseIcon,
+  OfficeBuildingIcon, // Pour LinkedIn
 } from '@heroicons/vue/outline'
 
 export default {
@@ -106,6 +116,7 @@ export default {
     PhoneIcon,
     ChatIcon,
     BriefcaseIcon,
+    OfficeBuildingIcon,
   },
 }
 </script>

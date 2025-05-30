@@ -2,7 +2,7 @@
 import Joi from "joi";
 
 export const createBookingSchema = Joi.object({
-  evenement: Joi.string().length(24).required().messages({
+  evenement: Joi.string().hex().length(24).required().messages({
     "string.empty": "L'identifiant de l'évènement est requis",
   }),
   nombrePlaces: Joi.number().integer().min(1).required().messages({

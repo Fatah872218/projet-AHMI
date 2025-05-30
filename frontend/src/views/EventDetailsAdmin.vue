@@ -176,7 +176,9 @@
           Places restantes :
           <strong class="text-green-700">
             {{
-              evenement.capaciteMax ? evenement.capaciteMax - evenement.placesReservees : 'illimité'
+              evenement.placesDisponibles === Infinity
+                ? 'illimité'
+                : evenement.placesDisponibles + ' place(s)'
             }}
           </strong>
         </p>
