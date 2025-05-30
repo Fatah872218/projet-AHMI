@@ -81,7 +81,7 @@ export const eventSchema = Joi.object({
 });
 
 export const updateEventSchema = Joi.object({
-  // les champs que tu autorises pour la mise à jour :
+  // les champs autorises pour la mise à jour :
   titre: Joi.string().min(3),
   description: Joi.string().max(500).allow(""),
   dateDebut: Joi.date().iso(),
@@ -106,7 +106,7 @@ export const updateEventSchema = Joi.object({
     "number.min": "Le prix ne peut pas être négatif",
   }),
 
-  categories: Joi.array().items(Joi.string()),
+  categories: Joi.array().items(Joi.string().length(24)).optional(),
   organisateur: Joi.object({
     nom: Joi.string(),
     email: Joi.string().email(),

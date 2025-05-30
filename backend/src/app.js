@@ -13,6 +13,11 @@ import categorieRoutes from "./routes/categorieRoutes.js";
 import geocodeRoutes from "./routes/geocodeRoutes.js";
 
 import errorHandler from "./middlewares/errorHandler.js";
+import { fileURLToPath } from "url";
+import path, { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -27,6 +32,8 @@ app.use(
 );
 app.use(express.json()); //
 app.use(cookieParser());
+// Servir le frontend buildé
+app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
 // Routes
 app.use("/api/utilisateurs", utilisateurRoutes);
@@ -35,7 +42,7 @@ app.use("/api/permissions", permissionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/evenements", eventRoutes);
 app.use("/api/reservations", bookingRoutes);
-app.use("/api/", categorieRoutes);
+app.use("/api/categories", categorieRoutes);
 app.use("/api", geocodeRoutes);
 
 app.use((req, res) => {
@@ -43,6 +50,15 @@ app.use((req, res) => {
 });
 app.use(errorHandler);
 // Démarrer le serveur
+
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api")) {
+    res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
+  } else {
+    next();
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Serveur en écoute sur http://localhost:${PORT}`);

@@ -60,12 +60,6 @@ class EventController {
   updateEvent = async (req, res) => {
     try {
       console.log(" Requête reçue (updateEvent) :", req.body);
-      // Étape 1 : validation via Joi
-      const { error } = updateEventSchema.validate(req.body);
-      if (error) {
-        console.error("Erreur de validation Joi:", error.details);
-        return res.status(400).json({ error: error.details[0].message });
-      }
 
       // Validation des catégories si présentes dans la bdd
       if (req.body.categories && Array.isArray(req.body.categories)) {

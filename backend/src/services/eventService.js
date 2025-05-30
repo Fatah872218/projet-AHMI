@@ -96,9 +96,9 @@ class EventService {
     }
   }
 
-  async updateEvent(id, updateData) {
+  async updateEvent(id, updateData, options = {}) {
     try {
-      return await this.eventRepository.update(id, updateData);
+      return await this.eventRepository.update(id, updateData, options);
     } catch (err) {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);
     }

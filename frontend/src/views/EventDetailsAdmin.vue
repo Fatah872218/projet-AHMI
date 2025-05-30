@@ -305,7 +305,9 @@ const sauvegarderModifications = async () => {
       participationFinanciere: Number(evenement.value.participationFinanciere),
       lienSiteInternet: evenement.value.lienSiteInternet?.trim(),
       lienInstagram: evenement.value.lienInstagram?.trim(),
-      categories: evenement.value.categories,
+      categories: evenement.value.categories.map((cat) =>
+        typeof cat === 'string' ? cat : cat._id
+      ),
       dateDebut: toISOStringFromInput(dateDebut.value),
       dateFin: toISOStringFromInput(dateFin.value),
       lieu,
