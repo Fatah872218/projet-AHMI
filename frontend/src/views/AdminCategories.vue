@@ -55,7 +55,8 @@
 import { ref, onMounted } from 'vue'
 import MainLayout from '@/layout/MainLayout.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import api from '@/services/api' // ou ton chemin relatif
+import BaseConfirmDialog from '@/components/base/BaseConfirmDialog.vue'
+import api from '@/services/api'
 
 const categories = ref([])
 const nouvelleCategorie = ref('')

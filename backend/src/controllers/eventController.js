@@ -73,6 +73,13 @@ class EventController {
             .json({ message: "Une ou plusieurs catégories sont invalides." });
         }
       }
+      // Seul l’auteur (createur) ou admin peut modifier
+      if (
+        existing.createur.toString() !== req.user.id &&
+        req.utilisateur.role !== "admin"
+      ) {
+        return res.status(403).json({ message: "Accès refusé" });
+      }
 
       const updatedEvent = await this.eventService.updateEvent(
         req.params.id,
@@ -86,7 +93,7 @@ class EventController {
 
       res.status(200).json(updatedEvent);
     } catch (err) {
-      console.error("❌ Erreur updateEvent :", err);
+      console.error(" Erreur updateEvent :", err);
       res.status(400).json({
         message: "Erreur lors de la mise à jour de l'événement",
         error: err.message,

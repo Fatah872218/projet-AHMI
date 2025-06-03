@@ -21,6 +21,7 @@ export const useEvenementsStore = defineStore('evenements', {
         (event) => event.statut === 'approuve' && (!event.dateFin || new Date(event.dateFin) > now)
       )
     },
+    getById: (state) => (id) => state.evenements.find((e) => e._id === id),
   },
 
   actions: {
@@ -28,7 +29,7 @@ export const useEvenementsStore = defineStore('evenements', {
     async fetchEvenements() {
       try {
         const response = await getAllEvents()
-        console.log('Événements reçus :', response.data)
+        console.info('Événements reçus :', response.data)
 
         if (Array.isArray(response.data)) {
           this.evenements = response.data
@@ -50,7 +51,7 @@ export const useEvenementsStore = defineStore('evenements', {
       this.errorEvent = null
       try {
         const res = await getEventById(id)
-        this.currentEvent = res.data.data || res.data
+        this.currentEvent = res.data?.data || res.data
       } catch (error) {
         console.error("Erreur lors du chargement de l'événement :", error)
         this.errorEvent = "Impossible de charger l'événement."
@@ -65,10 +66,25 @@ export const useEvenementsStore = defineStore('evenements', {
       this.errorEvent = null
       this.loadingEvent = false
     },
+    // ex: apres modification
     updateEvenementLocal(id, data) {
       const index = this.allEvenements.findIndex((e) => e._id === id)
       if (index !== -1) {
         this.allEvenements[index] = { ...this.allEvenements[index], ...data }
+      }
+    },
+    async refreshEvenement(id) {
+      try {
+        const res = await getEventById(id)
+        const event = res.data?.data || res.data
+        const index = this.evenements.findIndex((e) => e._id === id)
+        if (index !== -1) {
+          this.evenements[index] = event
+        } else {
+          this.evenements.push(event)
+        }
+      } catch (err) {
+        console.error(`Erreur lors de la mise à jour de l'événement ${id}`, err)
       }
     },
   },

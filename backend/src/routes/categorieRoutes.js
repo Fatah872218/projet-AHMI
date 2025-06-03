@@ -1,15 +1,29 @@
 import express from "express";
 import Categorie from "../models/modeleCategorie.js";
 import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
-//import isAdmin from "../middlewares/isAdmin.js";
+
+import checkRole from "../middlewares/middlewareCheckRole.js";
 //import authMiddleware from "../middlewares/middlewareAuth.js";
 
 const router = express.Router();
 
+router.get("/public", async (req, res) => {
+  try {
+    const categories = await Categorie.find().select("nom");
+    res.status(200).json(categories);
+  } catch (err) {
+    console.error("Erreur route publique catégorie:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 router.get(
-  "/categories",
+  "/",
   fakeAuthAdmin,
-  /* authMiddleware, isAdmin, */ async (req, res) => {
+  checkRole("admin"),
+  /*authMiddleware,  */ async (req, res) => {
+    console.info("Requête reçue pour obtenir les catégories");
+    console.info("Utilisateur connecté (req.utilisateur) :", req.utilisateur);
     try {
       const categories = await Categorie.find();
       res.status(200).json(categories);
@@ -19,11 +33,17 @@ router.get(
     }
   }
 );
+router.get("/test", (req, res) => {
+  res.send("Catégorie route OK ✅");
+});
+
 // POST une nouvelle catégorie
 router.post(
-  "/categories",
+  "/",
   fakeAuthAdmin,
-  /* authMiddleware, isAdmin, */ async (req, res) => {
+  checkRole("admin"),
+  /* authMiddleware, */ async (req, res) => {
+    console.log("✅ Route POST /api/categories appelée");
     const { nom } = req.body;
     if (!nom || nom.trim() === "") {
       return res.status(400).json({ error: "Le nom est requis." });
@@ -40,7 +60,7 @@ router.post(
   }
 );
 //  Modifier une catégorie
-router.put("/categories/:id", fakeAuthAdmin, async (req, res) => {
+router.put("/:id", fakeAuthAdmin, checkRole("admin"), async (req, res) => {
   const { nom } = req.body;
   if (!nom || nom.trim() === "") {
     return res.status(400).json({ error: "Le nom est requis." });
@@ -62,7 +82,7 @@ router.put("/categories/:id", fakeAuthAdmin, async (req, res) => {
 });
 
 //  Supprimer une catégorie
-router.delete("/categories/:id", fakeAuthAdmin, async (req, res) => {
+router.delete("/:id", fakeAuthAdmin, checkRole("admin"), async (req, res) => {
   try {
     const deleted = await Categorie.findByIdAndDelete(req.params.id);
     if (!deleted)

@@ -7,8 +7,10 @@
     <!-- Titre avec options de tri et filtre -->
     <TitleComponent
       title="Liste des événements"
+      :sort-type="sortType"
       @change-sort="changeSort"
       @filter="openFilterModal"
+      @filter-category="(cat) => (selectedCategory.value = cat)"
     />
 
     <!-- Indicateur de chargement -->
@@ -53,7 +55,6 @@ import CardComponent from '@/components/base/CardComponent.vue'
 import MainLayout from '@/layout/MainLayout.vue'
 import SearchBarComponent from '@/components/base/SearchBarComponent.vue'
 import TitleComponent from '@/components/base/TitleComponent.vue'
-import { eventBus } from '@/utils/eventBus.js'
 
 // Store Pinia
 const store = useEvenementsStore()
@@ -64,6 +65,7 @@ const searchQuery = ref('')
 const sortAsc = ref(false)
 const filterCriteria = ref({ date: null, lieu: '' })
 const sortType = ref('date') // valeurs possibles : "date", "dayNight", "category"
+const selectedCategory = ref('')
 
 // Simulation dev (désactive si auth présente)
 const isDev = true
@@ -76,18 +78,26 @@ const evenements = computed(() =>
 // Récupération initiale
 onMounted(async () => {
   await store.fetchEvenements()
-  console.log(evenementsApprouves.value[0])
-  eventBus.on('refresh-events', store.fetchEvenements)
+  console.info('Événements à afficher :', filteredEvenements.value)
+
   loading.value = false
 })
 
 const evenementsApprouves = computed(() => store.evenementsApprouvesValides)
 
 // Liste finale filtrée et triée
+
 const filteredEvenements = computed(() => {
   let filtered = evenementsApprouves.value
 
-  // Recherche textuelle
+  // 🔍 Filtre par catégorie sélectionnée
+  if (selectedCategory.value) {
+    filtered = filtered.filter(
+      (e) => (e.categorie || '').toLowerCase() === selectedCategory.value.toLowerCase()
+    )
+  }
+
+  // 🔎 Recherche textuelle
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     filtered = filtered.filter((e) =>
@@ -95,7 +105,7 @@ const filteredEvenements = computed(() => {
     )
   }
 
-  // Filtre par date
+  // 📆 Filtre par date
   if (filterCriteria.value.date) {
     filtered = filtered.filter(
       (e) =>
@@ -103,14 +113,14 @@ const filteredEvenements = computed(() => {
     )
   }
 
-  // Filtre par lieu
+  // 📍 Filtre par lieu
   if (filterCriteria.value.lieu) {
     filtered = filtered.filter((e) =>
       e?.lieu?.adresse?.toLowerCase().includes(filterCriteria.value.lieu.toLowerCase())
     )
   }
 
-  // Tri dynamique
+  // 🔀 Tri dynamique
   if (sortType.value === 'date') {
     return filtered.sort((a, b) => new Date(b.dateDebut) - new Date(a.dateDebut))
   }
@@ -157,8 +167,4 @@ function openFilterModal() {
 function changeSort(type) {
   sortType.value = type
 }
-
-onUnmounted(() => {
-  eventBus.off('refresh-events', store.fetchEvenements)
-})
 </script>

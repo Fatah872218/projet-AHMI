@@ -21,14 +21,6 @@ router.post("/auth/login", valider(schemaConnexion), (req, res) =>
   utilisateurController.connecter(req, res)
 );
 
-router.post("/auth/register", valider(schemaInscription), (req, res) =>
-  utilisateurController.inscrire(req, res)
-);
-
-router.post("/auth/login", valider(schemaConnexion), (req, res) =>
-  utilisateurController.connecter(req, res)
-);
-
 /* Récupérer l'utilisateur connecté (protégé par authMiddleware)
 router.get("/utilisateur", (req, res) =>
  utilisateurController.obtenirProfil(req, res)

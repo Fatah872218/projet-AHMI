@@ -121,6 +121,8 @@ class EventService {
     try {
       return await this.eventRepository.delete(id);
     } catch (err) {
+      console.error(`Erreur suppression événement ${id} :`, err);
+
       throw new Error(`Erreur suppression évènement : ${err.message}`);
     }
   }
