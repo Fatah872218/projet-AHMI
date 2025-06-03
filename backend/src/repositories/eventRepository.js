@@ -32,9 +32,10 @@ class EventRepository {
     }
   }
 
-  async update(id, updateData) {
+  async update(id, updateData, options = {}) {
     try {
       const updated = await Evenement.findByIdAndUpdate(id, updateData, {
+        ...options,
         new: true,
       });
 

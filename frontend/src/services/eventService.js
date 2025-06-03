@@ -1,24 +1,20 @@
-// src/services/eventService.js
 import api from './api'
 
-export const getEventById = (id) => api.get(`/evenements/${id}`)
+export const getEventById = (id) => api.get(`/events/${id}`)
 
 export const getCategories = () => api.get(`/categories`)
 
-export const getAllEvents = () => api.get('/evenements')
+export const getAllEvents = () => api.get('/events')
 
-export const createEvent = (data) => api.post(`/evenements`, data)
+export const createEvent = (data) => api.post(`/events`, data)
 
-export const updateEvent = (id, data) => api.put(`/evenements/${id}`, data)
+export const updateEvent = (id, data) => api.put(`/events/${id}`, data)
 
-// Récupérer les places restantes pour un événement
-export const getPlacesRestantes = (id) => api.get(`/evenements/${id}/places-restantes`)
+export const getPlacesRestantes = (id) => api.get(`/events/${id}/places-restantes`)
 
-// Récupérer les événements par statut
-export const getEventsByStatus = (status) => api.get(`/evenements/statut/${status}`)
+export const getEventsByStatus = (status) => api.get(`/events/statut/${status}`)
 
-// Mettre à jour le statut d'un événement
 export const updateEventStatus = (id, status) =>
-  api.patch(`/evenements/${id}/statut`, { statut: status })
+  api.patch(`/events/${id}/statut`, { statut: status })
 
-export const deleteEvent = (id) => api.delete(`/evenements/${id}`)
+export const deleteEvent = (id) => api.delete(`/events/${id}`)

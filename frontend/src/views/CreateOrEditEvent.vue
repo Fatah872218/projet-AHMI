@@ -433,6 +433,7 @@ const geolocaliserAdresse = async () => {
 const debouncedGeoloc = debounce(geolocaliserAdresse, 600)
 watch(
   () => [form.value.lieu.rue, form.value.lieu.codePostal, form.value.lieu.commune],
+
   debouncedGeoloc
 )
 
@@ -462,6 +463,7 @@ onMounted(async () => {
   }
 
   const catRes = await getCategories()
+  console.log('Catégories reçues depuis API :', catRes.data)
   categories.value = catRes.data.data || catRes.data
 
   if (isEdit.value) {

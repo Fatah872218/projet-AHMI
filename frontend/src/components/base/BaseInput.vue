@@ -5,7 +5,7 @@
       class="block text-sm md:text-base font-medium text-ahmi-text-primary font-montserrat mb-xs"
     >
       {{ label }}
-      <span v-if="required" class="text-red-600">*</span>
+      <span v-if="required" class="text-warning-600">*</span>
     </label>
 
     <div class="relative">
@@ -19,7 +19,7 @@
         :aria-describedby="error ? `${label}-error` : null"
       />
 
-      <!-- Si c'est un mot de passe, rendre l’icône cliquable -->
+      <!--  -->
       <template v-if="typeDeChamp === 'password'">
         <button
           type="button"

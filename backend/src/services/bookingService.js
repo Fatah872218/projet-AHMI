@@ -10,7 +10,7 @@ class BookingService {
   }
 
   async createBooking(data) {
-    console.log("📥 Données reçues pour création réservation :", data);
+    console.info(" Données reçues pour création réservation :", data);
     try {
       /* const existingBooking =
         await this.bookingRepository.findBookingByUserAndEvent(
@@ -54,7 +54,7 @@ class BookingService {
         }
       }
 
-      console.log(
+      console.info(
         " service nbReservations placesRestantes",
         nbReservations,
         placesRestantes
@@ -63,7 +63,7 @@ class BookingService {
       const nouvelleReservation = await this.bookingRepository.createBooking(
         data
       );
-      console.log("reservation créée", nouvelleReservation);
+      console.info("reservation créée", nouvelleReservation);
       // Met à jour le champ placesReservees sur l'événement
       await this.eventRepository.incrementPlacesReservees(
         data.evenement,

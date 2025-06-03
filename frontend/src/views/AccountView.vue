@@ -11,13 +11,13 @@ import BaseConfirmDialog from '@/components/base/BaseConfirmDialog.vue'
 import CounterInput from '@/components/base/CounterInput.vue'
 import { getAllEvents, deleteEvent, updateEventStatus } from '@/services/eventService'
 import { getMyBookings, updateBooking, deleteBooking } from '@/services/bookingService'
-import { eventBus } from '@/utils/eventBus'
+import { useEvenementsStore } from '@/stores/evenements'
 
 const { utilisateur } = useAuth()
 console.log('Utilisateur connecté :', utilisateur.value)
 
 const toast = useToast()
-
+const evenementsStore = useEvenementsStore()
 const evenements = ref([])
 const reservations = ref([])
 const activeTab = ref('tous')
@@ -38,15 +38,15 @@ const placesToUpdate = reactive({})
 onMounted(async () => {
   try {
     const res = await getAllEvents()
-    console.log('Événements reçus :', res.data)
+    console.info('Événements reçus :', res.data)
 
-    console.log(' Tous les événements récupérés :', res.data)
-    console.log('🙋 Utilisateur courant :', utilisateur.value)
+    console.info(' Tous les événements récupérés :', res.data)
+    console.info('🙋 Utilisateur courant :', utilisateur.value)
 
     evenements.value = res.data.filter((e) => new Date(e.dateFin) > new Date())
 
     const res2 = await getMyBookings()
-    console.log('Réservations récupérées :', res2.data)
+    console.info('Réservations récupérées :', res2.data)
     reservations.value = res2.data
   } catch (e) {
     toast.error('Erreur lors du chargement des données.')
@@ -126,6 +126,8 @@ const modifierPlaces = async (booking, delta) => {
 
   try {
     await updateBooking(booking._id, { nombrePlaces: nouvelleValeur })
+    await evenementsStore.refreshEvenement(booking.evenement._id)
+
     booking.nombrePlaces = nouvelleValeur
     // Recharge les réservations pour forcer la synchro
     const res2 = await getMyBookings()
@@ -151,6 +153,7 @@ const modifierPlaces = async (booking, delta) => {
 const supprimerReservation = async (id) => {
   try {
     await deleteBooking(id)
+    await evenementsStore.refreshEvenement(booking.evenement._id)
     reservations.value = reservations.value.filter((r) => r._id !== id)
     toast.success('Réservation supprimée.')
   } catch (e) {

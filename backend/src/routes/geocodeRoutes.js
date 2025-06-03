@@ -3,7 +3,7 @@ import axios from "axios";
 
 const router = express.Router();
 
-router.get("/geocode", async (req, res) => {
+router.get("/", async (req, res) => {
   const { q } = req.query;
   try {
     const response = await axios.get(

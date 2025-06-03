@@ -35,9 +35,9 @@ class BookingRepository {
   // Trouver les réservations d'un utilisateur
   async findByUser(userId) {
     try {
-      return await Reservation.find({ utilisateur: userId }).populate(
-        "evenement"
-      );
+      return await Reservation.find({ utilisateur: userId })
+        .populate("evenement")
+        .populate("utilisateur", "nom email");
     } catch (err) {
       throw new Error(`Erreur réservations utilisateur : ${err.message}`);
     }

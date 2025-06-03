@@ -13,7 +13,7 @@ class BookingController {
   }
 
   createBooking = async (req, res) => {
-    console.log("BODY RÉCEPTIONNÉ PAR L'API:", req.body);
+    console.info("BODY RÉCEPTIONNÉ PAR L'API:", req.body);
 
     try {
       //if (!req.utilisateur) {
@@ -33,9 +33,19 @@ class BookingController {
       res.status(201).json(booking);
     } catch (err) {
       console.error("Erreur lors de la création d'une réservation:", err);
-      res
-        .status(400)
-        .json({ message: err.message, details: err.details || null });
+      if (err.name === "ValidationError") {
+        res
+          .status(400)
+          .json({ message: err.message, details: err.details || null });
+      } else if (err.name === "UnauthorizedError") {
+        res
+          .status(401)
+          .json({ message: err.message, details: err.details || null });
+      } else {
+        res
+          .status(500)
+          .json({ message: err.message, details: err.details || null });
+      }
     }
   };
 

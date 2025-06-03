@@ -8,30 +8,15 @@ const router = express.Router();
 
 const controleurRole = new ControleurRole();
 
-router.get(
-  "/",
-  fakeAuthAdmin,
-  checkRole,
-  /* middlewareAuth,*/ controleurRole.getAllRoles
-);
-router.get("/:nom", /* middlewareAuth,checkRole, */ controleurRole.getRole);
-router.post(
-  "/role",
-  fakeAuthAdmin,
-  checkRole,
-  /* middlewareAuth,  */ controleurRole.createRole
-);
-router.post(
-  "/",
-  fakeAuthAdmin,
-  checkRole("admin"),
-  /* middlewareAuth,*/ controleurRole.createRole
-);
-router.put("/:id", /* middlewareAuth,  */ checkRole, controleurRole.updateRole);
+router.get("/", fakeAuthAdmin, checkRole("admin"), controleurRole.getAllRoles);
+router.get("/:nom", controleurRole.getRole);
+
+router.post("/", fakeAuthAdmin, checkRole("admin"), controleurRole.createRole);
+router.put("/:id", checkRole("admin"), controleurRole.updateRole);
 router.delete(
   "/:id",
   fakeAuthAdmin,
-  /* middlewareAuth, */ checkRole,
+  checkRole("admin"),
   controleurRole.deleteRole
 );
 

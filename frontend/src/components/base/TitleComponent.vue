@@ -37,14 +37,26 @@
           class="absolute z-10 mt-2 w-full md:w-48 bg-white border border-gray-300 rounded shadow-md"
         >
           <ul class="divide-y divide-gray-100 text-sm">
-            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" @click="selectSort('date')">
+            <li
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+              @click="selectSort('date')"
+            >
               📅 Date (récent → ancien)
+              <CheckIcon v-if="props.sortType === 'date'" class="w-4 h-4 text-green-600" />
             </li>
-            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" @click="selectSort('dayNight')">
+            <li
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+              @click="selectSort('dayNight')"
+            >
               🌞 Jour / 🌙 Nuit
+              <CheckIcon v-if="props.sortType === 'dayNight'" class="w-4 h-4 text-green-600" />
             </li>
-            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" @click="selectSort('category')">
+            <li
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+              @click="selectSort('category')"
+            >
               📂 Catégorie
+              <CheckIcon v-if="props.sortType === 'category'" class="w-4 h-4 text-green-600" />
             </li>
           </ul>
         </div>
@@ -61,6 +73,16 @@
         <FilterIcon class="w-6 h-6" />
         <span class="hidden md:inline">Filtrer</span>
       </BaseButton>
+      <!-- Sélecteur de catégories -->
+      <select
+        class="border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 w-full md:w-auto"
+        @change="$emit('filter-category', $event.target.value)"
+      >
+        <option value="">Toutes les catégories</option>
+        <option v-for="cat in categories" :key="cat._id" :value="cat.nom">
+          {{ cat.nom }}
+        </option>
+      </select>
     </div>
   </div>
 </template>
@@ -69,11 +91,17 @@
 import { ref, onMounted } from 'vue'
 import { SortDescendingIcon, FilterIcon } from '@heroicons/vue/outline'
 import BaseButton from '@/components/base/BaseButton.vue'
+import api from '@/services/api'
+import { CheckIcon } from '@heroicons/vue/solid'
 
 const props = defineProps({
   title: {
     type: String,
     default: 'Événements à venir',
+  },
+  sortType: {
+    type: String,
+    default: 'date',
   },
 })
 
@@ -86,6 +114,12 @@ function selectSort(type) {
   isDropdownOpen.value = false
   emit('change-sort', type)
 }
+const categories = ref([])
+
+onMounted(async () => {
+  const res = await api.get('/categories/public') // ou /api/categories/public
+  categories.value = res.data
+})
 
 // Fermeture au clic extérieur (manuellement ici)
 onMounted(() => {

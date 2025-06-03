@@ -60,12 +60,6 @@ class EventController {
   updateEvent = async (req, res) => {
     try {
       console.log(" Requête reçue (updateEvent) :", req.body);
-      // Étape 1 : validation via Joi
-      const { error } = updateEventSchema.validate(req.body);
-      if (error) {
-        console.error("Erreur de validation Joi:", error.details);
-        return res.status(400).json({ error: error.details[0].message });
-      }
 
       // Validation des catégories si présentes dans la bdd
       if (req.body.categories && Array.isArray(req.body.categories)) {
@@ -78,6 +72,13 @@ class EventController {
             .status(400)
             .json({ message: "Une ou plusieurs catégories sont invalides." });
         }
+      }
+      // Seul l’auteur (createur) ou admin peut modifier
+      if (
+        existing.createur.toString() !== req.user.id &&
+        req.utilisateur.role !== "admin"
+      ) {
+        return res.status(403).json({ message: "Accès refusé" });
       }
 
       const updatedEvent = await this.eventService.updateEvent(
@@ -92,7 +93,7 @@ class EventController {
 
       res.status(200).json(updatedEvent);
     } catch (err) {
-      console.error("❌ Erreur updateEvent :", err);
+      console.error(" Erreur updateEvent :", err);
       res.status(400).json({
         message: "Erreur lors de la mise à jour de l'événement",
         error: err.message,
