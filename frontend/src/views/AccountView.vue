@@ -98,7 +98,7 @@ const confirmerSuppression = async () => {
     modalVisible.value = false
   }
 }
-
+// eslint-disable-next-line no-unused-vars
 const changerStatut = async (id, nouveauStatut) => {
   try {
     await updateEventStatus(id, nouveauStatut)
@@ -150,10 +150,10 @@ const modifierPlaces = async (booking, delta) => {
   }
 }
 
-const supprimerReservation = async (id) => {
+const supprimerReservation = async (id, eventId) => {
   try {
     await deleteBooking(id)
-    await evenementsStore.refreshEvenement(booking.evenement._id)
+    await evenementsStore.refreshEvenement(eventId)
     reservations.value = reservations.value.filter((r) => r._id !== id)
     toast.success('Réservation supprimée.')
   } catch (e) {
@@ -413,7 +413,7 @@ const validerPlaces = async (r) => {
                 <BaseButton
                   variant="ghost"
                   size="sm"
-                  @click="supprimerReservation(r._id)"
+                  @click="supprimerReservation(r._id, r.evenement._id)"
                   :disabled="estPasse(r.evenement)"
                   aria-label="Supprimer la réservation"
                   class="focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"

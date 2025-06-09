@@ -149,7 +149,7 @@ const formatDate = (date) => {
     return date
   }
 }
-
+//eslint-disable-next-line no-unused-vars
 const truncateDescription = (desc) => {
   if (!desc) return ''
   return desc.length > 100 ? desc.substring(0, 100) + '...' : desc

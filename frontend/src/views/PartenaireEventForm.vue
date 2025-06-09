@@ -347,7 +347,7 @@ onMounted(async () => {
     Object.assign(form.value, evRes.data.data || evRes.data)
   }
 })
-
+// eslint-disable-next-line no-unused-vars
 const handleImageUpload = (e) => {
   const file = e.target.files[0]
   if (!file) return

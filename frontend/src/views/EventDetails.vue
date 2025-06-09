@@ -116,6 +116,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+// eslint-disable-next-line no-unused-vars
 import axios from 'axios'
 import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
@@ -160,9 +161,6 @@ const formatDate = (d) => {
   }
 }
 
-function reserve() {
-  router.push(`/evenement/${route.params.id}/reserver`)
-}
 function handleReservation() {
   if (!utilisateur.value) {
     toast.warning('Vous devez être connecté pour réserver.')

@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-primary text-white p-4">
+  <ahmiHeader class="bg-primary text-white p-4">
     <div class="container mx-auto flex justify-between items-center">
       <h1 class="text-xl font-bold">AHMI</h1>
       <nav>
@@ -10,5 +10,11 @@
         </ul>
       </nav>
     </div>
-  </header>
+  </ahmiHeader>
 </template>
+
+<script>
+export default {
+  name: 'AppHeader',
+}
+</script>

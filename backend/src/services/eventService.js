@@ -1,6 +1,7 @@
 import EventRepository from "../repositories/eventRepository.js";
 import BookingRepository from "../repositories/bookingRepository.js";
 import sanitizeHtml from "sanitize-html";
+import Categorie from "../models/modeleCategorie.js";
 
 const cleanString = (input) => {
   return sanitizeHtml(input, {
@@ -98,6 +99,19 @@ class EventService {
 
   async updateEvent(id, updateData, options = {}) {
     try {
+      if (updateData.categories && Array.isArray(updateData.categories)) {
+        const existingCats = await Categorie.find({
+          _id: { $in: req.body.categories },
+        });
+
+        if (existingCats.length !== updateData.categories.length) {
+          const error = new Error(
+            "Une ou plusieurs catégories sont invalides."
+          );
+          error.statusCode = 400;
+          throw error;
+        }
+      }
       return await this.eventRepository.update(id, updateData, options);
     } catch (err) {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);

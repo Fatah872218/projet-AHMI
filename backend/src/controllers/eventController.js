@@ -1,5 +1,5 @@
 import EventService from "../services/eventService.js";
-import Categorie from "../models/modeleCategorie.js";
+
 import mongoose from "mongoose";
 import { updateEventSchema } from "../validations/eventSchemas.js";
 
@@ -14,7 +14,8 @@ class EventController {
       const event = await this.eventService.createEvent({
         ...req.body,
         statut: "en_attente", // Par défaut
-        createur: req.utilisateur?.id || req.body.createur, // Si connecté
+        createur: req.utilisateur?.id,
+        // Si connecté
       });
       res.status(201).json(event);
     } catch (err) {
@@ -61,21 +62,15 @@ class EventController {
     try {
       console.log(" Requête reçue (updateEvent) :", req.body);
 
-      // Validation des catégories si présentes dans la bdd
-      if (req.body.categories && Array.isArray(req.body.categories)) {
-        const existingCats = await Categorie.find({
-          _id: { $in: req.body.categories },
-        });
-
-        if (existingCats.length !== req.body.categories.length) {
-          return res
-            .status(400)
-            .json({ message: "Une ou plusieurs catégories sont invalides." });
-        }
-      }
       // Seul l’auteur (createur) ou admin peut modifier
+      const existing = await this.eventService.getEventById(req.params.id);
+
+      if (!existing) {
+        return res.status(404).json({ message: "Événement non trouvé." });
+      }
+
       if (
-        existing.createur.toString() !== req.user.id &&
+        existing.createur.toString() !== req.utilisateur.id &&
         req.utilisateur.role !== "admin"
       ) {
         return res.status(403).json({ message: "Accès refusé" });
