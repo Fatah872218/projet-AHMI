@@ -60,7 +60,8 @@ import useAuth from '@/hooks/utiliserAuth'
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const { user } = useAuth()
+// eslint-disable-next-line no-unused-vars
+const { utilisateur } = useAuth()
 
 const evenement = ref(null)
 const loading = ref(true)

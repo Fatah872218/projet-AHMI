@@ -1,3 +1,4 @@
+<!-- App.vue -->
 <template>
   <div>
     <!-- Zone de notification accessible pour lecteurs d’écran -->

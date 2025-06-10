@@ -55,3 +55,6 @@ a:hover {
   color: var(--text-secondary);
   border-radius: var(--radius-minimal);
 }
+form {
+  @apply sm:px-6;
+}

@@ -56,6 +56,7 @@ onMounted(async () => {
     // 🔢 Simule les places restantes
     placesRestantes.value = event.value.capaciteMax - (event.value.placesReservees || 0)
   } catch (e) {
+    console.error(e)
     error.value = "Impossible de charger l'événement"
   } finally {
     loading.value = false

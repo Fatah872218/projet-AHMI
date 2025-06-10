@@ -1,7 +1,7 @@
 # 🎨 Design System AHMI
 
 > Document de référence pour le design web et mobile du projet **AHMI**  
-> Dernière mise à jour : 2025-05-05
+> Dernière mise à jour : 2025-06-05
 
 ---
 
@@ -46,7 +46,7 @@
 
 ---
 
-## 🧩 Composants réutilisables
+## Composants réutilisables
 
 ### 🔘 Bouton (`BaseButton.vue`)
 

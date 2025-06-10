@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
   connecterUtilisateur,
-  deconnecterUtilisateur,
   demanderReinitialisationMotDePasse,
   reinitialiserMotDePasse,
 } from '@/services/serviceAuth'
@@ -74,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
     jeton.value = 'fake-token'
     localStorage.setItem('token', jeton.value)
   }
-  // ✅ Simulation automatique si token local présent
+  // Simulation automatique si token local présent
   if (!utilisateur.value && localStorage.getItem('token')) {
     simulerConnexion('admin')
   }
@@ -88,6 +87,6 @@ export const useAuthStore = defineStore('auth', () => {
     deconnexion,
     motDePasseOublie,
     reinitialiser,
-    simulerConnexion, // ✅ bien exportée
+    simulerConnexion, //  bien exportée
   }
 })

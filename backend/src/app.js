@@ -81,20 +81,6 @@ try {
 }
 //app.use("/api/geocode", geocodeRoutes);
 
-// ✅ Servir le frontend buildé
-const frontendPath = join(__dirname, "../../frontend/dist");
-app.use(express.static(frontendPath));
-console.info("Chargement terminé sans erreurs jusqu'ici ");
-
-// Catch-all : ne capture PAS les appels API
-app.get(/^\/(?!api).*/, function (req, res) {
-  res.sendFile(join(frontendPath, "index.html"), function (err) {
-    if (err) {
-      res.status(500).send(err);
-    }
-  });
-});
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;

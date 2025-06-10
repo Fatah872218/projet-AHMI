@@ -1,6 +1,7 @@
 import EventRepository from "../repositories/eventRepository.js";
 import BookingRepository from "../repositories/bookingRepository.js";
 import sanitizeHtml from "sanitize-html";
+import Categorie from "../models/modeleCategorie.js";
 
 const cleanString = (input) => {
   return sanitizeHtml(input, {
@@ -14,9 +15,43 @@ class EventService {
     this.eventRepository = new EventRepository();
     this.bookingRepository = new BookingRepository();
   }
+  async getCoordinatesFromAddress(address) {
+    try {
+      const response = await axios.get(
+        "https://nominatim.openstreetmap.org/search",
+        {
+          params: {
+            q: address,
+            format: "json",
+            limit: 1,
+          },
+          headers: {
+            "User-Agent": "ahmi-app/1.0",
+            "Accept-Language": "fr",
+          },
+        }
+      );
+
+      if (response.data.length > 0) {
+        return {
+          lat: parseFloat(response.data[0].lat),
+          lng: parseFloat(response.data[0].lon),
+        };
+      }
+
+      return null;
+    } catch (err) {
+      console.error("Erreur appel géocodage :", err.message);
+      return null;
+    }
+  }
 
   async createEvent(data) {
     try {
+      const fullAddress = `${data.lieu?.rue ?? ""}, ${
+        data.lieu?.codePostal ?? ""
+      }, ${data.lieu?.commune ?? ""}`;
+      const coordinates = await this.getCoordinatesFromAddress(fullAddress);
       const cleanedData = {
         ...data,
         titre: cleanString(data.titre),
@@ -30,12 +65,14 @@ class EventService {
           rue: cleanString(data.lieu?.rue),
           codePostal: cleanString(data.lieu?.codePostal),
           commune: cleanString(data.lieu?.commune),
+          coordonnees: coordinates,
         },
         organisateur: {
           nom: cleanString(data.organisateur?.nom),
           email: cleanString(data.organisateur?.email),
         },
       };
+
       return await this.eventRepository.create({
         ...cleanedData,
         statut: "en_attente",
@@ -98,6 +135,19 @@ class EventService {
 
   async updateEvent(id, updateData, options = {}) {
     try {
+      if (updateData.categories && Array.isArray(updateData.categories)) {
+        const existingCats = await Categorie.find({
+          _id: { $in: req.body.categories },
+        });
+
+        if (existingCats.length !== updateData.categories.length) {
+          const error = new Error(
+            "Une ou plusieurs catégories sont invalides."
+          );
+          error.statusCode = 400;
+          throw error;
+        }
+      }
       return await this.eventRepository.update(id, updateData, options);
     } catch (err) {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);

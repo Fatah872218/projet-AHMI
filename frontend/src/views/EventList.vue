@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed, onUnmounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useEvenementsStore } from '@/stores/evenements'
 import CardComponent from '@/components/base/CardComponent.vue'
 import MainLayout from '@/layout/MainLayout.vue'
@@ -68,13 +68,14 @@ const sortType = ref('date') // valeurs possibles : "date", "dayNight", "categor
 const selectedCategory = ref('')
 
 // Simulation dev (désactive si auth présente)
+
 const isDev = true
 
 // Liste brute des événements (filtrés selon statut si non admin)
 const evenements = computed(() =>
   isDev ? store.allEvenements : store.allEvenements.filter((e) => e.statut === 'approuve')
 )
-
+console.log('Événements (bruts) :', evenements.value)
 // Récupération initiale
 onMounted(async () => {
   await store.fetchEvenements()
@@ -84,7 +85,7 @@ onMounted(async () => {
 })
 
 const evenementsApprouves = computed(() => store.evenementsApprouvesValides)
-
+console.log('Événements approuvés :', evenementsApprouves.value)
 // Liste finale filtrée et triée
 
 const filteredEvenements = computed(() => {
@@ -153,7 +154,7 @@ const filteredEvenements = computed(() => {
 function updateSearch(query) {
   searchQuery.value = query
 }
-
+// eslint-disable-next-line no-unused-vars
 function toggleSortOrder() {
   sortAsc.value = !sortAsc.value
 }

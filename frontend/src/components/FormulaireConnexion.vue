@@ -17,8 +17,9 @@ const email = ref('')
 const password = ref('')
 const auth = useAuthStore()
 const router = useRouter()
-
+// eslint-disable-next-line no-unused-vars
 const handleLogin = async () => {
+  // fonction à implémenter plus tard
   await auth.login({ email: email.value, password: password.value })
   if (!auth.erreur) {
     router.push('/') // ou une route sécurisée
