@@ -15,9 +15,43 @@ class EventService {
     this.eventRepository = new EventRepository();
     this.bookingRepository = new BookingRepository();
   }
+  async getCoordinatesFromAddress(address) {
+    try {
+      const response = await axios.get(
+        "https://nominatim.openstreetmap.org/search",
+        {
+          params: {
+            q: address,
+            format: "json",
+            limit: 1,
+          },
+          headers: {
+            "User-Agent": "ahmi-app/1.0",
+            "Accept-Language": "fr",
+          },
+        }
+      );
+
+      if (response.data.length > 0) {
+        return {
+          lat: parseFloat(response.data[0].lat),
+          lng: parseFloat(response.data[0].lon),
+        };
+      }
+
+      return null;
+    } catch (err) {
+      console.error("Erreur appel géocodage :", err.message);
+      return null;
+    }
+  }
 
   async createEvent(data) {
     try {
+      const fullAddress = `${data.lieu?.rue ?? ""}, ${
+        data.lieu?.codePostal ?? ""
+      }, ${data.lieu?.commune ?? ""}`;
+      const coordinates = await this.getCoordinatesFromAddress(fullAddress);
       const cleanedData = {
         ...data,
         titre: cleanString(data.titre),
@@ -31,12 +65,14 @@ class EventService {
           rue: cleanString(data.lieu?.rue),
           codePostal: cleanString(data.lieu?.codePostal),
           commune: cleanString(data.lieu?.commune),
+          coordonnees: coordinates,
         },
         organisateur: {
           nom: cleanString(data.organisateur?.nom),
           email: cleanString(data.organisateur?.email),
         },
       };
+
       return await this.eventRepository.create({
         ...cleanedData,
         statut: "en_attente",
