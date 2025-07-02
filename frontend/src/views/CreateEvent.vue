@@ -189,6 +189,7 @@ const handleSubmit = async () => {
     toast.success('Événement créé !')
     router.push('/account')
   } catch (e) {
+    console.error(e)
     toast.error('Erreur lors de la création')
   } finally {
     loading.value = false
