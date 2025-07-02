@@ -1,14 +1,17 @@
- name: CI
+name: CI
 
 on:
   push:
-    branches: [ main, feature/** ]
+    branches:
+      - main
+      - feature/**
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   backend:
-    name: Back-end (Node 18)
+    name: Back-end
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -16,8 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node 18
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "npm"
@@ -27,7 +29,7 @@ jobs:
       - run: npm test --if-present
 
   frontend:
-    name: Front-end (Node 18)
+    name: Front-end
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,8 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node 18
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "npm"
