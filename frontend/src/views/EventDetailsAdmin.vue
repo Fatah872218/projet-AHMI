@@ -353,10 +353,7 @@ onMounted(async () => {
   try {
     const catRes = await getCategories()
     allCategories.value = catRes.data.data || catRes.data
-
-    const res = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/evenements/${route.params.id}`
-    )
+    const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/events/${route.params.id}`)
     evenement.value = res.data.data || res.data
 
     adresseRue.value = evenement.value?.lieu?.rue || ''

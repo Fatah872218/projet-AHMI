@@ -3,7 +3,7 @@
   <MainLayout>
     <form
       @submit.prevent="handleSubmit"
-      class="max-w-5xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-6"
+      class="max-w-5xl mx-auto bg-ahmi-bg shadow-md rounded-2xl p-6 space-y-6 text-ahmi-text-primary"
     >
       <h1 class="text-2xl font-bold mb-4">
         {{ isEdit ? 'Modifier un événement' : 'Créer un événement' }}
@@ -64,8 +64,8 @@
       </div>
 
       <!-- Adresse -->
-      <fieldset class="border rounded p-4">
-        <legend class="text-lg font-semibold">
+      <fieldset class="border border-ahmi-border-primary rounded p-4 bg-ahmi-surface-primary">
+        <legend class="text-ahmi-text-brand font-semibold">
           Lieu de l’événement <span class="text-red-600">*</span>
         </legend>
 
@@ -164,14 +164,14 @@
 
       <!-- Catégories -->
       <div>
-        <label for="event-categories" class="block text-sm font-medium mb-1">
+        <label for="event-categories" class="block text-sm font-medium mb-1 text-ahmi-text-primary">
           Catégories <span class="text-red-600">*</span>
         </label>
         <select
           id="event-categories"
           v-model="form.categories"
           multiple
-          class="w-full border rounded px-4 py-2"
+          class="w-full border border-ahmi-border-primary rounded px-4 py-2bg-ahmi-surface-primary text-ahmi-text-default"
         >
           <option v-for="cat in categories" :key="cat._id" :value="cat._id">
             {{ cat.nom }}
@@ -185,7 +185,7 @@
         <BaseInput label="Email" type="email" v-model="form.organisateur.email" disabled />
       </div>
 
-      <div class="text-xs text-gray-500 mt-4">
+      <div class="text-sm text-ahmi-text-secondary mt-4">
         En soumettant ce formulaire, vous acceptez que les informations saisies soient utilisées
         dans le cadre de la gestion des événements AHMI.
         <a href="/mentions-legales" class="underline text-ahmi-accent">En savoir plus</a>
@@ -509,7 +509,35 @@ const saveEvent = async () => {
     ? await safeCall(() => updateEvent(route.params.id, payload), false)
     : await safeCall(() => createEvent(payload), false)
 
-  return res !== false
+  if (!res.success && res.detailedErrors) {
+    // Mapper les erreurs backend sur les champs du formulaire
+    Object.keys(res.detailedErrors).forEach((key) => {
+      const fieldMap = {
+        titre: 'titre',
+        description: 'description',
+        dateDebut: 'dateDebut',
+        dateFin: 'dateFin',
+        capaciteMax: 'capaciteMax',
+        prix: 'prix',
+        participationFinanciere: 'participationFinanciere',
+        imageUrl: 'imageUrl',
+        lienSiteInternet: 'lienSiteInternet',
+        lienInstagram: 'lienInstagram',
+        rue: 'lieuRue',
+        codePostal: 'lieuCP',
+        commune: 'lieuCommune',
+        categories: 'categories',
+        consentement: 'consentement',
+      }
+
+      const fieldName = fieldMap[key] || key
+      if (errors[fieldName] !== undefined) {
+        errors[fieldName] = res.detailedErrors[key].message || res.detailedErrors[key]
+      }
+    })
+  }
+
+  return res.success
 }
 const consentement = ref(false)
 errors.consentement = ''

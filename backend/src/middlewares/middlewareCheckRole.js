@@ -3,6 +3,8 @@ import Utilisateur from "../models/modeleUtilisateur.js";
 const checkRole = (...rolesAutorises) => {
   return async (req, res, next) => {
     try {
+      console.log("DDDDDDDD", req.utilisateur);
+
       // SIMULATION TEMPORAIRE
       if (req.utilisateur?.role === "admin") {
         return next();

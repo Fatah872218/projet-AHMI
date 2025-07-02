@@ -87,5 +87,5 @@ const PORT = process.env.PORT || 3000;
 console.info("Chargement terminé sans erreurs jusqu'ici ");
 
 app.listen(PORT, () => {
-  console.log(`Serveur en écoute sur http://localhost:${PORT}`);
+  console.info(`Serveur en écoute sur http://localhost:${PORT}`);
 });
