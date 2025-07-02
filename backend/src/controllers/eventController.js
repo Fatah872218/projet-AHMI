@@ -26,18 +26,20 @@ class EventController {
   // Récupérer tous les événements (validés ou tout selon les rôles)
   getAllEvents = async (req, res) => {
     try {
-      console.log(" Requête reçue pour getAllEvents");
-      console.log(" Utilisateur connecté (req.utilisateur) :", req.utilisateur);
+      console.info(" Requête reçue pour getAllEvents");
+      console.info(
+        " Utilisateur connecté (req.utilisateur) :",
+        req.utilisateur
+      );
 
-      console.log("Utilisateur courant dans getAllEvents :", req.utilisateur);
+      console.info("Utilisateur courant dans getAllEvents :", req.utilisateur);
 
       const filter =
         req.utilisateur?.role === "admin" ? {} : { statut: "approuve" };
-
-      console.log(" Filtre utilisé pour getAllEvents :", filter);
+      console.info(" Filtre utilisé pour getAllEvents :", filter);
 
       const events = await this.eventService.getAllEvents(filter);
-      console.log(" Événements retournés :", events.length);
+      console.info(" Événements retournés :", events.length);
       res.status(200).json(events);
     } catch (err) {
       console.error(" Erreur dans getAllEvents :", err.message);
@@ -60,7 +62,7 @@ class EventController {
   // Mettre à jour un événement (par créateur ou admin)
   updateEvent = async (req, res) => {
     try {
-      console.log(" Requête reçue (updateEvent) :", req.body);
+      console.info(" Requête reçue (updateEvent) :", req.body);
 
       // Seul l’auteur (createur) ou admin peut modifier
       const existing = await this.eventService.getEventById(req.params.id);
