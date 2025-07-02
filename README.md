@@ -1,5 +1,7 @@
 # AHMI – Plateforme Solidaire
 
+![CI](https://github.com/Fatah872218/projet-AHMI/actions/workflows/ci.yml/badge.svg)
+
 > **Pitch en une phrase :** Application web et mobile qui centralise toutes les actions solidaires de l’association AHMI — gestion d’événements, boutique de dons revalorisés et mise en relation  — afin d’améliorer le quotidien des citoyens tout en soutenant l’économie locale.
 
 ---
@@ -62,14 +64,14 @@ Le stage de 11 semaines (25 mars → 30 mai 2025) a donc eu pour obj
 | --------------------------- | -------------------- | ------------------ | ------------------------- |
 | Vue 3 + Vite + Tailwind CSS | Node.js 18 + Express | MongoDB + Mongoose | Vitest / Jest / Supertest |
 
-_._
+_A ajuster._
 
 ## Prérequis
 
 - Node >= 18
 - npm >= 10 / pnpm / yarn
 - MongoDB en local **ou** URI Atlas
-- … ()
+- … (ajouter ce qu’il faut si nécessaire)
 
 ## Installation
 
@@ -143,11 +145,11 @@ projet-AHMI/
     └── …
 ```
 
-_._
+_A mettre à jour si l’arborescence diffère._
 
 ## Tests
 
-_Décris ici la couverture actuelle et comment lancer les tests. Ex.: « Jest couvre 60 % du back, Vitest 70 % du front »._
+_couverture actuelle et comment lancer les tests. Ex.: « pas te test lancé à ce jour excepté postman »._
 
 ## Déploiement
 
@@ -177,6 +179,6 @@ Ce projet est sous licence **MIT** — voir le fichier [LICENSE](./LICENSE) pour
 
 ## Contact
 
-\*Fatah872218 — \*[_eliseg64@gmail.com_](mailto:eliseg64@gmail.com)
+\*Fatah872218 — \*[_email@example.com_](mailto:email@example.com)
 
 LinkedIn : [https://www.linkedin.com/in/username](https://www.linkedin.com/in/username) GitHub : [https://github.com/Fatah872218](https://github.com/Fatah872218)
