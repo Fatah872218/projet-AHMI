@@ -62,14 +62,14 @@ Le stage de 11 semaines (25 mars → 30 mai 2025) a donc eu pour obj
 | --------------------------- | -------------------- | ------------------ | ------------------------- |
 | Vue 3 + Vite + Tailwind CSS | Node.js 18 + Express | MongoDB + Mongoose | Vitest / Jest / Supertest |
 
-_Ajuste ce tableau si nécessaire._
+_._
 
 ## Prérequis
 
 - Node >= 18
 - npm >= 10 / pnpm / yarn
 - MongoDB en local **ou** URI Atlas
-- … (ajouter ce qu’il faut)
+- … ()
 
 ## Installation
 
@@ -143,7 +143,7 @@ projet-AHMI/
     └── …
 ```
 
-_A mettre à jour si l’arborescence diffère._
+_._
 
 ## Tests
 
@@ -177,6 +177,6 @@ Ce projet est sous licence **MIT** — voir le fichier [LICENSE](./LICENSE) pour
 
 ## Contact
 
-\*Fatah872218 — \*[_email@example.com_](mailto:email@example.com)
+\*Fatah872218 — \*[_eliseg64@gmail.com_](mailto:eliseg64@gmail.com)
 
 LinkedIn : [https://www.linkedin.com/in/username](https://www.linkedin.com/in/username) GitHub : [https://github.com/Fatah872218](https://github.com/Fatah872218)
