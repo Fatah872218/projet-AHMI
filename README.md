@@ -1,13 +1,12 @@
-# Nom du projet
+# AHMI – Plateforme Solidaire
 
-> \*\*
-> Application web et mobile qui centralise toutes les actions solidaires de l’association AHMI — gestion d’événements, boutique de dons revalorisés et mise en relation — afin d’améliorer le quotidien des citoyens tout en soutenant l’économie locale.
+> **Pitch en une phrase :** Application web et mobile qui centralise toutes les actions solidaires de l’association AHMI — gestion d’événements, boutique de dons revalorisés et mise en relation  — afin d’améliorer le quotidien des citoyens tout en soutenant l’économie locale.
 
 ---
 
 ## Sommaire
 
-- [Nom du projet](#nom-du-projet)
+- [AHMI – Plateforme Solidaire](#ahmi--plateforme-solidaire)
   - [Sommaire](#sommaire)
   - [Contexte](#contexte)
   - [Fonctionnalités clés](#fonctionnalités-clés)
@@ -18,52 +17,44 @@
   - [Scripts npm utiles](#scripts-npm-utiles)
   - [Variables d’environnement](#variables-denvironnement)
   - [Structure des dossiers](#structure-des-dossiers)
+  - [Tests](#tests)
+  - [Déploiement](#déploiement)
+  - [Roadmap](#roadmap)
+  - [Contribuer](#contribuer)
+  - [Licence](#licence)
+  - [Contact](#contact)
 
 ---
 
 ## Contexte
 
-\_L’association AHMI (Aide Humanitaire des Motards Interdépartemental), fondée en 2022 à Pau, lutte contre :
+L’association **AHMI (Aide Humanitaire des Motards Interdépartemental)**, fondée en 2022 à Pau, lutte contre :
 
-le gaspillage alimentaire et matériel ;
-
-la précarité des publics fragiles ;
-
-les difficultés logistiques des petits événements associatifs.
+- le gaspillage alimentaire et matériel ;
+- la précarité des publics fragiles ;
+- les difficultés logistiques des petits événements associatifs.
 
 Composée d’un salarié et d’une vingtaine de bénévoles, AHMI organise des ateliers socio‑culturels, un jardin participatif, des marchés nocturnes et une boutique solidaire. Le site WordPress créé en 2023 était figé ; impossible pour les bénévoles non‑techniques d’ajouter un événement ou un produit sans passer par un développeur.
 
-Le stage de 11 semaines (25 mars → 30 mai 2025) a donc eu pour objectif de transformer ce site statique en plateforme dynamique, responsive et accessible, dotée d’un back‑office simplifié, afin de :
+Le stage de 11 semaines (25 mars → 30 mai 2025) a donc eu pour objectif de transformer ce site statique en **plateforme dynamique, responsive et accessible**, dotée d’un back‑office simplifié, afin de :
 
-Accroître la visibilité en ligne des actions d’AHMI ;
-
-Simplifier la publication de contenus (événements, articles, produits) ;
-
-Offrir aux citoyens une réservation et un paiement rapides depuis mobile ;
-
-Valoriser les partenaires locaux et recruter de nouveaux bénévoles.
+1. Accroître la visibilité en ligne des actions d’AHMI ;
+2. Simplifier la publication de contenus (événements, articles, produits) ;
+3. Offrir aux citoyens une réservation et un paiement rapides depuis mobile ;
+4. Valoriser les partenaires locaux et recruter de nouveaux bénévoles.
 
 ## Fonctionnalités clés
 
-- Authentification JWT et gestion fine des rôles (Admin, Partenaire, Utilisateur)
-
-- Catalogue d’événements CRUD avec workflow de modération
-
-- Réservation en ligne et suivi temps réel des places restantes
-
-- Paiements / dons (module prêt pour intégration Stripe)
-
-- Boutique solidaire de produits de seconde main
-
-- Tableau de bord personnel (historique des réservations & adhésions)
-
-- Soumission d’événement par les partenaires, validation admin
-
-- API REST (Express + MongoDB) avec schémas validés Joi
-
-- Front Vue 3 + Vite + Tailwind, 100 % responsive & conforme WCAG AA
-
-- Pipeline GitHub Actions & tests (Vitest / Jest)
+- [x] **Authentification JWT** et gestion fine des rôles (Admin, Partenaire, Utilisateur)
+- [x] **Catalogue d’événements CRUD** avec workflow de modération
+- [x] **Réservation en ligne** et suivi en temps réel des places restantes
+- [x] **Paiements / dons** – module prêt pour intégration Stripe
+- [x] **Boutique solidaire** de produits de seconde main
+- [x] **Tableau de bord personnel** (historique des réservations & adhésions)
+- [x] **Soumission d’événement** par les partenaires, validation admin
+- [x] **API REST** (Express + MongoDB) validée par **Joi**
+- [x] **Front Vue 3 + Vite + Tailwind**, 100 % responsive & conforme **WCAG AA**
+- [x] **Pipeline GitHub Actions** & tests (**Vitest / Jest**)
 
 ## Stack technique
 
@@ -78,7 +69,7 @@ _Ajuste ce tableau si nécessaire._
 - Node >= 18
 - npm >= 10 / pnpm / yarn
 - MongoDB en local **ou** URI Atlas
-- … ()
+- … (ajouter ce qu’il faut)
 
 ## Installation
 
@@ -106,7 +97,7 @@ $ cd frontend
 $ npm run dev
 ```
 
-_L’API tourne par défaut sur `http://localhost:5000` et le front sur `http://localhost:5173`._
+_L’API tourne par défaut sur **\*\***`http://localhost:5000`**\*\*** et le front sur **\*\***`http://localhost:5173`**\*\***._
 
 ## Scripts npm utiles
 
@@ -133,26 +124,26 @@ SMTP_PASS=
 
 ## Structure des dossiers
 
+```
 projet-AHMI/
 ├── backend/
-│ ├── src/
-│ │ ├── controllers/
-│ │ ├── routes/
-│ │ ├── models/
-│ │ └── …
-│ └── package.json
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   └── …
+│   └── package.json
 ├── frontend/
-│ ├── src/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ └── …
-│ └── package.json
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── …
+│   └── package.json
 └── docs/
-└── …
-
+    └── …
 ```
 
-_._
+_A mettre à jour si l’arborescence diffère._
 
 ## Tests
 
@@ -186,8 +177,6 @@ Ce projet est sous licence **MIT** — voir le fichier [LICENSE](./LICENSE) pour
 
 ## Contact
 
-_Fatah872218 — [email@example.com](mailto:email@example.com)_
+\*Fatah872218 — \*[_email@example.com_](mailto:email@example.com)
 
-LinkedIn : [https://www.linkedin.com/in/username](https://www.linkedin.com/in/username)
-GitHub : [https://github.com/Fatah872218](https://github.com/Fatah872218)
-```
+LinkedIn : [https://www.linkedin.com/in/username](https://www.linkedin.com/in/username) GitHub : [https://github.com/Fatah872218](https://github.com/Fatah872218)
