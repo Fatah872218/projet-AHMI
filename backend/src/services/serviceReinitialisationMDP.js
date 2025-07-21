@@ -31,7 +31,7 @@ class ServiceReinitialisationMDP {
       expiration
     );
 
-    const urlReinitialisation = `${process.env.FRONTEND_URL}/reinitialiser-mot-de-passe?token=${token}`;
+    const urlReinitialisation = `${process.env.FRONTEND_URL}/reinitialisation-mot-de-passe/${token}`;
 
     await this.transporter.sendMail({
       to: utilisateur.email,

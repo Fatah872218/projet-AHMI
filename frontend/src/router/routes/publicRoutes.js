@@ -1,3 +1,5 @@
+import VueConnexion from '@/views/VueConnexion.vue'
+
 export default [
   {
     path: '/',
@@ -13,6 +15,11 @@ export default [
     path: '/inscription',
     name: 'inscription',
     component: () => import('@/views/FormulaireInscription.vue'),
+  },
+  {
+    path: '/connexion',
+    name: 'Connexion',
+    component: VueConnexion,
   },
   {
     path: '/mot-de-passe-oublie',

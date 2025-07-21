@@ -51,7 +51,7 @@ import { useRouter } from 'vue-router'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
-import { inscrireUtilisateur } from '@/services/serviceAuth'
+import { inscription as inscrireUtilisateur } from '@/services/serviceAuth'
 
 const routeur = useRouter()
 

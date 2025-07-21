@@ -6,7 +6,7 @@ import connectDB from "./config/db.js";
 import roleRoutes from "./routes/routesRole.js";
 //import permissionRoutes from "./routes/routesPermission.js";
 import utilisateurRoutes from "./routes/routeUtilisateur.js";
-//import authRoutes from "./routes/routesAuth.js";
+import authRoutes from "./routes/routesAuth.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import categorieRoutes from "./routes/categorieRoutes.js";
@@ -36,49 +36,33 @@ app.use(cookieParser());
 
 // Routes
 console.info("Avant routes utilisateur");
-try {
-  app.use("/api/utilisateurs", utilisateurRoutes);
-  console.info(" utilisateurs OK");
-} catch (err) {
-  console.error(" utilisateurs KO :", err.message);
-}
+
+app.use("/api/utilisateurs", utilisateurRoutes);
+console.info(" utilisateurs OK");
 
 console.info("Avant routes role");
-try {
-  app.use("/api/roles", roleRoutes);
-  console.info(" roles OK");
-} catch (err) {
-  console.error(" roles KO :", err.message);
-}
+
+app.use("/api/roles", roleRoutes);
+console.info(" roles OK");
+
 //app.use("/api/permissions", permissionRoutes);
 console.info(" Avant routes event");
-//app.use("/api/auth", authRoutes);
-try {
-  app.use("/api/events", eventRoutes);
-} catch (err) {
-  console.error(
-    " Erreur lors de l'enregistrement des routes events :",
-    err.message
-  );
-}
+app.use("/api/auth", authRoutes);
+
+app.use("/api/events", eventRoutes);
 
 //app.use("/evenement", eventRoutes);
 
 console.info(" Avant routes booking");
-try {
-  app.use("/api/reservations", bookingRoutes);
-  console.log(" reservations OK");
-} catch (err) {
-  console.error(" reservations KO :", err.message);
-}
+
+app.use("/api/reservations", bookingRoutes);
+console.log(" reservations OK");
 
 console.info(" Avant routes categorie");
-try {
-  app.use("/api/categories", categorieRoutes);
-  console.info(" categories OK");
-} catch (err) {
-  console.error(" categories KO :", err.message);
-}
+
+app.use("/api/categories", categorieRoutes);
+console.info(" categories OK");
+
 //app.use("/api/geocode", geocodeRoutes);
 
 app.use(errorHandler);

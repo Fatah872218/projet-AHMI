@@ -60,7 +60,7 @@ class UtilisateurRepository {
 
   //-------definir le token a rénitialiser
   /* setResetToken ,*/
-  /* async definirTokenReinitialisation(email, token, expiration) {
+  async definirTokenReinitialisation(email, token, expiration) {
     return await Utilisateur.findOneAndUpdate(
       { email },
       {
@@ -88,6 +88,6 @@ class UtilisateurRepository {
       },
       { new: true }
     );
-  } */
+  }
 }
 export default UtilisateurRepository;

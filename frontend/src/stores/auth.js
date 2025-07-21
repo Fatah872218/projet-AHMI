@@ -2,11 +2,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
-  connecterUtilisateur,
+  inscription,
+  connexion as connexionAPI,
+  deconnecterUtilisateur,
   demanderReinitialisationMotDePasse,
   reinitialiserMotDePasse,
 } from '@/services/serviceAuth'
 import { useUtilisateurStore } from '@/stores/utilisateur'
+import api from '@/services/api'
 
 export const useAuthStore = defineStore('auth', () => {
   const jeton = ref(null)
@@ -14,16 +17,17 @@ export const useAuthStore = defineStore('auth', () => {
   const chargement = ref(false)
   const erreur = ref(null)
 
-  // 🔐 Authentification réelle
+  /* ───────── Connexion ───────── */
   const connexion = async (identifiants) => {
     chargement.value = true
     erreur.value = null
-
     try {
-      const reponse = await connecterUtilisateur(identifiants)
-      jeton.value = reponse.data.token
-      utilisateur.value = reponse.data.utilisateur
+      const reponse = await connexionAPI(identifiants)
 
+      jeton.value = reponse.data.token
+      api.defaults.headers.common['x-auth-token'] = jeton.value
+
+      utilisateur.value = reponse.data.utilisateur
       const utilisateurStore = useUtilisateurStore()
       utilisateurStore.setUtilisateur(utilisateur.value)
 
@@ -35,24 +39,40 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const deconnexion = () => {
+  /* ───────── Inscription ───────── */
+  const inscrire = async (donnees) => {
+    chargement.value = true
+    erreur.value = null
+    try {
+      await inscription(donnees)
+    } catch (err) {
+      erreur.value = err.response?.data?.message || 'Erreur inscription'
+    } finally {
+      chargement.value = false
+    }
+  }
+
+  /* ───────── Déconnexion ───────── */
+  const deconnexion = async () => {
+    await deconnecterUtilisateur() // invalide aussi le cookie côté back
+
     jeton.value = null
     utilisateur.value = null
     localStorage.removeItem('token')
 
     const utilisateurStore = useUtilisateurStore()
     utilisateurStore.setUtilisateur(null)
+
+    delete api.defaults.headers.common['x-auth-token']
   }
 
-  const motDePasseOublie = async (email) => {
-    return await demanderReinitialisationMotDePasse(email)
-  }
+  /* ───────── Mot de passe oublié / reset ───────── */
+  const motDePasseOublie = async (email) => await demanderReinitialisationMotDePasse(email)
 
-  const reinitialiser = async (tokenReset, nouveauMotDePasse) => {
-    return await reinitialiserMotDePasse(tokenReset, nouveauMotDePasse)
-  }
+  const reinitialiser = async (tokenReset, nouveauMotDePasse) =>
+    await reinitialiserMotDePasse(tokenReset, nouveauMotDePasse)
 
-  //  Simulation pour démo/développement
+  /* ───────── Simulation (dev) ───────── */
   const simulerConnexion = (role = 'admin') => {
     utilisateur.value = {
       id: '64cd1f4c3b278baf7f0a6c93',
@@ -60,20 +80,15 @@ export const useAuthStore = defineStore('auth', () => {
       email: 'admin@demo.fr',
       role,
     }
-
     const fakeToken = 'FAUX_TOKEN_TEST_DEV'
-    localStorage.setItem('token', fakeToken)
     jeton.value = fakeToken
-
-    console.warn(' Utilisateur simulé :', utilisateur.value)
+    localStorage.setItem('token', fakeToken)
 
     const utilisateurStore = useUtilisateurStore()
     utilisateurStore.setUtilisateur(utilisateur.value)
-
-    jeton.value = 'fake-token'
-    localStorage.setItem('token', jeton.value)
   }
-  // Simulation automatique si token local présent
+
+  // Auto‑login si token stocké (simulation uniquement)
   if (!utilisateur.value && localStorage.getItem('token')) {
     simulerConnexion('admin')
   }
@@ -83,10 +98,11 @@ export const useAuthStore = defineStore('auth', () => {
     utilisateur,
     chargement,
     erreur,
+    inscrire,
     connexion,
     deconnexion,
     motDePasseOublie,
     reinitialiser,
-    simulerConnexion, //  bien exportée
+    simulerConnexion,
   }
 })
