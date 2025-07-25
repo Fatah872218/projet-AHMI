@@ -10,45 +10,26 @@ dotenv.config();
 
 class ControleurAuth {
   constructor() {
-    this.serviceAuth = ServiceAuth;
+    this.serviceAuth = new ServiceAuth();
     this.serviceReset = new ServiceReinitialisationMDP();
     this.utilisateurRepo = new UtilisateurRepository();
   }
 
   // Inscription
-  inscription = async (req, res) => {
-    const { nom, email, motDePasse } = req.body;
-    if (!nom || !email || !motDePasse) {
-      return res.status(400).json("Erreur, l'un des champs est vide");
-    }
-
+  inscription = async (req, res, next) => {
     try {
-      // 🔒 Vérifie si l'utilisateur existe déjà
-      const utilisateurExistant = await Utilisateur.findOne({ email });
-      if (utilisateurExistant) {
-        return res
-          .status(400)
-          .json({ message: "Cet utilisateur existe déjà." });
-      }
-
       const { utilisateur, token } = await this.serviceAuth.inscrireUtilisateur(
-        {
-          nom,
-          email,
-          motDePasse,
-        }
+        req.body
       );
 
       res.cookie("tokenA", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        expires: new Date(Date.now() + 36000),
+        expires: new Date(Date.now() + 3600 * 1000),
       });
 
       res.status(201).json({ utilisateur, token });
-
-      console.info("Utilisateur créé avec succès");
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -92,11 +73,11 @@ class ControleurAuth {
     }
   };
 
-  // Mot de passe oublié (non implémenté encore)
+  // Mot de passe oublié
   motDePasseOublie = async (req, res, next) => {
     try {
       const { email } = req.body;
-      const utilisateur = await this.utilisateurRepo.findByEmail(email);
+      const utilisateur = await this.utilisateurRepo.trouverParEmail(email);
       if (!utilisateur)
         return res.status(404).json({ message: "Utilisateur introuvable" });
 
@@ -128,6 +109,32 @@ class ControleurAuth {
       return res.status(200).json({ message: "Mot de passe réinitialisé" });
     } catch (err) {
       next(err);
+    }
+  };
+  /* ────────── Activation du compte ────────── */
+  activerCompte = async (req, res) => {
+    try {
+      const { code } = req.params;
+
+      // 1. Cherche l’utilisateur par son code
+      const utilisateur = await Utilisateur.findOne({ activationCode: code });
+      if (!utilisateur) {
+        return res.status(400).json({ message: "Lien invalide." });
+      }
+
+      // 2. Déjà activé ?
+      if (utilisateur.isActif) {
+        return res.status(200).json({ message: "Compte déjà activé." });
+      }
+
+      // 3. Active le compte et supprime le code
+      utilisateur.isActif = true;
+      utilisateur.activationCode = undefined;
+      await utilisateur.save();
+
+      return res.status(200).json({ message: "Compte activé avec succès." });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
   };
 }

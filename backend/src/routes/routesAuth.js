@@ -10,6 +10,8 @@ router.post("/connexion", controleurAuth.connexion);
 router.post("/mot-de-passe-oublie", controleurAuth.motDePasseOublie);
 router.post("/reinitialiser/:token", controleurAuth.reinitialiserMotDePasse);
 
+router.get("/activation/:code", controleurAuth.activerCompte);
+
 // Déconnexion
 router.post("/deconnexion", controleurAuth.deconnecter);
 

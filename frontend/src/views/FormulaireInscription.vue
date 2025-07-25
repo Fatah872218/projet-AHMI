@@ -41,6 +41,18 @@
 
     <template #footer>
       En validant, vous acceptez nos <a href="#" class="underline">conditions générales</a>.
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
+        <p class="text-sm">
+          déjà inscrit ?
+          <RouterLink to="/connexion" class="underline text-ahmi-secondary"
+            >connectez-vous à votre compte</RouterLink
+          >
+        </p>
+        <RouterLink to="/" class="flex items-center gap-1 text-sm hover:text-ahmi-secondary">
+          <HomeIcon class="h-5 w-5" /> Retour à l'accueil
+        </RouterLink>
+      </div>
     </template>
   </BaseFormWrapper>
 </template>

@@ -41,4 +41,9 @@ export default [
     name: 'eventDetails',
     component: () => import('@/views/EventDetails.vue'),
   },
+  {
+    path: '/activation/:code',
+    name: 'Activation',
+    component: () => import('@/views/ActivationView.vue'),
+  },
 ]

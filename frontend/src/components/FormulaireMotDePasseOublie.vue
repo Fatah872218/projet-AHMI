@@ -1,33 +1,75 @@
+<!-- src/components/FormulaireMotDePasseOublie.vue -->
 <template>
-  <div>
-    <!-- Composant pour le Un formulaire simple avec un champ email  -->
-    <p>essai !</p>
-  </div>
+  <BaseFormWrapper
+    title="Réinitialisation du mot de passe"
+    description=" étape  1 - Saisissez votre adresse e‑mail "
+    @submit="soumettreFormulaire"
+  >
+    <!-- Champ e‑mail -->
+    <BaseInput label="Email" type="email" v-model="email" required :error="errorEmail" />
+
+    <!-- Messages -->
+    <div v-if="messageSucces" class="text-ahmi-success font-bold mt-2">{{ messageSucces }}</div>
+    <div v-if="messageErreur" class="text-ahmi-error font-bold mt-2">{{ messageErreur }}</div>
+
+    <!-- Liens utiles -->
+    <template #footer>
+      <div class="flex flex-col gap-2 text-sm text-center">
+        <RouterLink to="/connexion" class="underline hover:text-ahmi-secondary">
+          ← Retour à la connexion
+        </RouterLink>
+        <RouterLink
+          to="/"
+          class="flex items-center justify-center gap-1 underline hover:text-ahmi-secondary"
+        >
+          <HomeIcon class="w-4 h-4" /> Accueil
+        </RouterLink>
+        <p class="mt-2 text-xs opacity-70">
+          Vous recevrez un e‑mail de <strong>AHMI Support</strong> contenant le lien de
+          réinitialisation.
+        </p>
+      </div>
+    </template>
+  </BaseFormWrapper>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      message: 'Bonjour, monde !',
-    }
-  },
-  methods: {
-    // Composant pour Un formulaire simple avec un champ email .
-    greet() {
-      console.log(this.message)
-    },
-  },
-}
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
+import { HomeIcon } from '@heroicons/vue/outline'
 
-/*
-Composant pour Un formulaire simple avec un champ email 
-*/
+// service front qui appelle POST /auth/mot-de-passe-oublie
+import { motDePasseOublie as envoyerLienReset } from '@/services/serviceAuth'
+
+const router = useRouter()
+const email = ref('')
+const errorEmail = ref('')
+const messageSucces = ref('')
+const messageErreur = ref('')
+
+async function soumettreFormulaire() {
+  errorEmail.value = ''
+  messageErreur.value = ''
+  messageSucces.value = ''
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email.value)) {
+    errorEmail.value = 'Adresse email invalide.'
+    return
+  }
+
+  try {
+    await envoyerLienReset({ email: email.value })
+    messageSucces.value = 'Un e‑mail vient de vous être envoyé. Vérifiez votre boîte de réception.'
+    email.value = ''
+  } catch (err) {
+    messageErreur.value = err.response?.data?.message || 'Une erreur est survenue.'
+  }
+}
 </script>
 
 <style scoped>
-/* Composant pour Un formulaire simple avec un champ email  */
-p {
-  color: blue;
-}
+/* Aucune règle supplémentaire : le style vient des composants de base. */
 </style>

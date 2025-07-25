@@ -13,6 +13,8 @@ export const connexion = (data) => api.post('/auth/connexion', data)
 // ➤ Déconnexion
 export const deconnecterUtilisateur = () => api.post('/auth/deconnexion')
 
+export const motDePasseOublie = (data) => api.post('/auth/mot-de-passe-oublie', data)
+
 // ➤ Mot de passe oublié
 export const demanderReinitialisationMotDePasse = (email) =>
   api.post('/auth/mot-de-passe-oublie', { email })
@@ -20,3 +22,8 @@ export const demanderReinitialisationMotDePasse = (email) =>
 // ➤ Réinitialisation du mot de passe
 export const reinitialiserMotDePasse = (token, motDePasse) =>
   api.post(`/auth/reinitialiser/${token}`, { motDePasse })
+
+// activation du compte
+export async function activerCompte(code) {
+  return api.get(`/auth/activation/${code}`) // api = instance Axios déjà configurée
+}
