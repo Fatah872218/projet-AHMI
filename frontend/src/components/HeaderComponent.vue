@@ -3,68 +3,61 @@
   <header
     class="bg-ahmi-primary text-ahmi-text-invert p-4 flex justify-between items-center font-openSans"
   >
-    <!-- Navigation Desktop -->
+    <!-- NAV DESKTOP -->
     <nav class="hidden md:flex space-x-8 relative">
-      <!-- Menu déroulant AHMI -->
-
+      <!-- AHMI dropdown -->
       <div class="relative group">
-        <div
-          class="flex items-center cursor-pointer text-ahmi-text-invert hover:text-ahmi-secondary transition-colors logo"
-        >
+        <div class="flex items-center cursor-pointer hover:text-ahmi-secondary transition">
           <img src="@/assets/images/logo.png" alt="Logo AHMI" class="h-8" />
           <span class="ml-2">A H M I</span>
           <ChevronDownIcon class="h-4 w-4 ml-1 mt-0.5" />
         </div>
 
-        <!-- Sous-menu au survol  -->
         <div
-          class="absolute left-0 mt-2 w-48 bg-ahmi-surface-primary text-ahmi-text-invert shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50"
+          class="absolute left-0 mt-2 w-48 bg-ahmi-surface-primary shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50"
         >
-          <a href="#" class="block px-4 py-2 hover-link-accessible"> Nos missions </a>
-          <a href="#" class="block px-4 py-2 hover-link-accessible"> Nos valeurs </a>
-          <a href="#" class="block px-4 py-2 hover-link-accessible"> Nous rejoindre </a>
+          <RouterLink to="#" class="block px-4 py-2 hover-link-accessible">Nos missions</RouterLink>
+          <RouterLink to="#" class="block px-4 py-2 hover-link-accessible">Nos valeurs</RouterLink>
+          <RouterLink to="#" class="block px-4 py-2 hover-link-accessible"
+            >Nous rejoindre</RouterLink
+          >
         </div>
       </div>
 
-      <!-- Autres rubriques -->
-      <a href="/events" class="flex items-center hover-link-accessible-desktop">
+      <RouterLink to="/events" class="flex items-center hover-link-accessible-desktop">
         <CalendarIcon class="w-6 h-6 text-gray-500" />
         <span class="ml-2 hidden md:inline">Événements</span>
-      </a>
-      <a href="#" class="flex items-center hover-link-accessible-desktop transition-colors">
+      </RouterLink>
+      <RouterLink to="#" class="flex items-center hover-link-accessible-desktop">
         <ShoppingCartIcon class="h-6 w-6" />
         <span class="ml-2">Acheter</span>
-      </a>
-      <a href="#" class="flex items-center hover-link-accessible-desktop">
+      </RouterLink>
+      <RouterLink to="#" class="flex items-center hover-link-accessible-desktop">
         <GiftIcon class="h-6 w-6" />
         <span class="ml-2">Dons</span>
-      </a>
-      <a href="#" class="flex items-center hover-link-accessible-desktop">
+      </RouterLink>
+      <RouterLink to="#" class="flex items-center hover-link-accessible-desktop">
         <ChatIcon class="h-6 w-6" />
         <span class="ml-2">Message</span>
-      </a>
-      <a href="#" class="flex items-center hover-link-accessible-desktop">
+      </RouterLink>
+      <RouterLink to="/connexion" class="flex items-center hover-link-accessible-desktop">
         <LoginIcon class="h-6 w-6" />
-        <span class="ml-2">Se connecter</span>
-      </a>
-      <!-- Mon compte -->
-      <a href="/account" class="flex items-center hover-link-accessible-desktop">
+        <span class="ml-2">Connexion</span>
+      </RouterLink>
+      <RouterLink to="/account" class="flex items-center hover-link-accessible-desktop">
         <UserIcon class="h-6 w-6" />
         <span class="ml-2 hidden md:inline">Mon compte</span>
-      </a>
-
-      <!-- Partenaires -->
-      <a href="/partenaires" class="flex items-center hover-link-accessible-desktop">
+      </RouterLink>
+      <RouterLink to="/partenaires" class="flex items-center hover-link-accessible-desktop">
         <UsersIcon class="h-6 w-6" />
         <span class="ml-2 hidden md:inline">Partenaires</span>
-      </a>
+      </RouterLink>
     </nav>
 
-    <!-- Mobile -->
+    <!-- NAV MOBILE -->
     <div class="md:hidden flex items-center justify-between w-full">
-      <div class="pl-2">
-        <img src="@/assets/images/logo.png" alt="Logo" class="h-8" />
-      </div>
+      <img src="@/assets/images/logo.png" alt="Logo" class="h-8 pl-2" />
+
       <BaseButton
         @click="toggleMenu"
         variant="light"
@@ -74,86 +67,54 @@
       >
         <MenuIcon class="h-6 w-6" />
       </BaseButton>
-      <!-- Liens fixes mobile -->
+
       <div class="flex space-x-4 items-center ml-4">
-        <router-link to="/account" class="flex items-center …">
+        <RouterLink to="/account" class="text-ahmi-text-invert">
           <UserIcon class="h-6 w-6" />
-        </router-link>
-        <a href="/partenaires" class="text-ahmi-text-invert">
+        </RouterLink>
+        <RouterLink to="/partenaires" class="text-ahmi-text-invert">
           <UsersIcon class="h-6 w-6" />
-        </a>
+        </RouterLink>
       </div>
     </div>
   </header>
 
-  <!-- Menu mobile déroulant -->
+  <!-- MENU MOBILE -->
   <div
     v-if="menuOpen"
     class="md:hidden fixed top-20 left-0 right-0 bg-ahmi-surface-primary rounded shadow-lg text-ahmi-text-invert z-40"
   >
-    <a
-      v-for="(item, index) in menuItems"
-      :key="index"
-      :href="item.href"
+    <RouterLink
+      v-for="item in menuItems"
+      :key="item.href"
+      :to="item.href"
       @click="toggleMenu"
       class="flex items-center gap-2 px-4 py-2 hover-link-accessible"
     >
       <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
-      <img v-else-if="item.image" :src="item.image" alt="logo" class="h-6 w-6" />
+      <img v-else-if="item.image" :src="item.image" alt="" class="h-6 w-6" />
       <span>{{ item.label }}</span>
-    </a>
+    </RouterLink>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import {
-  MenuIcon,
+  ChevronDownIcon,
+  CalendarIcon,
   ShoppingCartIcon,
   GiftIcon,
   ChatIcon,
   LoginIcon,
-  CalendarIcon,
-  ClipboardListIcon,
-  HeartIcon,
-  UserGroupIcon,
-  ChevronDownIcon,
+  MenuIcon,
   UserIcon,
   UsersIcon,
 } from '@heroicons/vue/outline'
 import BaseButton from '@/components/base/BaseButton.vue'
 import menuItems from '@/data/menuItems.js'
 
-export default {
-  name: 'HeaderComponent',
-  components: {
-    MenuIcon,
-    ShoppingCartIcon,
-    GiftIcon,
-    ChatIcon,
-    LoginIcon,
-    CalendarIcon,
-    ClipboardListIcon,
-    HeartIcon,
-    UserGroupIcon,
-    ChevronDownIcon,
-    UserIcon,
-    UsersIcon,
-    BaseButton,
-  },
-  data() {
-    return {
-      menuOpen: false,
-      menuItems,
-    }
-  },
-  methods: {
-    toggleMenu() {
-      this.menuOpen = !this.menuOpen
-    },
-  },
-}
+const menuOpen = ref(false)
+const toggleMenu = () => (menuOpen.value = !menuOpen.value)
 </script>
-
-<style scoped>
-/* Ajoute des styles spécifiques si nécessaire */
-</style>

@@ -41,12 +41,17 @@ class ControleurUtilisateur {
       const utilisateur = await this.utilisateurService.inscrireUtilisateur(
         dataUtilisateur
       );
-      sendConfirmationEmail(
-        dataUtilisateur.email,
-        dataUtilisateur.activationCode,
-        dataUtilisateur.motDePasse
-      );
+      // --- mail d’activation ---------------------------------
+      const activationUrl = `${process.env.FRONTEND_URL}/activation/${activationCode}`;
+      const subject = "Bienvenue chez AHMI – activez votre compte";
 
+      const html = `
+  <h1>Bienvenue, ${dataUtilisateur.nom} 👋</h1>   <p>Merci de votre inscription ! Cliquez sur le lien suivant pour
+  activer votre compte :</p>
+   <p><a href="${activationUrl}">${activationUrl}</a></p>
+  <p>Ce lien est valable 24 h.</p>`;
+
+      await sendConfirmationEmail(dataUtilisateur.email, subject, html);
       console.log(utilisateur.motDePasse);
 
       res.status(201).json(utilisateur);
@@ -87,7 +92,6 @@ class ControleurUtilisateur {
   // Récupérer l'utilisateur connecté
 
   obtenirProfil = async (req, res) => {
-
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
         req.utilisateur.id
@@ -96,7 +100,7 @@ class ControleurUtilisateur {
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  }
+  };
 
   mettreAJourProfil = async (req, res) => {
     console.log("Reçu PUT /profil");
