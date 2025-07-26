@@ -43,7 +43,9 @@ import { HomeIcon } from '@heroicons/vue/outline'
 // service front qui appelle POST /auth/mot-de-passe-oublie
 import { motDePasseOublie as envoyerLienReset } from '@/services/serviceAuth'
 
+// eslint-disable-next-line no-unused-vars
 const router = useRouter()
+
 const email = ref('')
 const errorEmail = ref('')
 const messageSucces = ref('')

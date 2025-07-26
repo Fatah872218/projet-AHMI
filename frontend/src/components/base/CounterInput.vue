@@ -34,7 +34,6 @@
 
 <script setup>
 import BaseButton from './BaseButton.vue'
-import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   modelValue: {
