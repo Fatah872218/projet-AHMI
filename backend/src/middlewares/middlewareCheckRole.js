@@ -6,9 +6,9 @@ const checkRole = (...rolesAutorises) => {
       console.log("DDDDDDDD", req.utilisateur);
 
       // SIMULATION TEMPORAIRE
-      if (req.utilisateur?.role === "admin") {
-        return next();
-      }
+      //if (req.utilisateur?.role === "admin") {
+      // return next();
+      // }
 
       const utilisateur = await Utilisateur.findById(
         req.utilisateur.id

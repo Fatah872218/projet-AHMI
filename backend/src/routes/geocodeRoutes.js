@@ -1,10 +1,15 @@
 import express from "express";
 import axios from "axios";
+import { geocodeLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", geocodeLimiter, async (req, res) => {
   const { q } = req.query;
+  if (!q || typeof q !== "string" || q.length > 120) {
+    return res.status(400).json({ message: "Paramètre q invalide" });
+  }
+
   try {
     const response = await axios.get(
       "https://nominatim.openstreetmap.org/search",
@@ -18,6 +23,7 @@ router.get("/", async (req, res) => {
           "User-Agent": "ahmi-app/1.0",
           "Accept-Language": "fr",
         },
+        timeout: 5000,
       }
     );
 

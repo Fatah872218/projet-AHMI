@@ -58,23 +58,39 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
 import { HomeIcon } from '@heroicons/vue/outline'
+import { reactive } from 'vue'
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
+const form = reactive({ email: email.value, motDePasse: password.value })
 
 async function handleLogin() {
-  await auth.connexion({ email: email.value, motDePasse: password.value })
-  if (!auth.erreur) {
-    router.push('/')
+  try {
+    await auth.connexion(form)
+    if (!auth.erreur) {
+      router.push('/')
+    }
+    // après connexion réussie
+    const q = route.query.redirect
+    const redirect = typeof q === 'string' && q.startsWith('/') ? q : '/account'
+    // évite la boucle si on est déjà sur /connexion
+    if (route.path === '/connexion' && redirect === '/connexion') {
+      return router.replace('/account')
+    }
+    router.replace(redirect)
+  } catch (e) {
+    // laisser la gestion d’erreur/toast existante
   }
 }
 </script>

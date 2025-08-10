@@ -6,10 +6,10 @@ import {
   schemaConnexion,
   schemaMiseAJourUtilisateur,
 } from "../validations/schemasUtilisateur.js";
-import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
+//import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
 import checkRole from "../middlewares/middlewareCheckRole.js";
-
-//import middlewareAuth from "../middlewares/middlewareAuth.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
+import middlewareAuth from "../middlewares/middlewareAuth.js";
 
 const router = express.Router();
 
@@ -27,31 +27,37 @@ router.get("/utilisateur", (req, res) =>
 );*/
 router.get(
   "/profil",
-  fakeAuthAdmin,
-  /* middlewareAuth,*/ utilisateurController.obtenirProfil
+  //fakeAuthAdmin,
+  middlewareAuth,
+  utilisateurController.obtenirProfil
 );
 /*  modifier utilisateur:
 router.patch("/:id", (req, res) => utilisateurController.update(req, res));*/
 router.put(
   "/profil",
-  fakeAuthAdmin,
-  /* middlewareAuth,*/ utilisateurController.mettreAJourProfil
+  //fakeAuthAdmin,
+  middlewareAuth,
+  checkRole,
+  utilisateurController.mettreAJourProfil
 );
 
 // supprimer un utilisateur:
 router.delete(
   "/:id",
-  fakeAuthAdmin,
-  /* middlewareAuth,*/
+  //fakeAuthAdmin,
+  middlewareAuth,
+  checkRole("admin"),
+  validateObjectId,
   utilisateurController.supprimerUtilisateur
 );
 
 router.post(
   "/:id/roles",
-  fakeAuthAdmin,
-  /* middlewareAuth,
-   */
+  //fakeAuthAdmin,
+  middlewareAuth,
+
   checkRole("admin"),
+  validateObjectId,
   utilisateurController.assignerRole
 );
 

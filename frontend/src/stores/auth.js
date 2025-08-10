@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', () => {
       const reponse = await connexionAPI(identifiants)
 
       jeton.value = reponse.data.token
-      api.defaults.headers.common['x-auth-token'] = jeton.value
+      api.defaults.headers.common.Authorization = `Bearer ${jeton.value}`
 
       utilisateur.value = reponse.data.utilisateur
       const utilisateurStore = useUtilisateurStore()
@@ -63,7 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
     const utilisateurStore = useUtilisateurStore()
     utilisateurStore.setUtilisateur(null)
 
-    delete api.defaults.headers.common['x-auth-token']
+    delete api.defaults.headers.common.Authorization
   }
 
   /* ───────── Mot de passe oublié / reset ───────── */
@@ -72,7 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
   const reinitialiser = async (tokenReset, nouveauMotDePasse) =>
     await reinitialiserMotDePasse(tokenReset, nouveauMotDePasse)
 
-  /* ───────── Simulation (dev) ───────── */
+  /* ───────── Simulation (dev) ─────────
   const simulerConnexion = (role = 'admin') => {
     utilisateur.value = {
       id: '64cd1f4c3b278baf7f0a6c93',
@@ -91,8 +91,14 @@ export const useAuthStore = defineStore('auth', () => {
   // Auto‑login si token stocké (simulation uniquement)
   if (!utilisateur.value && localStorage.getItem('token')) {
     simulerConnexion('admin')
-  }
+  } */
 
+  // Au rechargement, si un token existe on le remonte (l’API refusera s’il est expiré)
+  if (localStorage.getItem('token')) {
+    const t = localStorage.getItem('token')
+    jeton.value = t
+    api.defaults.headers.common.Authorization = `Bearer ${t}`
+  }
   return {
     jeton,
     utilisateur,
@@ -103,6 +109,6 @@ export const useAuthStore = defineStore('auth', () => {
     deconnexion,
     motDePasseOublie,
     reinitialiser,
-    simulerConnexion,
+    //simulerConnexion,
   }
 })
