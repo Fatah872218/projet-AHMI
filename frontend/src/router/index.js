@@ -26,13 +26,14 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const utilisateurStore = useUtilisateurStore()
-  const user = utilisateurStore.utilisateur
+  //const _user = utilisateurStore.utilisateur
   const hasToken = !!localStorage.getItem('token')
+  const isLoggedIn = utilisateurStore.isLoggedIn
 
   if (to.meta?.requiresAdmin && to.meta?.role !== 'admin') {
     return next('/account')
   }
-  if (to.meta?.requiresAuth && !hasToken) {
+  if (to.meta?.requiresAuth && !hasToken && !isLoggedIn) {
     return next(`/connexion?redirect=${encodeURIComponent(to.fullPath)}`)
   }
   next()

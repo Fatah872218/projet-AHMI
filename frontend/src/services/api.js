@@ -12,13 +12,23 @@ if (savedToken) {
   api.defaults.headers.common.Authorization = `Bearer ${savedToken}`
 }
 const toast = useToast()
-const status = error.response?.status ?? 0
-if (status === 401) {
-  toast.info('Session expirée, veuillez vous reconnecter.')
-  logoutAndRedirect()
-} else if (status === 403) {
-  router.push('/account') // ou une page "Accès refusé"
-}
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status ?? 0
+
+    if (status === 401) {
+      toast.info('Session expirée, veuillez vous reconnecter.')
+      logoutAndRedirect()
+    } else if (status === 403) {
+      // Accès interdit : renvoyer vers un écran sûr
+      router.push('/account') // ou '/'
+    }
+
+    return Promise.reject(error)
+  }
+)
 
 function logoutAndRedirect() {
   localStorage.removeItem('token')

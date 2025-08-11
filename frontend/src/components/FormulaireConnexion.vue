@@ -89,7 +89,7 @@ async function handleLogin() {
       return router.replace('/account')
     }
     router.replace(redirect)
-  } catch (e) {
+  } catch {
     // laisser la gestion d’erreur/toast existante
   }
 }
