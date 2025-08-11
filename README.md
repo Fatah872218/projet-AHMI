@@ -1,6 +1,6 @@
 # AHMI – Plateforme Solidaire
 
-![CI](https://github.com/Fatah872218/projet-AHMI/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/Fatah872218/projet-AHMI/actions/workflows/ci.yml/badge.svg)](https://github.com/Fatah872218/projet-AHMI/actions/workflows/ci.yml)
 
 > **Pitch en une phrase :** Application web et mobile qui centralise toutes les actions solidaires de l’association AHMI — gestion d’événements, boutique de dons revalorisés et mise en relation  — afin d’améliorer le quotidien des citoyens tout en soutenant l’économie locale.
 

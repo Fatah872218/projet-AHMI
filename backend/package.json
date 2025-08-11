@@ -4,6 +4,9 @@
   "description": "Ce dossier contient l’API REST du projet **AHMI**, développée en Node.js avec Express et MongoDB.",
   "main": "src/app.js",
   "type": "module",
+  "engines": {
+    "node": ">=18 <21"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.js",
