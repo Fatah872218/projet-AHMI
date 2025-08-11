@@ -1,0 +1,10 @@
+{
+  "name": "projet-ahmi",
+  "private": true,
+  "scripts": {
+    "lint:front": "npm --prefix frontend run lint",
+    "lint:back": "npm --prefix backend run lint",
+    "build:front": "npm --prefix frontend run build",
+    "build:back": "npm --prefix backend run build"
+  }
+}
