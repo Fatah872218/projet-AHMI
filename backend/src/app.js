@@ -3,23 +3,24 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import compression from "compression";
-import connectDB from "./config/db.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
-import compression from "compression";
+
+import connectDB from "./config/db.js";
+
 import securityHeaders from "./middlewares/securityHeaders.js";
 import {
   generalLimiter,
   authLimiter,
   geocodeLimiter,
 } from "./middlewares/rateLimiter.js";
-import corsStrict from "./middlewares/corsStrict.js";
-import { sanitizeMongo, preventHpp } from "./middlewares/sanitize.js";
-
+//import corsStrict from "./middlewares/corsStrict.js";
+//import { sanitizeMongo, preventHpp } from "./middlewares/sanitize.js";
+import auth from "./middlewares/middlewareAuth.js";
+import checkRole from "./middlewares/middlewareCheckRole.js";
 import roleRoutes from "./routes/routesRole.js";
-//import permissionRoutes from "./routes/routesPermission.js";
 import utilisateurRoutes from "./routes/routeUtilisateur.js";
 import authRoutes from "./routes/routesAuth.js";
 import eventRoutes from "./routes/eventRoutes.js";
@@ -31,28 +32,40 @@ import errorHandler from "./middlewares/errorHandler.js";
 dotenv.config();
 
 const app = express();
-app.set("trust proxy", 1); // utile si   proxy/CDN
+
 // Connexion à la base de données
 connectDB();
+
 // Middleware
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
+
+// Sécurité
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(securityHeaders);
-app.use(corsStrict);
+
+// CORS —  :
+// 1) CORS strict via ton middleware
+// app.use(corsStrict);
+
+// 2) CORS simple ()
 app.use(
   cors({
-    origin: "http://localhost:5173", // autorise le front local
-    credentials: true, // autorise les cookies / sessions / headers
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
   })
 );
+
+// Rate limit — un seul global
 app.use(generalLimiter);
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(rateLimit({ windowMs: 60_000, max: 120, standardHeaders: true }));
-app.use(express.json({ limit: "10kb" })); //limite la taille du JSON
+
+// Parsing & hygiène
+app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(hpp({ whitelist: ["page", "limit", "sort"] }));
-app.use(sanitizeMongo);
-app.use(preventHpp);
+
+// Compression
 app.use(compression());
 
 // Routes
@@ -64,20 +77,22 @@ app.use("/api/utilisateurs", utilisateurRoutes);
 console.info(" utilisateurs OK");
 
 console.info("Avant routes role");
-app.use("/api/roles", roleRoutes);
+app.use("/api/roles", auth, checkRole("admin"), roleRoutes);
 console.info(" roles OK");
 
 //app.use("/api/permissions", permissionRoutes);
 console.info(" Avant routes event");
 app.use("/api/events", eventRoutes);
 
-console.info(" Avant routes booking");
-app.use("/api/reservations", bookingRoutes);
+app.use("/api/reservations", auth, bookingRoutes);
 console.log(" reservations OK");
 
 console.info(" Avant routes categorie");
 app.use("/api/categories", categorieRoutes);
 console.info(" categories OK");
+
+import { mountDocs } from "./docs.js";
+mountDocs(app); // ➜ http://localhost:3000/docs
 
 app.use(errorHandler);
 

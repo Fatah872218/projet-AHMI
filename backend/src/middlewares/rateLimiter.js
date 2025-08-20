@@ -10,10 +10,10 @@ export const generalLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20, // limite brute force connexion/inscription
-  message: "Trop de tentatives. Réessaie plus tard.",
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { message: "Trop de tentatives, réessayez plus tard." }, // JSON au lieu d'une string
 });
 
 export const geocodeLimiter = rateLimit({

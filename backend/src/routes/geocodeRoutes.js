@@ -1,6 +1,6 @@
 import express from "express";
 import axios from "axios";
-import { geocodeLimiter } from "../middlewares/rateLimiter";
+import { geocodeLimiter } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 

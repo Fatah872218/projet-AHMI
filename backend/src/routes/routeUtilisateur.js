@@ -1,18 +1,24 @@
 import express from "express";
 import utilisateurController from "../controllers/controllerUtilisateur.js";
+import middlewareAuth from "../middlewares/middlewareAuth.js";
+import checkRole from "../middlewares/middlewareCheckRole.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
 import valider from "../middlewares/middlewareValidation.js";
+
+//
 import {
   schemaInscription,
   schemaConnexion,
   schemaMiseAJourUtilisateur,
 } from "../validations/schemasUtilisateur.js";
-//import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
-import checkRole from "../middlewares/middlewareCheckRole.js";
-import validateObjectId from "../middlewares/validateObjectId.js";
-import middlewareAuth from "../middlewares/middlewareAuth.js";
 
 const router = express.Router();
 
+/**
+ * Auth "utilisateur"
+ * NB : si tu as DÉJÀ des routes /api/auth/* dans routesAuth.js,
+ *      garde UNE seule des deux familles pour éviter les doublons.
+ */
 router.post("/auth/register", valider(schemaInscription), (req, res) =>
   utilisateurController.inscrire(req, res)
 );
@@ -21,44 +27,37 @@ router.post("/auth/login", valider(schemaConnexion), (req, res) =>
   utilisateurController.connecter(req, res)
 );
 
-/* Récupérer l'utilisateur connecté (protégé par authMiddleware)
-router.get("/utilisateur", (req, res) =>
- utilisateurController.obtenirProfil(req, res)
-);*/
-router.get(
-  "/profil",
-  //fakeAuthAdmin,
-  middlewareAuth,
-  utilisateurController.obtenirProfil
-);
-/*  modifier utilisateur:
-router.patch("/:id", (req, res) => utilisateurController.update(req, res));*/
-router.put(
-  "/profil",
-  //fakeAuthAdmin,
-  middlewareAuth,
-  checkRole,
-  utilisateurController.mettreAJourProfil
+/**
+ * Profil (nécessite authentification)
+ */
+router.get("/profil", middlewareAuth, (req, res) =>
+  utilisateurController.obtenirProfil(req, res)
 );
 
-// supprimer un utilisateur:
+router.put(
+  "/profil",
+  middlewareAuth,
+  valider(schemaMiseAJourUtilisateur),
+  (req, res) => utilisateurController.mettreAJourProfil(req, res)
+);
+
+/**
+ * Admin : suppression + assignation de rôle
+ */
 router.delete(
   "/:id",
-  //fakeAuthAdmin,
   middlewareAuth,
   checkRole("admin"),
   validateObjectId,
-  utilisateurController.supprimerUtilisateur
+  (req, res) => utilisateurController.supprimerUtilisateur(req, res)
 );
 
 router.post(
   "/:id/roles",
-  //fakeAuthAdmin,
   middlewareAuth,
-
   checkRole("admin"),
   validateObjectId,
-  utilisateurController.assignerRole
+  (req, res) => utilisateurController.assignerRole(req, res)
 );
 
 export default router;

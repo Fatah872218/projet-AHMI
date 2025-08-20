@@ -1,13 +1,17 @@
 import express from "express";
 import Categorie from "../models/modeleCategorie.js";
-//import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
-import validateObjectId from "../middlewares/validateObjectId.js";
-import checkRole from "../middlewares/middlewareCheckRole.js";
-import authMiddleware from "../middlewares/middlewareAuth.js";
 import middlewareAuth from "../middlewares/middlewareAuth.js";
+import checkRole from "../middlewares/middlewareCheckRole.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
+import valider from "../middlewares/middlewareValidation.js";
+import {
+  createCategorieSchema,
+  updateCategorieSchema,
+} from "../validations/categorieSchemas.js";
 
 const router = express.Router();
 
+// Public : liste simple
 router.get("/public", async (req, res) => {
   try {
     const categories = await Categorie.find().select("nom");
@@ -18,42 +22,28 @@ router.get("/public", async (req, res) => {
   }
 });
 
-router.get(
-  "/",
-  //fakeAuthAdmin,
-  checkRole("admin"),
-  authMiddleware,
-  async (req, res) => {
-    console.info("Requête reçue pour obtenir les catégories");
-    console.info("Utilisateur connecté (req.utilisateur) :", req.utilisateur);
-    try {
-      const categories = await Categorie.find();
-      res.status(200).json(categories);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-      res.status(500).json({ error: "Erreur serveur" });
-    }
+// Admin : liste complète
+router.get("/", middlewareAuth, checkRole("admin"), async (req, res) => {
+  try {
+    const categories = await Categorie.find();
+    res.status(200).json(categories);
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
-);
-router.get("/test", (req, res) => {
-  res.send("Catégorie route OK ✅");
 });
 
-// POST une nouvelle catégorie
+router.get("/test", (req, res) => res.send("Catégorie route OK ✅"));
+
+// Créer
 router.post(
   "/",
-  //fakeAuthAdmin,
+  middlewareAuth,
   checkRole("admin"),
-  authMiddleware,
+  valider(createCategorieSchema),
   async (req, res) => {
-    console.log("✅ Route POST /api/categories appelée");
-    const { nom } = req.body;
-    if (!nom || nom.trim() === "") {
-      return res.status(400).json({ error: "Le nom est requis." });
-    }
-
     try {
-      const nouvelleCategorie = new Categorie({ nom });
+      const nouvelleCategorie = new Categorie({ nom: req.body.nom });
       const saved = await nouvelleCategorie.save();
       res.status(201).json(saved);
     } catch (err) {
@@ -62,22 +52,19 @@ router.post(
     }
   }
 );
-//  Modifier une catégorie
+
+// Mettre à jour
 router.put(
   "/:id",
   middlewareAuth,
-  validateObjectId,
   checkRole("admin"),
+  validateObjectId,
+  valider(updateCategorieSchema),
   async (req, res) => {
-    const { nom } = req.body;
-    if (!nom || nom.trim() === "") {
-      return res.status(400).json({ error: "Le nom est requis." });
-    }
-
     try {
       const updated = await Categorie.findByIdAndUpdate(
         req.params.id,
-        { nom },
+        { nom: req.body.nom },
         { new: true }
       );
       if (!updated)
@@ -90,12 +77,12 @@ router.put(
   }
 );
 
-//  Supprimer une catégorie
+// Supprimer
 router.delete(
   "/:id",
   middlewareAuth,
-  validateObjectId,
   checkRole("admin"),
+  validateObjectId,
   async (req, res) => {
     try {
       const deleted = await Categorie.findByIdAndDelete(req.params.id);
@@ -109,4 +96,4 @@ router.delete(
   }
 );
 
-export default router; //
+export default router;

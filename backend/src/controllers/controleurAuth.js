@@ -50,7 +50,7 @@ class ControleurAuth {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        expires: new Date(Date.now() + 36000),
+        expires: new Date(Date.now() + 36000 * 1000), // 10 heures
       });
 
       res.status(200).json({ utilisateur, token });

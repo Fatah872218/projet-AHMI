@@ -1,15 +1,21 @@
 import express from "express";
 import eventController from "../controllers/eventController.js";
-//import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
+import middlewareAuth from "../middlewares/middlewareAuth.js";
 import checkRole from "../middlewares/middlewareCheckRole.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
+import valider from "../middlewares/middlewareValidation.js";
 import {
   eventSchema as createEventSchema,
   updateEventSchema,
 } from "../validations/eventSchemas.js";
-import valider from "../middlewares/middlewareValidation.js";
-import middlewareAuth from "../middlewares/middlewareAuth.js";
-import validateObjectId from "../middlewares/validateObjectId.js";
+import Joi from "joi";
+
 const router = express.Router();
+
+// Schéma pour changer le statut
+const statusUpdateSchema = Joi.object({
+  statut: Joi.string().valid("en_attente", "approuve", "rejete").required(),
+});
 
 // ROUTES SPÉCIFIQUES EN PREMIER
 router.get(
@@ -18,13 +24,16 @@ router.get(
   checkRole("admin"),
   eventController.getEventsByStatus
 );
+
 router.patch(
   "/:id/statut",
   middlewareAuth,
-  validateObjectId,
   checkRole("admin"),
+  validateObjectId,
+  valider(statusUpdateSchema),
   eventController.updateStatut
 );
+
 router.get(
   "/:id/places-restantes",
   middlewareAuth,
@@ -49,19 +58,21 @@ router.post(
   valider(createEventSchema),
   eventController.createEvent
 );
+
 router.put(
   "/:id",
   middlewareAuth,
-  validateObjectId,
   checkRole("admin", "partenaire"),
+  validateObjectId,
   valider(updateEventSchema),
   eventController.updateEvent
 );
+
 router.delete(
   "/:id",
   middlewareAuth,
-  validateObjectId,
   checkRole("admin"),
+  validateObjectId,
   eventController.deleteEvent
 );
 
