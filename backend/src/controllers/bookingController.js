@@ -16,18 +16,20 @@ class BookingController {
     console.info("BODY RÉCEPTIONNÉ PAR L'API:", req.body);
 
     try {
-      //if (!req.utilisateur) {
-      //  return res.status(401).json({ message: "Utilisateur non connecté" });
-      // }
-      // ✅ Valeur temporaire pour utilisateur tant qu'il n'y a pas d'authentification
-      const utilisateurTemporaireId = "680b84c085ba22a4ef354661";
-      req.body.utilisateur = utilisateurTemporaireId;
+      if (!req.utilisateur) {
+        return res.status(401).json({ message: "Utilisateur non connecté" });
+      }
+      //  Valeur temporaire pour utilisateur tant qu'il n'y a pas d'authentification
+      //const utilisateurTemporaireId = "680b84c085ba22a4ef354661";
+      //req.body.utilisateur = utilisateurTemporaireId;
 
-      if (!req.body.statut) req.body.statut = "confirme";
+      //if (!req.body.statut) req.body.statut = "confirme";
 
       const booking = await this.bookingService.createBooking({
         ...req.body,
-        utilisateur: utilisateurTemporaireId, //  à remplacer par req.utilisateur.id,
+        utilisateur: req.utilisateur.id,
+        statut: req.body.statut || "confirme", // Par défaut
+        //utilisateurTemporaireId,
       });
 
       res.status(201).json(booking);

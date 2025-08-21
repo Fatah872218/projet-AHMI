@@ -1,4 +1,4 @@
-/* import express from "express";
+import express from "express";
 import ControllerReinitialisationMDP from "../controllers/controllerReinitialisationMDP.js";
 import valider from "../middlewares/middlewareValidation.js";
 import {
@@ -23,4 +23,3 @@ router.post(
 );
 
 export default router;
- */

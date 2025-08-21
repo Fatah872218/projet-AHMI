@@ -1,36 +1,38 @@
-// middlewareAuth.js
+// src/middlewares/middlewareAuth.js
 import jwt from "jsonwebtoken";
 import UtilisateurRepository from "../repositories/repositoryUtilisateur.js";
 import dotenv from "dotenv";
-
 dotenv.config();
 
-// Middleware réel pour authentifier les utilisateurs via JWT
 const middlewareAuth = async (req, res, next) => {
-  const token = req.header("x-auth-token");
-  if (!token) return res.status(401).send("Accès refusé. Aucun token fourni.");
-
-  // Mode développement : token spécial pour simuler un admin
-  if (token === "FAUX_TOKEN_TEST_DEV") {
-    req.utilisateur = { id: "64cd1f4c3b278baf7f0a6c93", role: "admin" };
-    return next();
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const repository = new UtilisateurRepository();
-    const utilisateur = await repository.findById(decoded.id);
+    const auth = req.headers.authorization || "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+    if (!token) return res.status(401).json({ message: "Token manquant" });
 
-    if (!utilisateur) return res.status(404).send("Utilisateur non trouvé");
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      return res.status(401).json({ message: "Token invalide" });
+    }
 
-    req.utilisateur = {
-      id: utilisateur._id.toString(),
-      role: utilisateur.role,
-    };
+    const repo = new UtilisateurRepository();
+    const utilisateur =
+      (repo.trouverParId && (await repo.trouverParId(payload.id))) ||
+      (repo.findById && (await repo.findById(payload.id)));
+
+    if (!utilisateur)
+      return res.status(401).json({ message: "Utilisateur inconnu" });
+
+    // Harmoniser : expose un tableau de rôles
+    const roles = Array.isArray(utilisateur.roles) ? utilisateur.roles : [];
+    req.utilisateur = { id: utilisateur._id.toString(), roles };
+
     next();
   } catch (err) {
     console.error("Erreur JWT :", err);
-    res.status(400).send("Token invalide");
+    return res.status(401).json({ message: "Authentification requise" });
   }
 };
 

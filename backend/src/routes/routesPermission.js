@@ -1,29 +1,37 @@
 import express from "express";
 import PermissionController from "../controllers/permissionController.js";
-import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
-// import middlewareAuth from "../middlewares/middlewareAuth.js";
+import middlewareAuth from "../middlewares/middlewareAuth.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
+import valider from "../middlewares/middlewareValidation.js";
+import {
+  createPermissionSchema,
+  updatePermissionSchema,
+} from "../validations/permissionSchemas.js";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  fakeAuthAdmin,
-  /* middlewareAuth,  */ PermissionController.lister
-);
+router.get("/", middlewareAuth, PermissionController.lister);
+
 router.post(
   "/",
-  fakeAuthAdmin,
-  /* middlewareAuth,  */ PermissionController.creer
+  middlewareAuth,
+  valider(createPermissionSchema),
+  PermissionController.creer
 );
+
 router.put(
   "/:id",
-  fakeAuthAdmin,
-  /* middlewareAuth,  */ PermissionController.modifier
+  middlewareAuth,
+  validateObjectId,
+  valider(updatePermissionSchema),
+  PermissionController.modifier
 );
+
 router.delete(
   "/:id",
-  fakeAuthAdmin,
-  /* middlewareAuth,  */ PermissionController.supprimer
+  middlewareAuth,
+  validateObjectId,
+  PermissionController.supprimer
 );
 
 export default router;

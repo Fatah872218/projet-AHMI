@@ -1,57 +1,78 @@
 import express from "express";
 import eventController from "../controllers/eventController.js";
-import fakeAuthAdmin from "../middlewares/fakeAuthAdmin.js";
+import middlewareAuth from "../middlewares/middlewareAuth.js";
 import checkRole from "../middlewares/middlewareCheckRole.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
+import valider from "../middlewares/middlewareValidation.js";
 import {
   eventSchema as createEventSchema,
   updateEventSchema,
 } from "../validations/eventSchemas.js";
-import valider from "../middlewares/middlewareValidation.js";
+import Joi from "joi";
 
 const router = express.Router();
+
+// Schéma pour changer le statut
+const statusUpdateSchema = Joi.object({
+  statut: Joi.string().valid("en_attente", "approuve", "rejete").required(),
+});
 
 // ROUTES SPÉCIFIQUES EN PREMIER
 router.get(
   "/statut/:status",
-  fakeAuthAdmin,
+  middlewareAuth,
   checkRole("admin"),
   eventController.getEventsByStatus
 );
+
 router.patch(
   "/:id/statut",
-  fakeAuthAdmin,
+  middlewareAuth,
   checkRole("admin"),
+  validateObjectId,
+  valider(statusUpdateSchema),
   eventController.updateStatut
 );
+
 router.get(
   "/:id/places-restantes",
-  fakeAuthAdmin,
+  middlewareAuth,
+  validateObjectId,
   eventController.getPlacesRestantes
 );
 
 // ROUTES GÉNÉRIQUES ENSUITE
-router.get("/", fakeAuthAdmin, eventController.getAllEvents);
-router.get("/:id", fakeAuthAdmin, eventController.getEventById);
+router.get("/", middlewareAuth, eventController.getAllEvents);
+router.get(
+  "/:id",
+  middlewareAuth,
+  validateObjectId,
+  eventController.getEventById
+);
 
 // CRÉATION / MÀJ / SUPPRESSION
 router.post(
   "/",
-  fakeAuthAdmin,
+  middlewareAuth,
   checkRole("admin", "partenaire"),
   valider(createEventSchema),
   eventController.createEvent
 );
+
 router.put(
   "/:id",
-  fakeAuthAdmin,
+  middlewareAuth,
   checkRole("admin", "partenaire"),
+  validateObjectId,
   valider(updateEventSchema),
   eventController.updateEvent
 );
+
 router.delete(
   "/:id",
-  fakeAuthAdmin,
+  middlewareAuth,
   checkRole("admin"),
+  validateObjectId,
   eventController.deleteEvent
 );
 

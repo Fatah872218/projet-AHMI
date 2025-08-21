@@ -1,0 +1,163 @@
+openapi: 3.1.0
+info:
+  title: AHMI API
+  version: 1.0.0
+  description: Authentification, rôles, événements, réservations.
+servers:
+  - url: http://localhost:3000
+security:
+  - cookieAuth: []
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Events
+  - name: Reservations
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Inscription + envoi mail d’activation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AuthRegisterRequest" }
+      responses:
+        "201":
+          description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  utilisateur: { $ref: "#/components/schemas/UserPublic" }
+                  token:
+                    type: string
+                    description: "Optionnel si vous retournez le JWT en JSON (le cookie httpOnly est recommandé)"
+        "400": { description: Données invalides }
+
+  /api/auth/activate/{code}:
+    get:
+      tags: [Auth]
+      summary: Active le compte
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Compte activé }
+        "400": { description: Lien invalide ou expiré }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Connexion (dépose un cookie httpOnly "tokenA")
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AuthLoginRequest" }
+      responses:
+        "200":
+          description: Connecté
+          headers:
+            Set-Cookie:
+              description: "tokenA=httpOnly; SameSite=Strict; Secure en prod"
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  utilisateur: { $ref: "#/components/schemas/UserPublic" }
+                  token:
+                    type: string
+                    description: "Optionnel, si vous exposez aussi le JWT côté JSON"
+        "401": { description: Identifiants invalides }
+
+  /api/events:
+    get:
+      tags: [Events]
+      summary: Liste publique (seulement les approuvés)
+      responses:
+        "200":
+          description: Liste d’événements
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Event" }
+    post:
+      tags: [Events]
+      summary: Créer un événement
+      security: [{ cookieAuth: [] }, { bearerAuth: [] }]
+      x-required-roles: ["partner", "admin"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EventCreateRequest" }
+      responses:
+        "201":
+          {
+            description: Événement créé,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Event" } },
+              },
+          }
+        "400": { description: Données invalides }
+        "401": { description: Non authentifié }
+        "403": { description: Rôle insuffisant }
+
+  /api/events/{id}:
+    get:
+      tags: [Events]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          {
+            description: Détail,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Event" } },
+              },
+          }
+        "404": { description: Introuvable }
+      put:
+    tags: [Events]
+    summary: Mettre à jour (propriétaire ou admin)
+    security: [{ cookieAuth: [] }, { bearerAuth: [] }]
+    x-ownership: ownerOrAdmin
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EventUpdateRequest"
+    responses:
+      "200":
+        description: Mis à jour
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      "403":
+        description: Accès refusé
+      "404":
+        description: Introuvable

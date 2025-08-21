@@ -1,6 +1,7 @@
 import UtilisateurRepository from "../repositories/repositoryUtilisateur.js";
 import dotenv from "dotenv";
-
+import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 //import cookieParser from "cookie-parser";
 
 import { schemaInscription } from "../validations/schemasUtilisateur.js";
@@ -58,7 +59,7 @@ class ServiceUtilisateur {
       // Générer un token JWT
       // const token = jwt.sign(payload, 'votre_clé_secrète', { expiresIn: '1h' });
       const token = jwt.sign({ id: utilisateur._id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
+        expiresIn: process.env.JWT_EXPIRES_IN || "1d",
       });
       /* console.log("Token généré :", token); */
       return { utilisateur, token };

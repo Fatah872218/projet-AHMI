@@ -4,6 +4,9 @@
   "description": "```` # projet-AHMI – Frontend",
   "main": "eslint.config.js",
   "type": "module",
+  "engines": {
+    "node": ">=18 <21"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

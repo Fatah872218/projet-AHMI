@@ -1,4 +1,4 @@
-import UtilisateurService from "../services/serviceUtilisateur.js";
+import utilisateurService from "../services/serviceUtilisateur.js";
 import {
   schemaInscription,
   schemaConnexion,
@@ -10,7 +10,7 @@ import Utilisateur from "../models/modeleUtilisateur.js";
 
 class ControleurUtilisateur {
   constructor() {
-    this.utilisateurService = UtilisateurService;
+    this.utilisateurService = utilisateurService;
   }
   //comment s'inscrire:
   async inscrire(req, res) {
@@ -52,7 +52,6 @@ class ControleurUtilisateur {
   <p>Ce lien est valable 24 h.</p>`;
 
       await sendConfirmationEmail(dataUtilisateur.email, subject, html);
-      console.log(utilisateur.motDePasse);
 
       res.status(201).json(utilisateur);
       console.info("l utilisateur est cree");
@@ -81,7 +80,7 @@ class ControleurUtilisateur {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production", // Cookie sécurisé uniquement en production
           sameSite: "strict",
-          expires: new Date(Date.now() + 36000),
+          expires: new Date(Date.now() + 36000 * 1000),
         });
         res.status(200).json(utilisateur);
       } catch (err) {

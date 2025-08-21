@@ -1,5 +1,5 @@
 import EventService from "../services/eventService.js";
-
+import bookingRepository from "../repositories/bookingRepository.js";
 import mongoose from "mongoose";
 import { updateEventSchema } from "../validations/eventSchemas.js";
 
@@ -144,8 +144,9 @@ class EventController {
   };
   getPlacesReservees = async (req, res) => {
     try {
-      const { id } = req.params;
-      const total = await bookingRepository.countReservationsByEvent(id);
+      const total = await bookingRepository.countReservationsByEvent(
+        req.params.id
+      );
       res.json({ total });
     } catch (e) {
       res.status(500).json({ message: e.message });
