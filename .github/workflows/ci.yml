@@ -2,14 +2,20 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feature/**"]
+    branches: ["dev", "main", "feature/**"]
   pull_request:
-    branches: ["main"]
+    branches: ["dev", "main"]
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
     name: CI / Back-end
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
@@ -46,6 +52,7 @@ jobs:
   frontend:
     name: CI / Front-end
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
