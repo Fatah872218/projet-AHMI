@@ -7,15 +7,16 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
+import {
+  globalLimiter,
+  authLimiter,
+  forgotLimiter,
+} from "./middlewares/rateLimiter.js";
 
 import connectDB from "./config/db.js";
 
 import securityHeaders from "./middlewares/securityHeaders.js";
-import {
-  generalLimiter,
-  authLimiter,
-  geocodeLimiter,
-} from "./middlewares/rateLimiter.js";
+
 //import corsStrict from "./middlewares/corsStrict.js";
 //import { sanitizeMongo, preventHpp } from "./middlewares/sanitize.js";
 import auth from "./middlewares/middlewareAuth.js";
@@ -46,7 +47,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(securityHeaders);
 
 // CORS —  :
-// 1) CORS strict via ton middleware
+// 1) CORS strict via  middleware
 // app.use(corsStrict);
 
 // 2) CORS simple ()
@@ -92,6 +93,12 @@ console.log(" reservations OK");
 console.info(" Avant routes categorie");
 app.use("/api/categories", categorieRoutes);
 console.info(" categories OK");
+
+// Limiteur global pour tout le site
+app.use(globalLimiter);
+
+// Limiteur encore plus strict uniquement sur l’endpoint “oublié”
+app.use("/api/auth/mot-de-passe-oublie", forgotLimiter);
 
 import { mountDocs } from "./docs.js";
 mountDocs(app); // ➜ http://localhost:3000/docs
