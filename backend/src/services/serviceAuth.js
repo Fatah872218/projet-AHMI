@@ -9,77 +9,59 @@ import { schemaInscription } from "../validations/schemasUtilisateur.js";
 // Charger les variables d'environnement
 dotenv.config();
 
-class ServiceAuth {
+export default class ServiceAuth {
   constructor() {
-    this.utilisateurRepository = new UtilisateurRepository();
+    this.repo = new UtilisateurRepository();
   }
-  //authentification (inscription)
+  /* ---------- INSCRIPTION ---------- */
+  async inscrireUtilisateur({ nom, email, motDePasse }) {
+    /* validation Joi */
+    const { error } = schemaInscription.validate({ nom, email, motDePasse });
+    if (error) throw new Error(error.details[0].message);
 
-  async inscrireUtilisateur(utilisateurData) {
-    const { error } = schemaInscription.validate(utilisateurData);
-    if (error) {
-      throw new Error(error.details[0].message);
-    }
+    /* doublon ? */
+    if (await this.repo.trouverParEmail(email))
+      throw new Error("Cet utilisateur existe déjà");
 
-    try {
-      const utilisateurExiste = await this.utilisateurRepository.findByEmail(
-        utilisateurData.email
-      );
-      if (utilisateurExiste) throw new Error("Cet utilisateur existe déjà");
+    /* hash + création */
+    const hash = await argon2.hash(motDePasse);
+    const utilisateur = await this.repo.createUtilisateur({
+      nom,
+      email,
+      motDePasse: hash,
+      role: "user",
+      isActif: false,
+    });
 
-      // Étape 1 : hachage du mot de passe
-      utilisateurData.motDePasse = await argon2.hash(
-        utilisateurData.motDePasse
-      );
-      console.log("Mot de passe haché :", utilisateurData.motDePasse);
+    /* JWT */
+    const token = jwt.sign(
+      { id: utilisateur._id, role: utilisateur.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-      // Étape 2 : création de l'utilisateur en BDD
-      const utilisateur = await this.utilisateurRepository.createUtilisateur(
-        utilisateurData
-      );
-
-      // Étape 3 : génération du token JWT
-      const token = jwt.sign({ id: utilisateur._id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-
-      // Étape 4 : retour des deux
-      return { utilisateur, token };
-    } catch (err) {
-      throw new Error(`Erreur lors de l'inscription : ${err.message}`);
-    }
+    return { utilisateur, token };
   }
-
-  // se connecter
+  /* ---------- CONNEXION ---------- */
   async connecterUtilisateur(email, motDePasse) {
-    try {
-      const utilisateur = await this.utilisateurRepository.findByEmail(
-        email,
-        true
-      );
-      if (!utilisateur) throw new Error("Utilisateur non trouvé");
+    const utilisateur = await this.repo.trouverParEmail(email, true);
+    if (!utilisateur) throw new Error("Email inconnu");
 
-      const motDePasseValide = await argon2.verify(
-        utilisateur.motDePasse,
-        motDePasse
-      );
-      if (!motDePasseValide) throw new Error("Mot de passe incorrect");
-      //Générer un token JWT
-      // const token = jwt.sign(payload, 'votre_clé_secrète', { expiresIn: '1h' });
-      const token = jwt.sign({ id: utilisateur._id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-      /* console.log("Token généré :", token); */
-      return { utilisateur, token };
-    } catch (err) {
-      throw new Error(`Erreur lors de la connexion : ${err.message}`);
-    }
+    const ok = await argon2.verify(utilisateur.motDePasse, motDePasse);
+    if (!ok) throw new Error("Mot de passe incorrect");
+    if (!utilisateur.isActif)
+      throw new Error("Veuillez activer votre compte depuis l’e-mail reçu");
+
+    const token = jwt.sign(
+      { id: utilisateur._id, role: utilisateur.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return { utilisateur, token };
   }
-
   async envoyerEmailReinitialisation(email) {
     // Logique pour envoyer un email de réinitialisation
     // Utiliser un service de messagerie comme nodemailer
   }
 }
-
-export default new ServiceAuth();

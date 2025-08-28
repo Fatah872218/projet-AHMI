@@ -7,6 +7,11 @@ const api = axios.create({
   withCredentials: true, //  cookies hhtpOnly
   timeout: 10000,
 })
+const savedToken = localStorage.getItem('token')
+if (savedToken) {
+  api.defaults.headers.common.Authorization = `Bearer ${savedToken}`
+}
+const toast = useToast()
 
 console.log('Axios baseURL =', api.defaults.baseURL)
 

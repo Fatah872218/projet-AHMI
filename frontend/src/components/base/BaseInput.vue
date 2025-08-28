@@ -1,22 +1,26 @@
 <template>
   <div class="w-full md:w-1/2 mb-sm">
     <label
+      :for="inputId"
       class="block text-sm md:text-base font-medium text-ahmi-text-primary font-montserrat mb-xs"
     >
       {{ label }}
+      <span v-if="required" class="text-warning-600">*</span>
     </label>
 
     <div class="relative">
       <input
-        class="block w-full rounded-rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body placeholder:text-ahmi-text-secondary focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md pr-10"
+        :id="inputId"
         :type="typeDeChamp"
         :value="modelValue"
         @input="emit('update:modelValue', $event.target.value)"
         :required="required"
         :aria-invalid="!!error"
+        :aria-describedby="description || error ? descriptionId : null"
+        class="block w-full rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body placeholder:text-ahmi-text-secondary focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md pr-10"
       />
 
-      <!-- Si c'est un mot de passe, rendre l’icône cliquable -->
+      <!-- Icône ou bouton de mot de passe -->
       <template v-if="type === 'password'">
         <button
           type="button"
@@ -26,8 +30,6 @@
           <slot name="icon" />
         </button>
       </template>
-
-      <!-- Sinon, simple icône décorative -->
       <template v-else-if="$slots.icon">
         <div
           class="absolute inset-y-0 right-0 pr-sm md:pr-md flex items-center pointer-events-none"
@@ -37,7 +39,13 @@
       </template>
     </div>
 
-    <p v-if="error" class="text-caption text-ahmi-error mt-xs font-openSans">
+    <!-- Description -->
+    <p v-if="description" :id="descriptionId" class="text-xs text-gray-500 mt-1 font-openSans">
+      {{ description }}
+    </p>
+
+    <!-- Erreur -->
+    <p v-if="error" :id="`${inputId}-error`" class="text-caption text-red-600 mt-1 font-openSans">
       {{ error }}
     </p>
   </div>
@@ -47,7 +55,10 @@
 import { ref, computed } from 'vue'
 
 const props = defineProps({
-  label: String,
+  label: {
+    type: String,
+    required: true,
+  },
   modelValue: [String, Number],
   type: {
     type: String,
@@ -58,6 +69,8 @@ const props = defineProps({
     default: false,
   },
   error: String,
+  description: String,
+  id: String, // optionnel, sinon généré
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -65,9 +78,14 @@ const emit = defineEmits(['update:modelValue'])
 const motDePasseVisible = ref(false)
 
 const typeDeChamp = computed(() => {
-  if (props.type !== 'password') return props.type
-  return motDePasseVisible.value ? 'text' : 'password'
+  return props.type === 'password' && motDePasseVisible.value ? 'text' : props.type
 })
+
+// ID généré pour accessibilité si non fourni
+const inputId = computed(
+  () => props.id || `input-${props.label.replace(/\s+/g, '-').toLowerCase()}`
+)
+const descriptionId = computed(() => `${inputId.value}-description`)
 
 function toggleVisibiliteMotDePasse() {
   motDePasseVisible.value = !motDePasseVisible.value

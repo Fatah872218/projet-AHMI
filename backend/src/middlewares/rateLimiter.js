@@ -1,6 +1,7 @@
 // backend/src/middlewares/rateLimiter.js
 import rateLimit from "express-rate-limit";
 
+<<<<<<< HEAD
 /**
  * Limiteur "global" (toutes routes)
  * Exemple: 300 requêtes / 15 minutes par IP
@@ -36,4 +37,26 @@ export const forgotLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: { message: "Trop de demandes de réinitialisation." },
+=======
+export const generalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 120, // 120 req/min par IP
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Trop de tentatives, réessayez plus tard." }, // JSON au lieu d'une string
+});
+
+export const geocodeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30, // protège l’API Nominatim
+  standardHeaders: true,
+  legacyHeaders: false,
+>>>>>>> feature/events-booking
 });

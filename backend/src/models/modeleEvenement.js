@@ -1,35 +1,58 @@
 import mongoose from "mongoose";
+const { Schema, Types } = mongoose;
+const { ObjectId } = Types;
 
-const evenementSchema = new mongoose.Schema({
-  _id: ObjectId,
-  titre: { type: String },
+const evenementSchema = new Schema({
+  titre: { type: String, required: true },
   description: { type: String },
-  dateDebut: { Date },
-  dateFin: { Date },
+  dateDebut: { type: Date, required: true },
+  dateFin: { type: Date, required: true },
   lieu: {
-    nom: { type: String },
-    adresse: { type: String },
+    rue: { type: String, required: true, trim: true },
+    codePostal: {
+      type: String,
+      required: true,
+      match: /^\d{5}$/,
+    },
+    commune: { type: String, required: true, trim: true },
     coordonnees: {
       lat: { type: Number },
       lng: { type: Number },
     },
   },
-  createur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Users (partenaire qui crée l'événement)
+
+  createur: { type: ObjectId, ref: "Utilisateur", required: true },
   statut: {
-    type: { type: String },
+    type: String,
     enum: ["en_attente", "approuve", "rejete", "annule"],
     default: "en_attente",
   },
   capaciteMax: { type: Number },
-  placesDisponibles: { type: Number },
-  prix: { type: Number, default: 0 },
-  categories: [{ type: ObjectId, ref: "Categorie" }], // Relation plusieurs-à-plusieurs avec Categories
-  imageUrl: { type: String },
-  participationFinanciere: { type: String },
-  lienInstagram: { type: String },
+  placesReservees: { type: Number },
+  participationFinanciere: {
+    type: Number,
+    default: 0,
+  },
+
+  categories: [
+    {
+      type: ObjectId,
+      ref: "Categorie",
+    },
+  ],
+  imageUrl: { type: String, default: "", required: false },
+
+  lienInstagram: { type: String, default: "", required: false },
+  lienSiteInternet: { type: String, default: "", required: false },
+
   dateCreation: { type: Date, default: Date.now },
-  dateModeration: { Date },
-  moderateur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Utilisateur (admin qui modère)
+  dateModeration: { type: Date },
+  moderateur: { type: ObjectId, ref: "Utilisateur" },
+
+  organisateur: {
+    nom: { type: String, required: true },
+    email: { type: String, required: true },
+  },
 });
 
 export default mongoose.model("Evenement", evenementSchema);

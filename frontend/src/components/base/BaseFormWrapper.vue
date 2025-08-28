@@ -1,3 +1,5 @@
+<!-- src/components/base/BaseFormWrapper.vue
+ -->
 <template>
   <form
     @submit.prevent="onSubmit"
@@ -12,7 +14,7 @@
       <slot />
     </div>
 
-    <BaseButton type="submit" class="w-full" :disabled="loading">
+    <BaseButton type="submit" class="w-full" :disabled="loading" className="rounded-minimal">
       <slot name="submitLabel">Valider</slot>
     </BaseButton>
 

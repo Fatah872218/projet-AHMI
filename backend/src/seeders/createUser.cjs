@@ -1,45 +1,47 @@
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const argon2 = require("argon2");
-const path = require("path");
-
-// Charger manuellement le modèle User avec require
-const User = require("../models/user.model.js").default;
+// backend/src/seeders/createUser.cjs
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import argon2 from "argon2";
+import db from "../config/db.js";
+import Utilisateur from "../models/modeleUtilisateur.js";
 
 dotenv.config();
 
-const run = async () => {
+await db();
+
+async function createUser(nom, email, motDePasse, role) {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log(" Connecté à MongoDB");
+    const hash = await argon2.hash(motDePasse);
 
-    const hashedPassword = await argon2.hash("Test1234!");
+    const existing = await Utilisateur.findOne({ email });
+    if (existing) {
+      console.log(`ℹ️ Utilisateur déjà existant : ${email}`);
+      return;
+    }
 
-    const user = new User({
-      nom: "Dupont",
-      prenom: "Jean",
-      email: "jean.dupont@example.com",
-      password: hashedPassword,
-      telephone: "0601020304",
-      adresse: {
-        rue: "1 rue de Paris",
-        codePostal: "75000",
-        ville: "Paris",
-      },
+    const utilisateur = new Utilisateur({
+      nom,
+      email,
+      password: hash, // Assure-toi que le modèle utilise bien "password"
+      role, // Assure-toi que "role" est bien un champ dans ton modèle
       consentementCGU: true,
-      notifications: {
-        newsletter: true,
-        rappelEvenement: true,
-      },
     });
 
-    await user.save();
-    console.log(" Utilisateur de test créé avec succès");
-  } catch (error) {
-    console.error(" Erreur :", error.message);
-  } finally {
-    await mongoose.disconnect();
+    await utilisateur.save();
+    console.log(`Utilisateur ${role} créé : ${email}`);
+  } catch (e) {
+    console.error(` Erreur lors de la création de ${email} :`, e.message);
   }
-};
+}
 
-run();
+// Création des utilisateurs de test
+await createUser("Admin Test", "admin@test.com", "motdepasse123", "admin");
+await createUser(
+  "Partenaire Test",
+  "partenaire@test.com",
+  "motdepasse123",
+  "partenaire"
+);
+
+await mongoose.disconnect();
+process.exit();

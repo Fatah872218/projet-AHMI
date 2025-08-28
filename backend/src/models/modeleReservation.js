@@ -1,11 +1,14 @@
+//src/models/modeleReservation.js
 import mongoose from "mongoose";
+const { Schema, Types } = mongoose;
+const { ObjectId } = Types;
 
-const reservationSchema = new mongoose.Schema({
-  _id: ObjectId,
-  utilisateur: { type: ObjectId, ref: "Utilisateur" }, // Relation un-à-plusieurs avec Utilisateur
-  evenement: { type: ObjectId, ref: "Evenement" }, // Relation un-à-plusieurs avec Evenement
+const reservationSchema = new Schema({
+  _id: { type: Types.ObjectId, default: () => new Types.ObjectId() }, // Génération automatique d'un ObjectId
+  utilisateur: { type: ObjectId, ref: "Utilisateur", required: true }, // Relation un-à-plusieurs avec Utilisateur
+  evenement: { type: ObjectId, ref: "Evenement", required: true }, // Relation un-à-plusieurs avec Evenement
   dateReservation: { type: Date, default: Date.now },
-  nombrePlaces: { type: Number },
+  nombrePlaces: { type: Number, required: true },
   statut: {
     type: String,
     enum: ["confirme", "annule", "present", "absent"],

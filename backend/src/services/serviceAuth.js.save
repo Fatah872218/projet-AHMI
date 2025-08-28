@@ -82,4 +82,4 @@ class ServiceAuth {
   }
 }
 
-export default new ServiceAuth();
+export default  ServiceAuth();

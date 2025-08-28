@@ -1,29 +1,15 @@
-import Utilisateur from "../models/modeleUtilisateur.js";
-
+// src/middlewares/middlewareCheckRole.js
 const checkRole = (...rolesAutorises) => {
   return async (req, res, next) => {
     try {
-      const utilisateur = await Utilisateur.findById(
-        req.utilisateur.id
-      ).populate("roles");
-
-      if (
-        !utilisateur ||
-        !utilisateur.roles ||
-        utilisateur.roles.length === 0
-      ) {
-        return res.status(403).json({ message: "Aucun rôle assigné" });
+      if (!req.utilisateur) {
+        return res.status(401).json({ message: "Authentification requise" });
       }
 
-      const nomsRoles = utilisateur.roles.map((r) => r.nom);
-
-      if (nomsRoles.includes("admin")) {
-        return next();
-      }
-
-      // Vérifie si un rôle correspond aux rôles autorisés pour cette route
-      const aUnRoleAutorise = nomsRoles.some((role) =>
-        rolesAutorises.includes(role)
+      // Ici on s’appuie sur req.utilisateur.roles (tableau d’IDs ou de noms selon ton modèle)
+      // Si tu stockes des ObjectId -> mappe-les en noms en amont ou fais un populate ici.
+      const aUnRoleAutorise = (req.utilisateur.roles || []).some(
+        (r) => rolesAutorises.includes(r.nom || r) // accepte _id converti ou nom
       );
 
       if (!aUnRoleAutorise) {

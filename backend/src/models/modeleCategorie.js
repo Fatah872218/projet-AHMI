@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
+const { Schema, model, Types } = mongoose;
+const { ObjectId } = Types;
 
-const CategorieSchema = new mongoose.Schema({
-  _id: ObjectId,
-  nom: { type: String },
-  description: { type: String },
+const categorieSchema = new Schema({
+  nom: {
+    type: String,
+    required: true,
+  },
 });
 
-export default mongoose.model("Categorie", CategorieSchema);
+const Categorie = model("Categorie", categorieSchema);
+export default Categorie;

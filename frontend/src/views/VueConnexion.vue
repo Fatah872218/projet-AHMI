@@ -1,33 +1,14 @@
+<!-- src/views/VueConnexion.vue -->
 <template>
-  <div>
-    <!--  Vue pour la page de connexion. -->
-    <p>essai !</p>
-  </div>
+  <main class="flex flex-col items-center justify-center min-h-screen">
+    <FormulaireConnexion />
+  </main>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      message: 'Bonjour, monde !',
-    }
-  },
-  methods: {
-    //  Vue pour la page de connexion..
-    greet() {
-      console.log(this.message)
-    },
-  },
-}
-
-/*
- Vue pour la page de connexion.
-*/
+<script setup>
+import FormulaireConnexion from '@/components/FormulaireConnexion.vue'
 </script>
 
 <style scoped>
-/*  Vue pour la page de connexion. */
-p {
-  color: blue;
-}
+/* petit centrage,  */
 </style>
