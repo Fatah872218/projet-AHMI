@@ -1,16 +1,16 @@
-import UtilisateurService from "../services/serviceUtilisateur.js";
+import utilisateurService from "../services/serviceUtilisateur.js";
 import {
   schemaInscription,
   schemaConnexion,
   schemaMiseAJourUtilisateur,
 } from "../validations/schemasUtilisateur.js";
-import { sendConfirmationEmail } from "../config/nodemailerConfig.js";
+import { sendMail } from "../config/nodemailerConfig.js";
 import Role from "../models/modeleRole.js";
 import Utilisateur from "../models/modeleUtilisateur.js";
 
 class ControleurUtilisateur {
   constructor() {
-    this.utilisateurService = UtilisateurService;
+    this.utilisateurService = utilisateurService;
   }
   //comment s'inscrire:
   async inscrire(req, res) {
@@ -41,13 +41,17 @@ class ControleurUtilisateur {
       const utilisateur = await this.utilisateurService.inscrireUtilisateur(
         dataUtilisateur
       );
-      sendConfirmationEmail(
-        dataUtilisateur.email,
-        dataUtilisateur.activationCode,
-        dataUtilisateur.motDePasse
-      );
+      // --- mail d’activation ---------------------------------
+      const activationUrl = `${process.env.FRONTEND_URL}/activation/${activationCode}`;
+      const subject = "Bienvenue chez AHMI – activez votre compte";
 
-      console.log(utilisateur.motDePasse);
+      const html = `
+  <h1>Bienvenue, ${dataUtilisateur.nom} 👋</h1>   <p>Merci de votre inscription ! Cliquez sur le lien suivant pour
+  activer votre compte :</p>
+   <p><a href="${activationUrl}">${activationUrl}</a></p>
+  <p>Ce lien est valable 24 h.</p>`;
+
+      await sendMail({ to: dataUtilisateur.email, subject, html });
 
       res.status(201).json(utilisateur);
       console.info("l utilisateur est cree");
@@ -76,7 +80,7 @@ class ControleurUtilisateur {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production", // Cookie sécurisé uniquement en production
           sameSite: "strict",
-          expires: new Date(Date.now() + 36000),
+          expires: new Date(Date.now() + 36000 * 1000),
         });
         res.status(200).json(utilisateur);
       } catch (err) {
@@ -87,7 +91,6 @@ class ControleurUtilisateur {
   // Récupérer l'utilisateur connecté
 
   obtenirProfil = async (req, res) => {
-
     try {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
         req.utilisateur.id
@@ -96,7 +99,7 @@ class ControleurUtilisateur {
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  }
+  };
 
   mettreAJourProfil = async (req, res) => {
     console.log("Reçu PUT /profil");

@@ -1,9 +1,4 @@
-/* import ServiceReinitialisationMDP from "../services/serviceReinitialisationMDP.js";
-import { ErreurAPI } from "../errors/erreurAPI.js";
-import {
-  schemaDemandeReinitialisation,
-  schemaReinitialisationMDP,
-} from "../validations/validationAuth.js";
+import ServiceReinitialisationMDP from "../services/serviceReinitialisationMDP.js";
 
 class ControllerReinitialisationMDP {
   constructor() {
@@ -12,14 +7,13 @@ class ControllerReinitialisationMDP {
 
   async demanderReinitialisation(req, res, next) {
     try {
-      const { err } = schemaDemandeReinitialisation.validate(req.body);
-      if (err) throw new ErreurAPI(err.details[0].message, 400);
+      const { email } = req.body ?? {};
+      if (!email) return res.status(400).json({ message: "Email requis" });
 
-      const result =
-        await this.serviceReinitialisation.demanderReinitialisation(
-          req.body.email
-        );
-      res.json(result);
+      const out = await this.serviceReinitialisation.demanderReinitialisation(
+        email
+      );
+      res.status(200).json(out);
     } catch (err) {
       next(err);
     }
@@ -27,17 +21,19 @@ class ControllerReinitialisationMDP {
 
   async reinitialiserMotDePasse(req, res, next) {
     try {
-      const { err } = schemaReinitialisationMDP.validate(req.body);
-      if (err) throw new ErreurAPI(err.details[0].message, 400);
-
       const { token } = req.params;
-      const { motDePasse } = req.body;
+      const { motDePasse } = req.body ?? {};
+      if (!token || !motDePasse) {
+        return res
+          .status(400)
+          .json({ message: "Token et mot de passe requis" });
+      }
 
-      const result = await this.serviceReinitialisation.reinitialiserMotDePasse(
+      const out = await this.serviceReinitialisation.reinitialiserMotDePasse(
         token,
         motDePasse
       );
-      res.json(result);
+      res.status(200).json(out);
     } catch (err) {
       next(err);
     }
@@ -45,4 +41,3 @@ class ControllerReinitialisationMDP {
 }
 
 export default ControllerReinitialisationMDP;
- */
