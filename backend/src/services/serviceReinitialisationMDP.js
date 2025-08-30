@@ -3,14 +3,20 @@ import UtilisateurRepo from "../repositories/repositoryUtilisateur.js";
 import argon2 from "argon2";
 import crypto from "crypto";
 
-import transporter from "../config/nodemailerConfig.js"; // ✅ instance prête
+import { sendMail } from "../config/nodemailerConfig.js";
 
 const utilisateurRepo = new UtilisateurRepo();
 export default class ServiceReinitialisationMDP {
   /** Étape 1 : demande de reset */
   async demanderReinitialisation(email) {
     const utilisateur = await utilisateurRepo.trouverParEmail(email);
-    if (!utilisateur) throw new Error("Utilisateur introuvable");
+    if (!utilisateur) {
+      // On ne révèle pas si l'email existe ou non : réponse 200 uniforme
+      return {
+        ok: true,
+        message: "Si un compte existe pour cet email, un lien a été envoyé.",
+      };
+    }
 
     const token = crypto.randomBytes(32).toString("hex");
     const expiration = Date.now() + 60 * 60 * 1000; // 1 h
@@ -23,8 +29,7 @@ export default class ServiceReinitialisationMDP {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reinitialiser-mot-de-passe?token=${token}`;
 
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_SENDER_NAME}" <${process.env.EMAIL_USER}>`,
+    await sendMail({
       to: email,
       subject: "Réinitialisation de votre mot de passe",
       html: `
@@ -32,6 +37,10 @@ export default class ServiceReinitialisationMDP {
         <p>Cliquez <a href="${resetUrl}">ici</a> ou copiez le lien suivant : ${resetUrl}</p>
         <p>Ce lien expire dans 1 heure.</p>`,
     });
+    return {
+      ok: true,
+      message: "Email de réinitialisation envoyé s’il existe.",
+    };
   }
 
   /** Étape 2 : changement effectif */
@@ -47,8 +56,9 @@ export default class ServiceReinitialisationMDP {
     }
 
     utilisateur.motDePasse = await argon2.hash(nouveauMotDePasse);
-    utilisateur.tokenReinitialisation = undefined;
-    utilisateur.expirationTokenReinitialisation = undefined;
+    utilisateur.tokenReinitialisation = null;
+    utilisateur.expirationTokenReinitialisation = null;
     await utilisateur.save();
+    return { ok: true, message: "Mot de passe réinitialisé." };
   }
 }

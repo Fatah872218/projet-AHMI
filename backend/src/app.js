@@ -7,6 +7,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
+import routeReinitialisationMDP from "./routes/routeReinitialisationMDP.js";
 
 import connectDB from "./config/db.js";
 
@@ -90,6 +91,7 @@ console.log(" reservations OK");
 console.info(" Avant routes categorie");
 app.use("/api/categories", categorieRoutes);
 console.info(" categories OK");
+app.use("/api/auth", routeReinitialisationMDP);
 
 import { mountDocs } from "./docs.js";
 mountDocs(app); // ➜ http://localhost:3000/docs

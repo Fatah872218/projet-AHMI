@@ -16,12 +16,14 @@ export const deconnecterUtilisateur = () => api.post('/auth/deconnexion')
 export const motDePasseOublie = (data) => api.post('/auth/mot-de-passe-oublie', data)
 
 // ➤ Mot de passe oublié
-export const demanderReinitialisationMotDePasse = (email) =>
-  api.post('/auth/mot-de-passe-oublie', { email })
+export const demanderReinitialisationMotDePasse = (email) => {
+  console.log('POST /auth/mot-de-passe-oublie payload =', { email })
+  return api.post('/auth/mot-de-passe-oublie', { email })
+}
 
 // ➤ Réinitialisation du mot de passe
-export const reinitialiserMotDePasse = (token, motDePasse) =>
-  api.post(`/auth/reinitialiser/${token}`, { motDePasse })
+export const reinitialiserMotDePasse = (token, motDePasse, confirmationMotDePasse) =>
+  api.post(`/auth/reinitialiser/${token}`, { motDePasse, confirmationMotDePasse })
 
 // activation du compte
 export async function activerCompte(code) {

@@ -13,6 +13,8 @@ if (savedToken) {
 }
 const toast = useToast()
 
+console.log('Axios baseURL =', api.defaults.baseURL)
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

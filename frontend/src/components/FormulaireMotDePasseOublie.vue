@@ -41,7 +41,7 @@ import BaseInput from '@/components/base/BaseInput.vue'
 import { HomeIcon } from '@heroicons/vue/outline'
 
 // service front qui appelle POST /auth/mot-de-passe-oublie
-import { motDePasseOublie as envoyerLienReset } from '@/services/serviceAuth'
+import { demanderReinitialisationMotDePasse } from '@/services/serviceAuth'
 
 // eslint-disable-next-line no-unused-vars
 const router = useRouter()
@@ -50,24 +50,29 @@ const email = ref('')
 const errorEmail = ref('')
 const messageSucces = ref('')
 const messageErreur = ref('')
+const sending = ref(false)
 
 async function soumettreFormulaire() {
   errorEmail.value = ''
   messageErreur.value = ''
   messageSucces.value = ''
+  sending.value = true
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email.value)) {
     errorEmail.value = 'Adresse email invalide.'
+    sending.value = false
     return
   }
 
   try {
-    await envoyerLienReset({ email: email.value })
-    messageSucces.value = 'Un e‑mail vient de vous être envoyé. Vérifiez votre boîte de réception.'
-    email.value = ''
+    await demanderReinitialisationMotDePasse(email.value) // envoi de l'email
+    messageSucces.value = 'Si un compte existe pour cet email, un lien a été envoyé.'
+    email.value = '' // on efface après succès
   } catch (err) {
-    messageErreur.value = err.response?.data?.message || 'Une erreur est survenue.'
+    messageErreur.value = err?.response?.data?.message || 'Une erreur est survenue.'
+  } finally {
+    sending.value = false
   }
 }
 </script>
