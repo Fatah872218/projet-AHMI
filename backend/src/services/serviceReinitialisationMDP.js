@@ -56,8 +56,8 @@ export default class ServiceReinitialisationMDP {
     }
 
     utilisateur.motDePasse = await argon2.hash(nouveauMotDePasse);
-    utilisateur.tokenReinitialisation = undefined;
-    utilisateur.expirationTokenReinitialisation = undefined;
+    utilisateur.tokenReinitialisation = null;
+    utilisateur.expirationTokenReinitialisation = null;
     await utilisateur.save();
     return { ok: true, message: "Mot de passe réinitialisé." };
   }
