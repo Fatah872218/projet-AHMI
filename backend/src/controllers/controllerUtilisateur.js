@@ -51,11 +51,7 @@ class ControleurUtilisateur {
    <p><a href="${activationUrl}">${activationUrl}</a></p>
   <p>Ce lien est valable 24 h.</p>`;
 
-<<<<<<< HEAD
       await sendMail({ to: dataUtilisateur.email, subject, html });
-=======
-      await sendConfirmationEmail(dataUtilisateur.email, subject, html);
->>>>>>> feature/events-booking
 
       res.status(201).json(utilisateur);
       console.info("l utilisateur est cree");

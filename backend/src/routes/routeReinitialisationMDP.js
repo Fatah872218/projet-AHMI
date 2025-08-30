@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 // backend/src/routes/routeReinitialisationMDP.js
-=======
->>>>>>> feature/events-booking
 import express from "express";
 import ControllerReinitialisationMDP from "../controllers/controllerReinitialisationMDP.js";
 import valider from "../middlewares/middlewareValidation.js";

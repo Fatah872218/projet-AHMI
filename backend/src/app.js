@@ -7,27 +7,15 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
-<<<<<<< HEAD
 import {
   globalLimiter,
   authLimiter,
   forgotLimiter,
 } from "./middlewares/rateLimiter.js";
-=======
->>>>>>> feature/events-booking
 
 import connectDB from "./config/db.js";
 
 import securityHeaders from "./middlewares/securityHeaders.js";
-<<<<<<< HEAD
-
-=======
-import {
-  generalLimiter,
-  authLimiter,
-  geocodeLimiter,
-} from "./middlewares/rateLimiter.js";
->>>>>>> feature/events-booking
 //import corsStrict from "./middlewares/corsStrict.js";
 //import { sanitizeMongo, preventHpp } from "./middlewares/sanitize.js";
 import auth from "./middlewares/middlewareAuth.js";
@@ -39,10 +27,7 @@ import eventRoutes from "./routes/eventRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import categorieRoutes from "./routes/categorieRoutes.js";
 import geocodeRoutes from "./routes/geocodeRoutes.js";
-<<<<<<< HEAD
 import reinitRoutes from "./routes/routeReinitialisationMDP.js";
-=======
->>>>>>> feature/events-booking
 
 import errorHandler from "./middlewares/errorHandler.js";
 dotenv.config();
@@ -61,11 +46,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(securityHeaders);
 
 // CORS —  :
-<<<<<<< HEAD
 // 1) CORS strict via  middleware
-=======
-// 1) CORS strict via ton middleware
->>>>>>> feature/events-booking
 // app.use(corsStrict);
 
 // 2) CORS simple ()
@@ -91,10 +72,7 @@ app.use(compression());
 // Routes
 console.info("Avant routes Auth");
 app.use("/api/auth", authLimiter, authRoutes);
-<<<<<<< HEAD
 app.use("/api/auth", reinitRoutes);
-=======
->>>>>>> feature/events-booking
 app.use("/api/geocode", geocodeLimiter, geocodeRoutes);
 
 app.use("/api/utilisateurs", utilisateurRoutes);
@@ -115,15 +93,12 @@ console.info(" Avant routes categorie");
 app.use("/api/categories", categorieRoutes);
 console.info(" categories OK");
 
-<<<<<<< HEAD
 // Limiteur global pour tout le site
 app.use(globalLimiter);
 
 // Limiteur encore plus strict uniquement sur l’endpoint “oublié”
 app.use("/api/auth/mot-de-passe-oublie", forgotLimiter);
 
-=======
->>>>>>> feature/events-booking
 import { mountDocs } from "./docs.js";
 mountDocs(app); // ➜ http://localhost:3000/docs
 
