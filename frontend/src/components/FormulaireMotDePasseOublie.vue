@@ -41,7 +41,11 @@ import BaseInput from '@/components/base/BaseInput.vue'
 import { HomeIcon } from '@heroicons/vue/outline'
 
 // service front qui appelle POST /auth/mot-de-passe-oublie
+<<<<<<< HEAD
+import { demanderReinitialisationMotDePasse } from '@/services/serviceAuth'
+=======
 import { motDePasseOublie as envoyerLienReset } from '@/services/serviceAuth'
+>>>>>>> feature/events-booking
 
 // eslint-disable-next-line no-unused-vars
 const router = useRouter()
@@ -50,24 +54,46 @@ const email = ref('')
 const errorEmail = ref('')
 const messageSucces = ref('')
 const messageErreur = ref('')
+<<<<<<< HEAD
+const sending = ref(false)
+=======
+>>>>>>> feature/events-booking
 
 async function soumettreFormulaire() {
   errorEmail.value = ''
   messageErreur.value = ''
   messageSucces.value = ''
+<<<<<<< HEAD
+  sending.value = true
+=======
+>>>>>>> feature/events-booking
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email.value)) {
     errorEmail.value = 'Adresse email invalide.'
+<<<<<<< HEAD
+    sending.value = false
+=======
+>>>>>>> feature/events-booking
     return
   }
 
   try {
+<<<<<<< HEAD
+    await demanderReinitialisationMotDePasse(email.value) // envoi de l'email
+    messageSucces.value = 'Si un compte existe pour cet email, un lien a été envoyé.'
+    email.value = '' // on efface après succès
+  } catch (err) {
+    messageErreur.value = err?.response?.data?.message || 'Une erreur est survenue.'
+  } finally {
+    sending.value = false
+=======
     await envoyerLienReset({ email: email.value })
     messageSucces.value = 'Un e‑mail vient de vous être envoyé. Vérifiez votre boîte de réception.'
     email.value = ''
   } catch (err) {
     messageErreur.value = err.response?.data?.message || 'Une erreur est survenue.'
+>>>>>>> feature/events-booking
   }
 }
 </script>

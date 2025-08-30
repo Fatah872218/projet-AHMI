@@ -3,16 +3,23 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-// === Transporter prêt à l’emploi — compatible Mailtrap ===
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
+
+if (!SMTP_USER || !SMTP_PASS) {
+  console.error(" SMTP_USER / SMTP_PASS manquants. Vérifie ton .env");
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "sandbox.smtp.mailtrap.io",
   port: Number(process.env.SMTP_PORT) || 2525,
   secure: false,
-  auth: {
-    user: process.env.SMTP_USER, // ad45c84a751142 …
-    pass: process.env.SMTP_PASS, // 8c3b…
-  },
+  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  debug: true,
 });
+
+const info = await transporter.sendMail(mailOptions);
+console.log("@ Mailtrap messageId:", info.messageId);
+
 /* ---  helper réutilisable --------------------------- */
 export async function sendConfirmationEmail(to, subject, html) {
   return transporter.sendMail({
@@ -24,4 +31,18 @@ export async function sendConfirmationEmail(to, subject, html) {
 }
 /* -------------------------------------------------------------- */
 
-export default transporter; // ⬅️  on exporte **l’instance**
+/** Helper commun */
+export async function sendMail({ to, subject, html }) {
+  return transporter.sendMail({
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    to,
+    subject,
+    html,
+  });
+}
+transporter.verify((err, success) => {
+  if (err) console.error("❌ SMTP verify error:", err);
+  else console.log("✅ SMTP ready");
+});
+
+export default transporter;

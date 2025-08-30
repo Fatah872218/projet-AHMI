@@ -13,6 +13,14 @@ if (savedToken) {
 }
 const toast = useToast()
 
+console.log('Axios baseURL =', api.defaults.baseURL)
+
+const savedToken = localStorage.getItem('token')
+if (savedToken) {
+  api.defaults.headers.common.Authorization = `Bearer ${savedToken}`
+}
+const toast = useToast()
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
