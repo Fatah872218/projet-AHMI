@@ -64,7 +64,8 @@ import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
 import { HomeIcon } from '@heroicons/vue/outline'
-import { reactive } from 'vue'
+import { computed } from 'vue'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
 const password = ref('')
@@ -72,29 +73,36 @@ const showPassword = ref(false)
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
-
-const form = reactive({ email: email.value, motDePasse: password.value })
+const toast = useToast()
+const form = computed(() => ({
+  email: email.value,
+  motDePasse: password.value,
+}))
 
 async function handleLogin() {
   try {
-    await auth.connexion(form)
+    await auth.connexion(form.value)
+
     if (!auth.erreur) {
-      router.push('/')
+      toast.success('Connexion réussie !')
+
+      // Vérifie la redirection après login
+      const q = route.query.redirect
+      const redirect = typeof q === 'string' && q.startsWith('/') ? q : '/account'
+
+      if (route.path === '/connexion' && redirect === '/connexion') {
+        return router.replace('/account')
+      }
+
+      return router.replace(redirect)
     }
-    // après connexion réussie
-    const q = route.query.redirect
-    const redirect = typeof q === 'string' && q.startsWith('/') ? q : '/account'
-    // évite la boucle si on est déjà sur /connexion
-    if (route.path === '/connexion' && redirect === '/connexion') {
-      return router.replace('/account')
-    }
-    router.replace(redirect)
-  } catch {
-    // laisser la gestion d’erreur/toast existante
+  } catch (error) {
+    const msg = error?.response?.data?.message || 'Erreur de connexion'
+    toast.error(msg)
   }
 }
 </script>
 
 <style scoped>
-/* Ajoute ici un style personnalisé si nécessaire */
+/*  style personnalisé si nécessaire */
 </style>

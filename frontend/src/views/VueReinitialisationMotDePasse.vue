@@ -1,4 +1,3 @@
-<!-- src/views/VueReinitialisationMotDePasse.vue -->
 <template>
   <main class="flex flex-col items-center justify-center min-h-screen">
     <BaseFormWrapper
@@ -62,7 +61,7 @@ import { reinitialiserMotDePasse } from '@/services/serviceAuth'
 const route = useRoute()
 const router = useRouter()
 
-// Token depuis /reinitialiser?token=... OU /reinitialiser/:token
+// Récupération du token depuis query (?token=) ou params (/reinitialiser/:token)
 const token = (route.query.token || route.params.token || '').toString()
 
 const motDePasse = ref('')
@@ -80,7 +79,7 @@ async function onSubmit() {
 
   // validations rapides côté front
   if (!token) {
-    erreur.value = 'Lien invalide : token manquant.'
+    erreur.value = 'Lien invalide ou expiré.'
     return
   }
   if (!motDePasse.value || motDePasse.value.length < 8) {
@@ -103,7 +102,7 @@ async function onSubmit() {
     confirmationMotDePasse.value = ''
     setTimeout(() => router.replace('/connexion'), 1200)
   } catch (e) {
-    // remonte l’éventuel message backend (ex: lien expiré)
+    // remonte l’éventuel message backend (ex: lien expiré, token invalide)
     erreur.value = e?.response?.data?.message || 'Erreur lors de la réinitialisation.'
   } finally {
     loading.value = false
@@ -112,5 +111,5 @@ async function onSubmit() {
 </script>
 
 <style scoped>
-/* Tout le style vient de BaseFormWrapper / BaseInput + Tailwind */
+/* Tout le style est géré par BaseFormWrapper / BaseInput + Tailwind */
 </style>

@@ -10,7 +10,7 @@ export default function useAuth() {
   const isAuthenticated = computed(() => !!utilisateur.value)
 
   function logout() {
-    authStore.deconnexion() // nom correct de ta fonction dans auth.js
+    authStore.deconnexion() // nom correct dans ma fonction dans auth.js
   }
 
   return {
