@@ -38,8 +38,15 @@ class ControleurAuth {
   // Connexion
   connexion = async (req, res) => {
     const { email, motDePasse } = req.body;
-    if (!email || !motDePasse) {
-      return res.status(400).json("Erreur, l'un des champs est vide");
+    if (!email) {
+      return res
+        .status(400)
+        .json({ message: "Email manquant", champ: "email" });
+    }
+    if (!motDePasse) {
+      return res
+        .status(400)
+        .json({ message: "Mot de passe manquant", champ: "motDePasse" });
     }
 
     try {

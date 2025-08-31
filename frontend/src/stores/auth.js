@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
   const utilisateur = ref(null)
   const chargement = ref(false)
   const erreur = ref(null)
+  const erreurChamp = ref(null)
 
   /* ───────── Connexion ───────── */
   const connexion = async (identifiants) => {
@@ -33,6 +34,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       localStorage.setItem('token', jeton.value)
     } catch (err) {
+      const champ = err.response?.data?.champ || null
+      erreurChamp.value = champ
       erreur.value = err.response?.data?.message || 'Erreur de connexion'
     } finally {
       chargement.value = false
@@ -46,6 +49,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await inscription(donnees)
     } catch (err) {
+      if (err.response?.data?.champ === 'email') {
+        erreurChamp.value = 'email'
+      } else {
+        erreurChamp.value = null
+      }
+
       erreur.value = err.response?.data?.message || 'Erreur inscription'
     } finally {
       chargement.value = false
