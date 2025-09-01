@@ -1,3 +1,7 @@
+// Rappel de l'ordre CCP2 sur routes sensibles :
+// 1) middlewareAuth (authentifie + hydrate req.utilisateur)
+// 2) checkRole('admin'[, 'partenaire']) (autorise) → ensuite seulement validations/contrôleur
+
 import express from "express";
 import eventController from "../controllers/eventController.js";
 import middlewareAuth from "../middlewares/middlewareAuth.js";
@@ -27,6 +31,7 @@ router.get(
 
 router.patch(
   "/:id/statut",
+  // Ordre : auth → rôle admin → validateObjectId → valider(schema) → contrôleur
   middlewareAuth,
   checkRole("admin"),
   validateObjectId,
@@ -36,6 +41,7 @@ router.patch(
 
 router.get(
   "/:id/places-restantes",
+  // Lecture : auth requis, pas de rôle particulier, id valide
   middlewareAuth,
   validateObjectId,
   eventController.getPlacesRestantes
@@ -45,6 +51,7 @@ router.get(
 router.get("/", middlewareAuth, eventController.getAllEvents);
 router.get(
   "/:id",
+  // Lecture : auth requis, pas de rôle particulier, id valide
   middlewareAuth,
   validateObjectId,
   eventController.getEventById
@@ -61,6 +68,7 @@ router.post(
 
 router.put(
   "/:id",
+  // Ordre : auth → rôle (admin|partenaire) → validateObjectId → valider(schema) → contrôleur
   middlewareAuth,
   checkRole("admin", "partenaire"),
   validateObjectId,
@@ -70,6 +78,7 @@ router.put(
 
 router.delete(
   "/:id",
+  // Ordre : auth → rôle admin → validateObjectId → contrôleur
   middlewareAuth,
   checkRole("admin"),
   validateObjectId,

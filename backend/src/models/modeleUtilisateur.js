@@ -32,6 +32,7 @@ const utilisateurSchema = new mongoose.Schema(
 
     isActif: { type: Boolean, default: false },
     activationCode: { type: String },
+    expirationCodeActivation: { type: Date },
     /* resetPasswordToken: */
     tokenReinitialisation: { type: String }, // Stocke le token unique de réinitialisation
     /* resetPasswordExpires: */

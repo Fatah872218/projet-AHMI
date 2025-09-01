@@ -1,10 +1,12 @@
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
+import crypto from "crypto";
 import ServiceAuth from "../services/serviceAuth.js";
 import dotenv from "dotenv";
 import Utilisateur from "../models/modeleUtilisateur.js";
 import ServiceReinitialisationMDP from "../services/serviceReinitialisationMDP.js";
 import UtilisateurRepository from "../repositories/repositoryUtilisateur.js";
+import { envoyerEmailActivation } from "../config/nodemailerConfig.js";
 
 dotenv.config();
 
@@ -128,7 +130,15 @@ class ControleurAuth {
       if (!utilisateur) {
         return res.status(400).json({ message: "Lien invalide." });
       }
-
+      // 1bis. Code expiré ? (si géré)
+      if (
+        utilisateur.expirationCodeActivation &&
+        utilisateur.expirationCodeActivation < new Date()
+      ) {
+        return res.status(410).json({
+          message: "Lien expiré. Demandez un nouvel e-mail d’activation.",
+        });
+      }
       // 2. Déjà activé ?
       if (utilisateur.isActif) {
         return res.status(200).json({ message: "Compte déjà activé." });
@@ -137,11 +147,46 @@ class ControleurAuth {
       // 3. Active le compte et supprime le code
       utilisateur.isActif = true;
       utilisateur.activationCode = undefined;
+      utilisateur.expirationCodeActivation = undefined;
+      utilisateur.activatedAt = new Date();
       await utilisateur.save();
 
       return res.status(200).json({ message: "Compte activé avec succès." });
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  };
+  /* ────────── Renvoyer l'e-mail d'activation ────────── */
+  renvoyerActivation = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res
+          .status(400)
+          .json({ field: "email", message: "Email requis" });
+      }
+      const utilisateur = await Utilisateur.findOne({ email });
+      if (!utilisateur) {
+        return res
+          .status(404)
+          .json({ field: "email", message: "Utilisateur non trouvé" });
+      }
+      if (utilisateur.isActif) {
+        return res.status(200).json({ message: "Compte déjà activé" });
+      }
+      // régénère un code (invalide l’ancien)
+      const code = crypto.randomBytes(20).toString("hex");
+      utilisateur.activationCode = code;
+      utilisateur.expirationCodeActivation = new Date(
+        Date.now() + 24 * 60 * 60 * 1000
+      ); // 24h
+      await utilisateur.save();
+
+      // envoie l’e-mail
+      await envoyerEmailActivation(email, code);
+      return res.status(200).json({ message: "E-mail d’activation renvoyé" });
+    } catch (err) {
+      next(err);
     }
   };
 }
