@@ -1,26 +1,45 @@
 // src/middlewares/middlewareCheckRole.js
+const normalize = (v) =>
+  typeof v === "string"
+    ? v.toLowerCase()
+    : typeof v === "object" && v !== null
+    ? (v.nom || v.name || v.role || v._id || "").toString().toLowerCase()
+    : (v || "").toString().toLowerCase();
+
 const checkRole = (...rolesAutorises) => {
+  const attendus = rolesAutorises.map((r) => r.toLowerCase());
+
   return async (req, res, next) => {
     try {
       if (!req.utilisateur) {
         return res.status(401).json({ message: "Authentification requise" });
       }
 
-      // Ici on s’appuie sur req.utilisateur.roles (tableau d’IDs ou de noms selon ton modèle)
-      // Si tu stockes des ObjectId -> mappe-les en noms en amont ou fais un populate ici.
-      const aUnRoleAutorise = (req.utilisateur.roles || []).some(
-        (r) => rolesAutorises.includes(r.nom || r) // accepte _id converti ou nom
-      );
+      // Rôles disponibles sur la requête
+      const { role, roles } = req.utilisateur;
 
-      if (!aUnRoleAutorise) {
+      // Construit une liste plate de noms de rôles (strings)
+      const collect = [];
+      if (role) collect.push(role);
+      if (Array.isArray(roles)) collect.push(...roles);
+
+      const possedes = collect.map(normalize).filter(Boolean);
+
+      // Recherche d'intersection case-insensitive
+      const ok = possedes.some((r) => attendus.includes(r));
+
+      if (!ok) {
         return res.status(403).json({
-          message: `Accès refusé. Rôle requis : ${rolesAutorises.join(" ou ")}`,
+          message:
+            attendus.length === 1
+              ? `Accès refusé. Rôle requis : ${rolesAutorises[0]}`
+              : `Accès refusé. Rôles requis : ${rolesAutorises.join(" ou ")}`,
         });
       }
 
-      next();
+      return next();
     } catch (err) {
-      res
+      return res
         .status(500)
         .json({ message: "Erreur vérification rôle : " + err.message });
     }

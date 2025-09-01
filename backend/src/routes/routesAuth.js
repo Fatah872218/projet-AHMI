@@ -1,6 +1,7 @@
 import express from "express";
 import controleurAuth from "../controllers/controleurAuth.js";
 import ControllerReinitialisationMDP from "../controllers/controllerReinitialisationMDP.js";
+import Joi from "joi";
 import valider from "../middlewares/middlewareValidation.js";
 import {
   schemaInscription,
@@ -36,7 +37,18 @@ router.post(
   valider(schemaReinitialisationMDP),
   (req, res, next) => reinitCtrl.reinitialiserMotDePasse(req, res, next)
 );
+/* ───── Renvoyer e-mail d’activation ───── */
+const schemaResendActivation = Joi.object({
+  email: Joi.string().email().required(),
+});
 
+router.post(
+  "/activation/resend",
+  valider(schemaResendActivation),
+  (req, res, next) => {
+    controleurAuth.renvoyerEmailActivation(req, res, next);
+  }
+);
 /* ───── Activation & Déconnexion ───── */
 router.get("/activation/:code", controleurAuth.activerCompte);
 router.post("/deconnexion", controleurAuth.deconnecter);
