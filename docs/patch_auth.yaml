@@ -1,0 +1,38 @@
+components:
+  schemas:
+    AuthUtilisateurPublic:
+      type: object
+      required: [_id, nom, email, role, isActif]
+      properties:
+        _id: { type: string, example: "68b334c74f5d74ce8d8b4d11" }
+        nom: { type: string, example: "Thierry" }
+        email: { type: string, format: email, example: "thierry@gmail.com" }
+        role: { type: string, enum: [admin, user], example: "admin" }
+        isActif: { type: boolean, example: true }
+        dateInscription: { type: string, format: date-time }
+
+    AuthLoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: "thierry@gmail.com" }
+        password: { type: string, example: "Mot2Passe!" }
+
+    AuthLoginResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user: { $ref: '#/components/schemas/AuthUtilisateurPublic' }
+        token:
+          type: string
+          description: "JWT (également déposé en cookie HttpOnly `tokenA` si activé)"
+
+    AuthMessageResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Opération effectuée." }
+
+    AuthErrorResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Erreur" }

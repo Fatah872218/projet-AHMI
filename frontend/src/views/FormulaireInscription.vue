@@ -118,5 +118,5 @@ async function soumettreFormulaire() {
 </script>
 
 <style scoped>
-/* Tu peux ajouter ici un style plus personnalisé si besoin */
+/* ajout style plus personnalisé si besoin */
 </style>

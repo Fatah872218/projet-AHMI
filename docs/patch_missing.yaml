@@ -1,0 +1,45 @@
+components:
+  schemas:
+    # --------- AUTH ----------
+    AuthRegisterRequest:
+      type: object
+      required: [nom, email, motDePasse]
+      properties:
+        nom:         { type: string, example: "Thierry" }
+        email:       { type: string, format: email, example: "thierry@gmail.com" }
+        motDePasse:  { type: string, example: "Mot2Passe!" }
+
+    # Alias pour compat des refs existantes
+    UserPublic:
+      $ref: '#/components/schemas/AuthUtilisateurPublic'
+
+    # --------- EVENTS ----------
+    Event:
+      type: object
+      required: [_id, titre, dateDebut]
+      properties:
+        _id:         { type: string, example: "65f1c0a2b1d2e30012ab34cd" }
+        titre:       { type: string, example: "Atelier AHMI" }
+        description: { type: string, example: "Présentation et Q/R" }
+        dateDebut:   { type: string, format: date-time, example: "2025-09-15T18:00:00Z" }
+        dateFin:     { type: string, format: date-time, example: "2025-09-15T20:00:00Z" }
+        lieu:        { type: string, example: "Salle Polyvalente" }
+
+    EventCreateRequest:
+      type: object
+      required: [titre, dateDebut]
+      properties:
+        titre:       { type: string }
+        description: { type: string }
+        dateDebut:   { type: string, format: date-time }
+        dateFin:     { type: string, format: date-time }
+        lieu:        { type: string }
+
+    EventUpdateRequest:
+      type: object
+      properties:
+        titre:       { type: string }
+        description: { type: string }
+        dateDebut:   { type: string, format: date-time }
+        dateFin:     { type: string, format: date-time }
+        lieu:        { type: string }

@@ -3,7 +3,7 @@ export default [
     path: '/evenement/:id/admin',
     name: 'EventDetailsAdmin',
     component: () => import('@/views/EventDetailsAdmin.vue'),
-    meta: { requiresAuth: true, role: 'admin' },
+    meta: { requiresAdmin: true },
   },
   {
     path: '/admin/categories',

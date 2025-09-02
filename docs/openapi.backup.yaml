@@ -77,105 +77,69 @@ paths:
   /events:
     get:
       tags: [Events]
-      summary: Lister les événements
+      summary: Liste publique (seulement les approuvés)
       responses:
-        '200':
-          description: Liste d'événements
+        "200":
+          description: Liste d’événements
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/Event'
+                items: {$ref: "#/components/schemas/Event"}
     post:
       tags: [Events]
       summary: Créer un événement
-      security:
-        - bearerAuth: []
-        - cookieAuth: []
+      security: [{cookieAuth: []}, {bearerAuth: []}]
+      x-required-roles: ["partner", "admin"]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/EventCreateRequest'
+            schema: {$ref: "#/components/schemas/EventCreateRequest"}
       responses:
-        '201':
-          description: Événement créé
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Event'
-        '403':
-          description: Accès interdit (admin requis)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthErrorResponse'
+        "201": {description: Événement créé, content: {application/json: {schema: {$ref: "#/components/schemas/Event"}}}}
+        "400": {description: Données invalides}
+        "401": {description: Non authentifié}
+        "403": {description: Rôle insuffisant}
   /events/{id}:
+    get:
+      tags: [Events]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Détail, content: {application/json: {schema: {$ref: "#/components/schemas/Event"}}}}
+        "404": {description: Introuvable}
+      put:
+    tags: [Events]
+    summary: Mettre à jour (propriétaire ou admin)
+    security: [{cookieAuth: []}, {bearerAuth: []}]
+    x-ownership: ownerOrAdmin
     parameters:
-      - name: id
-        in: path
+      - in: path
+        name: id
         required: true
         schema:
           type: string
-          description: Identifiant MongoDB (ObjectId)
-    get:
-      tags: [Events]
-      summary: Détail d'un événement
-      responses:
-        '200':
-          description: Détail
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Event'
-        '404':
-          description: Introuvable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthErrorResponse'
-    put:
-      tags: [Events]
-      summary: Mettre à jour un événement
-      security:
-        - bearerAuth: []
-        - cookieAuth: []
-      requestBody:
-        required: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EventUpdateRequest"
+    responses:
+      "200":
+        description: Mis à jour
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EventUpdateRequest'
-      responses:
-        '200':
-          description: Mis à jour
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Event'
-        '404':
-          description: Introuvable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthErrorResponse'
-    delete:
-      tags: [Events]
-      summary: Supprimer un événement
-      security:
-        - bearerAuth: []
-        - cookieAuth: []
-      responses:
-        '204':
-          description: Supprimé
-        '404':
-          description: Introuvable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthErrorResponse'
+              $ref: "#/components/schemas/Event"
+      "403":
+        description: Accès refusé
+      "404":
+        description: Introuvable
 components:
   securitySchemes:
     cookieAuth:

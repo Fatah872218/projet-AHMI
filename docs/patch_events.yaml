@@ -1,0 +1,107 @@
+paths:
+  /events:
+    get:
+      tags: [Events]
+      summary: Lister les événements
+      responses:
+        '200':
+          description: Liste d'événements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+
+    post:
+      tags: [Events]
+      summary: Créer un événement
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreateRequest'
+      responses:
+        '201':
+          description: Événement créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '403':
+          description: Accès interdit (admin requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+
+  /events/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Identifiant MongoDB (ObjectId)
+    get:
+      tags: [Events]
+      summary: Détail d'un événement
+      responses:
+        '200':
+          description: Détail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+
+    put:
+      tags: [Events]
+      summary: Mettre à jour un événement
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventUpdateRequest'
+      responses:
+        '200':
+          description: Mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+
+    delete:
+      tags: [Events]
+      summary: Supprimer un événement
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Supprimé
+        '404':
+          description: Introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'

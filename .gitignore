@@ -43,6 +43,10 @@ coverage/
 temp/
 .git
 
+# debug / tests locaux
+response.json
+
+
 frontend/.env.production
 frontend/.env.development
 .vscode/

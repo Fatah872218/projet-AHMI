@@ -28,13 +28,23 @@ router.beforeEach((to, from, next) => {
   const utilisateurStore = useUtilisateurStore()
   //const _user = utilisateurStore.utilisateur
   const hasToken = !!localStorage.getItem('token')
-  const isLoggedIn = utilisateurStore.isLoggedIn
+  //const isLoggedIn = utilisateurStore.isLoggedIn
 
-  if (to.meta?.requiresAdmin && to.meta?.role !== 'admin') {
-    return next('/account')
-  }
-  if (to.meta?.requiresAuth && !hasToken && !isLoggedIn) {
+  // Besoin d’auth ?
+  if (to.meta?.requiresAuth && !hasToken) {
     return next(`/connexion?redirect=${encodeURIComponent(to.fullPath)}`)
+  }
+
+  // Besoin d’être admin ?
+  if (to.meta?.requiresAdmin) {
+    // on tolère l’accès visuel si token présent, mais on vérifie le rôle connu en front
+    // (la vraie protection reste au back)
+    if (!hasToken) {
+      return next(`/connexion?redirect=${encodeURIComponent(to.fullPath)}`)
+    }
+    if (utilisateurStore.role !== 'admin') {
+      return next('/account') // ou page 403
+    }
   }
   next()
 })
