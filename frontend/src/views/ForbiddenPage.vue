@@ -18,4 +18,6 @@
   </main>
 </template>
 
-<script setup></script>
+<script setup>
+// No need for export default in <script setup>
+</script>

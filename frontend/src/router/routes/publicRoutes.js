@@ -48,7 +48,7 @@ export default [
   },
   {
     path: '/403',
-    name: 'Forbidden',
-    component: () => import('@/views/Forbidden403.vue'),
+    name: 'ForbiddenPage',
+    component: () => import('@/views/ForbiddenPage.vue'),
   },
 ]
