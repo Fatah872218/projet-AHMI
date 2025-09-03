@@ -39,4 +39,4 @@ app.use(Toast, toastOptions)
 app.mount('#app')
 
 // Debug backend URL
-console.log('➡️ BACKEND_URL =', import.meta.env.VITE_BACKEND_URL)
+console.log('➡️ BACKEND_URL =', import.meta.env.VITE_API_URL)

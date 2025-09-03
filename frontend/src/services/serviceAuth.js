@@ -1,9 +1,9 @@
 import api from '@/services/api'
 
 // ➤ Inscription d’un utilisateur
-//export const inscrireUtilisateur = (data) => {
-// return api.post('/auth/inscription', data)
-//}
+export const inscrireUtilisateur = (data) => {
+  return api.post('/auth/inscription', data)
+}
 export const inscription = (data) => api.post('/auth/inscription', data)
 
 // ➤ Connexion
@@ -29,3 +29,5 @@ export const reinitialiserMotDePasse = (token, motDePasse, confirmationMotDePass
 export async function activerCompte(code) {
   return api.get(`/auth/activation/${code}`) // api = instance Axios déjà configurée
 }
+// ➕ Renvoi e-mail d’activation
+export const renvoyerActivation = (email) => api.post('/auth/activation/resend', { email })

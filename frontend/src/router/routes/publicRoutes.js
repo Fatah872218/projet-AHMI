@@ -46,4 +46,9 @@ export default [
     name: 'Activation',
     component: () => import('@/views/ActivationView.vue'),
   },
+  {
+    path: '/403',
+    name: 'ForbiddenPage',
+    component: () => import('@/views/ForbiddenPage.vue'),
+  },
 ]
