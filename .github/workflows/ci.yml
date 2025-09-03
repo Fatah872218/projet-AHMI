@@ -52,6 +52,7 @@ jobs:
   frontend:
     name: CI / Front-end
     runs-on: ubuntu-latest
+    needs: backend
     timeout-minutes: 15
     defaults:
       run:
