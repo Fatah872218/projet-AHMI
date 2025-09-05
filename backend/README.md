@@ -1,114 +1,211 @@
-# AHMI – Backend
+AHMI – Backend
 
-Ce dossier contient l’API REST du projet **AHMI**, développée en Node.js avec Express et MongoDB.
+API REST du projet AHMI, réalisée avec Node.js (Express), MongoDB (Mongoose), JWT, Nodemailer et des middlewares de sécurité.
 
----
+🚀 Démarrage rapide
 
-## ⚙️ Lancer le serveur
-
-```bash
 # Depuis le dossier backend
+
 npm install
 npm run dev
-```
 
-Le serveur démarre par défaut sur : http://localhost:5000
+Serveur : http://localhost:5000
 
-📁 Structure du code
-/
+Documentation (OpenAPI) : http://localhost:5000/docs
 
-```
-└── 📁backend
-    └── 📁src
-        └── app.js # Entrée principale
-        └── 📁config # Connexion à MongoDB, env
-        └── 📁controllers
-            └── auth.controller.js
-        └── 📁middlewares # Authentification, rôles, gestion d’erreurs
-        └── 📁models # Schémas Mongoose (User, Event, Adhesion, etc.)
-            └── Adhesion.js
-            └── ResetToken.js
-        └── 📁repositories
-        └── 📁routes # Endpoints API REST
-            └── auth.routes.js
-        └── 📁seeders
-        └── 📁services : # Logique métier (users, events, adhesion, etc.)
-    └── .DS_Store
-    └── .env
-    └── .env.example
-    └── package-lock.json
-    └── package.json
-    └── README.md
-```
+📁 Arborescence (extrait utile)
+backend/
+├─ src/
+│ ├─ app.js # Entrée principale (démarrage orchestré : DB puis HTTP)
+│ ├─ config/
+│ │ ├─ db.js # Connexion MongoDB (Mongoose)
+│ │ └─ nodemailerConfig.js # Transport Mailtrap
+│ ├─ controllers/
+│ │ ├─ controleurAuth.js
+│ │ ├─ controllerReinitialisationMDP.js
+│ │ ├─ controllerUtilisateur.js
+│ │ ├─ eventController.js
+│ │ ├─ bookingController.js
+│ │ ├─ controleurRole.js
+│ │ └─ permissionController.js
+│ ├─ middlewares/
+│ │ ├─ middlewareAuth.js
+│ │ ├─ middlewareCheckRole.js
+│ │ ├─ middlewareValidation.js
+│ │ └─ (sécurité : helmet, hpp, rate-limit, mongo-sanitize, CORS)
+│ └─ docs.js # Montage Swagger UI (via OPENAPI_SPEC_PATH)
+├─ .env # Variables locales (non versionné)
+├─ .env.example # Modèle (sans secrets)
+├─ package.json
+└─ README.md
 
-🔐 Authentification JWT
-Auth basée sur un access token et un refresh token
+🔐 Authentification & rôles
 
-4 rôles utilisateurs :
+JWT : access token + refresh token.
 
-utilisateur : utilisateur inscrit
-adherent : souscrit à une adhesion
+Rôles : utilisateur, adherent, partenaire, admin.
 
-partenaire : peut créer/modifier des événements et sa fiche
+Garde : middlewareAuth, middlewareCheckRole (RBAC).
 
-admin : valide les événements, fiches partenaires
+Validation : schémas Joi côté backend.
 
-Middleware authMiddleware pour sécuriser les routes
-Middleware protectRoute + requireRole(role) utilisés dans les routes sécurisées.
+🛡️ Sécurité (CCP2)
 
-Principaux endpoints :
+Helmet (en-têtes HTTP), HPP (paramètres en double), CORS strict,
 
-POST /auth/login
+express-rate-limit (limitation de débit), express-mongo-sanitize, sanitize-html, validator.
 
-POST /auth/register
+Logs de connexion Mongo masqués (pas de secrets en clair en dev).
 
-POST /auth/refresh
+✉️ Emails (Mailtrap)
 
-GET /users/me (protégé)
+Transport défini dans src/config/nodemailerConfig.js.
 
-🌐 Connexion à MongoDB
-Connexion via mongoose :
-mongoose.connect(process.env.MONGO_URI)
+Variables : SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM.
 
-Exemple de fichier .env
+Flux supportés : mot de passe oublié / réinitialisation.
+
+🗂️ Variables d’environnement
+
+Créer un fichier .env (ne pas commiter) :
+
+# Serveur
+
 PORT=5000
-MONGO_URI=mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER>.mongodb.net/<DATABASE>
-JWT_SECRET=secret_key
-JWT_REFRESH_SECRET=refresh_secret
+NODE_ENV=development
+BASE_URL=http://localhost:${PORT}
 
-Dépendances principales
+# Front (CORS)
 
-express
+FRONTEND_URL=http://localhost:5173
+PUBLIC_API_URL=http://localhost:5000
 
-mongoose
+# MongoDB (local, avec authentification activée)
 
-dotenv
+# NOTE : si votre mot de passe contient "!", testez aussi la version encodée %21 si besoin.
 
-jsonwebtoken
+MONGODB_URI=mongodb://admin:MotDePasse123!@localhost:27017/ahmi-dev?authSource=admin
 
-Argon2
+# MONGODB_URI=mongodb://admin:MotDePasse123%21@localhost:27017/ahmi-dev?authSource=admin
 
-cors
+# JWT
 
-Principaux endpoints
+JWT_SECRET=change-me
+JWT_REFRESH_SECRET=change-me-too
+TOKEN_EXPIRES_IN=1d
+REFRESH_TOKEN_EXPIRES_IN=7d
 
-Méthode Route Description
-POST /auth/register Inscription utilisateur
-POST /auth/login Connexion utilisateur
-GET /users/me Infos du profil connecté
-PATCH /users/me Modifier son profil
-GET /events Liste des événements publics
-POST /events Créer un événement (partenaire)
-PUT /events/:id Modifier un événement
-DELETE /events/:id Supprimer un événement
-PATCH /events/:id/validate Valider un événement (admin)
-GET /partners Voir toutes les fiches partenaires
-POST /partners Soumettre une fiche partenaire
-PATCH /partners/:id/validate Valider une fiche (admin)
-POST /adhesions Payer une adhésion
-POST /donations Faire un don
-POST /contact Envoyer un message via la page Contact
+# Mailtrap
 
-Scripts utiles
+SMTP_HOST=sandbox.smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=xxxx
+SMTP_PASS=yyyy
+SMTP_FROM="AHMI <no-reply@ahmi.local>"
 
-npm run dev # Lancer en mode développement avec nodemon
+# OpenAPI (chemin du YAML)
+
+OPENAPI_SPEC_PATH=../../DOCS/openapi.yaml
+
+Un .env.example doit refléter la structure sans les secrets :
+
+PORT=5000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+PUBLIC_API_URL=http://localhost:5000
+MONGODB_URI=mongodb://<user>:<password>@localhost:27017/ahmi-dev?authSource=admin
+JWT_SECRET=<secret>
+JWT_REFRESH_SECRET=<secret>
+TOKEN_EXPIRES_IN=1d
+REFRESH_TOKEN_EXPIRES_IN=7d
+SMTP_HOST=sandbox.smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=<user>
+SMTP_PASS=<pass>
+SMTP_FROM="AHMI <no-reply@ahmi.local>"
+OPENAPI_SPEC_PATH=../../DOCS/openapi.yaml
+
+🧩 MongoDB local (Homebrew + authentification)
+
+Fichier de conf : /usr/local/etc/mongod.conf (Intel) :
+
+systemLog:
+destination: file
+path: /usr/local/var/log/mongodb/mongo.log
+logAppend: true
+storage:
+dbPath: /usr/local/var/mongodb
+net:
+bindIp: 127.0.0.1, ::1
+ipv6: true
+security:
+authorization: enabled
+
+Créer l’admin (si besoin) :
+
+mongosh
+use admin
+db.createUser({ user:"admin", pwd:"MotDePasse123!", roles:[{ role:"root", db:"admin" }] })
+
+Redémarrer & tester :
+
+brew services restart mongodb-community@6.0
+mongosh --username admin --password 'MotDePasse123!' --authenticationDatabase admin mongodb://localhost:27017/admin
+
+📚 Documentation API
+
+Swagger UI monté via mountDocs(app) → http://localhost:5000/docs
+
+Source OpenAPI pointée par OPENAPI_SPEC_PATH (YAML).
+
+🧪 Endpoints principaux (exemples)
+
+POST /api/auth/register – Inscription
+
+POST /api/auth/login – Connexion
+
+POST /api/auth/refresh – Rafraîchissement du token
+
+GET /api/users/me – Profil (protégé)
+
+GET /api/events – Liste des événements (publique)
+
+POST /api/events – Créer un événement (partenaire)
+
+PUT /api/events/:id – Modifier
+
+DELETE /api/events/:id – Supprimer
+
+(… + endpoints rôles/permissions, réservations, réinit MDP)
+
+🧰 Scripts NPM
+npm run dev # dev avec nodemon
+npm start # exécution simple
+npm test # placeholder (toujours 0)
+npm run seed:user
+npm run migrate:lieu
+npm run clean:adresse
+
+Astuce : pour éviter les redémarrages inutiles de nodemon, ajoute un nodemon.json :
+
+{
+"watch": ["src"],
+"ext": "js,json",
+"ignore": ["node_modules", ".git", ".env", "DOCS", "docs", "README.md", "logs", "**/*.spec.js"]
+}
+
+et change le script : "dev": "nodemon --config nodemon.json src/app.js".
+
+🛠️ Dépannage rapide
+
+Mongo auth “AuthenticationFailed”
+– Tester en CLI :
+mongosh --username admin --password 'MotDePasse123!' --authenticationDatabase admin mongodb://localhost:27017/admin
+– Si le mot de passe contient !, essayer l’URI encodée (%21) dans .env.
+– Vérifier le log : /usr/local/var/log/mongodb/mongo.log.
+
+Le serveur démarre avant la DB
+– Déjà corrigé : app.js attend connectDB() avant app.listen().
+
+Bruit dans la console front (Chrome)
+– Certains plugins injectent des scripts → tester en navigation privée ou désactiver les extensions sur http://localhost:5173.
