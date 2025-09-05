@@ -122,5 +122,5 @@ export default {
 </script>
 
 <style scoped>
-/* Ajoutez des styles spécifiques si nécessaire */
+/* styles spécifiques  */
 </style>

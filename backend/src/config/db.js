@@ -6,7 +6,11 @@ const connectDB = async () => {
   try {
     // Vérifiez que l'URI est bien chargé
     if (process.env.NODE_ENV !== "production") {
-      console.log("Tentative de connexion MongoDB:", process.env.MONGODB_URI);
+      const masked = process.env.MONGODB_URI.replace(
+        /\/\/([^:]+):([^@]+)@/,
+        "//$1:***@"
+      );
+      console.log("Tentative de connexion MongoDB:", masked);
     }
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("  Connecté à MongoDB");

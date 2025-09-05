@@ -8,7 +8,7 @@ import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import routeReinitialisationMDP from "./routes/routeReinitialisationMDP.js";
-
+import { mountDocs } from "./docs.js";
 import connectDB from "./config/db.js";
 
 import securityHeaders from "./middlewares/securityHeaders.js";
@@ -35,7 +35,6 @@ dotenv.config();
 const app = express();
 
 // Connexion à la base de données
-connectDB();
 
 // Middleware
 app.disable("x-powered-by");
@@ -93,14 +92,23 @@ app.use("/api/categories", categorieRoutes);
 console.info(" categories OK");
 app.use("/api/auth", routeReinitialisationMDP);
 
-import { mountDocs } from "./docs.js";
-mountDocs(app); // ➜ http://localhost:3000/docs
+mountDocs(app); // ➜ http://localhost:5000/docs
 
 app.use(errorHandler);
-
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 console.info("Chargement terminé sans erreurs jusqu'ici ");
-
-app.listen(PORT, () => {
-  console.info(`Serveur en écoute sur http://localhost:${PORT}`);
-});
+//Démarrage orchestré : on attend la DB avant d'écouter le port
+const start = async () => {
+  try {
+    await connectDB(); // mongoose.connect via ./config/db.js
+    if (process.env.NODE_ENV !== "test") {
+      app.listen(PORT, () =>
+        console.info(`Serveur en écoute sur http://localhost:${PORT}`)
+      );
+    }
+  } catch (err) {
+    console.error("Échec au démarrage (DB non disponible) :", err);
+    process.exit(1);
+  }
+};
+start();
