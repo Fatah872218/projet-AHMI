@@ -9,12 +9,12 @@
   },
   "scripts": {
     "test": "node -e \"process.exit(0)\"",
-    "dev": "nodemon src/app.js",
+    "dev": "node --watch src/app.js",
     "start": "node src/app.js",
     "seed:user": "node src/scripts/createUser.cjs",
     "migrate:lieu": "node ./src/scripts/migrateLieuAdresse.js",
     "clean:adresse": "node ./src/scripts/removeAdresseFromLieu.js",
-    "lint": "echo \"(backend) pas de lint pour l’instant\"",
+    "lint": "eslint .",
     "build": "echo \"(backend) pas de build requis pour Express\""
   },
   "keywords": [],
@@ -40,8 +40,5 @@
     "swagger-ui-express": "^5.0.1",
     "validator": "^13.15.15",
     "yamljs": "^0.3.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.9"
   }
 }
