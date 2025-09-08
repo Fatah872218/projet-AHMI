@@ -1,3 +1,4 @@
+<!-- src/views/VueReinitialisationMotDePasse.vue -->
 <template>
   <main class="flex flex-col items-center justify-center min-h-screen">
     <BaseFormWrapper
@@ -6,6 +7,10 @@
       :loading="loading"
       @submit="onSubmit"
     >
+      <!-- BANNERS -->
+      <AlertBanner v-if="message" type="success" :message="message" />
+      <AlertBanner v-if="erreur && !erreurChamp" type="error" :message="erreur" />
+
       <!-- Nouveau mot de passe -->
       <BaseInput
         label="Nouveau mot de passe"
@@ -25,11 +30,11 @@
         :error="erreurChamp === 'confirmationMotDePasse' ? erreur : ''"
       />
 
-      <!-- Messages globaux -->
-      <div v-if="message" class="text-green-600 font-semibold">
+      <!-- Messages globaux (fallback accessibilité) -->
+      <div v-if="message" class="text-green-600 font-semibold" aria-live="polite">
         {{ message }}
       </div>
-      <div v-if="erreur && !erreurChamp" class="text-ahmi-error font-bold">
+      <div v-if="erreur && !erreurChamp" class="text-ahmi-error font-bold" aria-live="polite">
         {{ erreur }}
       </div>
 
@@ -52,16 +57,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
+import AlertBanner from '@/components/ui/AlertBanner.vue'
 import { reinitialiserMotDePasse } from '@/services/serviceAuth'
 
 const route = useRoute()
 const router = useRouter()
 
-// Récupération du token depuis query (?token=) ou params (/reinitialiser/:token)
+// Token depuis query (?token=) ou params (/reinitialiser/:token)
 const token = (route.query.token || route.params.token || '').toString()
 
 const motDePasse = ref('')
@@ -71,13 +77,18 @@ const message = ref('')
 const erreur = ref('')
 const erreurChamp = ref('') // 'motDePasse' | 'confirmationMotDePasse' | ''
 
+// Redirection immédiate si token manquant/invalide
+onMounted(() => {
+  if (!token) router.replace('/connexion?reset=invalid')
+})
+
 async function onSubmit() {
   // reset messages
   message.value = ''
   erreur.value = ''
   erreurChamp.value = ''
 
-  // validations rapides côté front
+  // Filet de sécurité côté front
   if (!token) {
     erreur.value = 'Lien invalide ou expiré.'
     return
@@ -97,12 +108,10 @@ async function onSubmit() {
   try {
     await reinitialiserMotDePasse(token, motDePasse.value, confirmationMotDePasse.value)
     message.value = 'Mot de passe réinitialisé. Redirection vers la connexion…'
-    // nettoyage local
     motDePasse.value = ''
     confirmationMotDePasse.value = ''
-    setTimeout(() => router.replace('/connexion'), 1200)
+    setTimeout(() => router.replace('/connexion?reset=ok'), 1000)
   } catch (e) {
-    // remonte l’éventuel message backend (ex: lien expiré, token invalide)
     erreur.value = e?.response?.data?.message || 'Erreur lors de la réinitialisation.'
   } finally {
     loading.value = false

@@ -5,6 +5,7 @@
     description=" étape  1 - Saisissez votre adresse e‑mail "
     @submit="soumettreFormulaire"
   >
+    <AlertBanner v-if="banner.message" :type="banner.type" :message="banner.message" />
     <!-- Champ e‑mail -->
     <BaseInput label="Email" type="email" v-model="email" required :error="errorEmail" />
 
@@ -39,6 +40,7 @@ import { useRouter } from 'vue-router'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import { HomeIcon } from '@heroicons/vue/outline'
+import AlertBanner from '@/components/ui/AlertBanner.vue'
 
 // service front qui appelle POST /auth/mot-de-passe-oublie
 import { demanderReinitialisationMotDePasse } from '@/services/serviceAuth'
@@ -51,8 +53,10 @@ const errorEmail = ref('')
 const messageSucces = ref('')
 const messageErreur = ref('')
 const sending = ref(false)
+const banner = ref({ type: 'info', message: '' })
 
 async function soumettreFormulaire() {
+  banner.value = { type: 'info', message: '' }
   errorEmail.value = ''
   messageErreur.value = ''
   messageSucces.value = ''
