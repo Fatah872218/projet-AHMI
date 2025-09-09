@@ -1,0 +1,56 @@
+name: CI / Back-end
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+
+jobs:
+  backend:
+    name: CI / Back-end
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # compatible ">=18 <21"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      # IMPORTANT : installer AUSSI les devDependencies (eslint, jest, etc.)
+      - name: Install (all deps)
+        run: npm ci
+
+      - name: Sanity check
+        run: |
+          node -v
+          npm -v
+          npx eslint --version || true
+
+      #
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Tests
+        run: npm test --if-present
+
+      - name: Build
+        run: npm run build --if-present
+
+      # Audit seulement des deps de prod : OK en fin de job
+      - name: Audit production deps (report only)
+        run: |
+          npm audit --omit=dev || echo "::warning::Des vulnérabilités ont été détectées (voir logs)."

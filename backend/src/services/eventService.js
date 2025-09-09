@@ -2,6 +2,7 @@ import EventRepository from "../repositories/eventRepository.js";
 import BookingRepository from "../repositories/bookingRepository.js";
 import sanitizeHtml from "sanitize-html";
 import Categorie from "../models/modeleCategorie.js";
+import axios from "axios";
 
 const cleanString = (input) => {
   return sanitizeHtml(input, {
@@ -137,7 +138,7 @@ class EventService {
     try {
       if (updateData.categories && Array.isArray(updateData.categories)) {
         const existingCats = await Categorie.find({
-          _id: { $in: req.body.categories },
+          _id: { $in: updateData.categories },
         });
 
         if (existingCats.length !== updateData.categories.length) {

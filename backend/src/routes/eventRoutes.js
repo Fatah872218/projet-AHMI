@@ -1,13 +1,9 @@
-// Rappel de l'ordre CCP2 sur routes sensibles :
-// 1) middlewareAuth (authentifie + hydrate req.utilisateur)
-// 2) checkRole('admin'[, 'partenaire']) (autorise) → ensuite seulement validations/contrôleur
-
 import express from "express";
 import eventController from "../controllers/eventController.js";
 import middlewareAuth from "../middlewares/middlewareAuth.js";
 import checkRole from "../middlewares/middlewareCheckRole.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
-import valider from "../middlewares/middlewareValidation.js";
+import { vBody, vParams } from "../middlewares/middlewareValidation.js";
 import {
   eventSchema as createEventSchema,
   updateEventSchema,
@@ -15,6 +11,10 @@ import {
 import Joi from "joi";
 
 const router = express.Router();
+
+const statusParamSchema = Joi.object({
+  status: Joi.string().valid("en_attente", "approuve", "rejete").required(),
+});
 
 // Schéma pour changer le statut
 const statusUpdateSchema = Joi.object({
@@ -26,6 +26,7 @@ router.get(
   "/statut/:status",
   middlewareAuth,
   checkRole("admin"),
+  vParams(statusParamSchema),
   eventController.getEventsByStatus
 );
 
@@ -35,23 +36,23 @@ router.patch(
   middlewareAuth,
   checkRole("admin"),
   validateObjectId,
-  valider(statusUpdateSchema),
+  vBody(statusUpdateSchema),
   eventController.updateStatut
 );
 
 router.get(
   "/:id/places-restantes",
-  // Lecture : auth requis, pas de rôle particulier, id valide
+  // Lecture : auth requis, , id valide
   middlewareAuth,
   validateObjectId,
   eventController.getPlacesRestantes
 );
 
-// ROUTES GÉNÉRIQUES ENSUITE
+// ROUTES GÉNÉRIQUES
 router.get("/", middlewareAuth, eventController.getAllEvents);
 router.get(
   "/:id",
-  // Lecture : auth requis, pas de rôle particulier, id valide
+
   middlewareAuth,
   validateObjectId,
   eventController.getEventById
@@ -62,7 +63,7 @@ router.post(
   "/",
   middlewareAuth,
   checkRole("admin", "partenaire"),
-  valider(createEventSchema),
+  vBody(createEventSchema),
   eventController.createEvent
 );
 
@@ -72,7 +73,7 @@ router.put(
   middlewareAuth,
   checkRole("admin", "partenaire"),
   validateObjectId,
-  valider(updateEventSchema),
+  vBody(updateEventSchema),
   eventController.updateEvent
 );
 
