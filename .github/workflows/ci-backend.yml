@@ -10,11 +10,19 @@ on:
       - "backend/**"
       - ".github/workflows/ci-backend.yml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
     name: CI / Back-end
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - name: Checkout
@@ -28,16 +36,13 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install (all deps, incl. dev)
-        working-directory: backend
         run: npm ci
 
       - name: Sanity check
-        working-directory: backend
         run: |
           echo "PWD=$(pwd)"
           node -v
           npm -v
-          ls -la node_modules/.bin | sed -n '1,120p' || true
           if [ -x node_modules/.bin/eslint ]; then
             ./node_modules/.bin/eslint --version
           else
@@ -46,25 +51,17 @@ jobs:
           fi
 
       - name: Lint
-        working-directory: backend
         run: npm run lint
+        # ou, si tu veux zéro warning en CI :
+        # run: npm run lint:ci
 
       - name: Tests (if present)
-        working-directory: backend
         run: npm test --if-present
 
       - name: Build (if present)
-        working-directory: backend
         run: npm run build --if-present
 
-      # Choisis OPTION A (strict) ou OPTION B (report only)
-
-      # OPTION A — échoue si High/Critical
       - name: Audit production deps (fail on high+)
-        working-directory: backend
         run: npm audit --omit=dev --audit-level=high
-
-      # OPTION B — informer seulement (ne bloque pas la PR)
-      # - name: Audit production deps (report only)
-      #   working-directory: backend
-      #   run: npm audit --omit=dev || echo "::warning::Vulnérabilités détectées (voir logs)."
+        # Variante non bloquante :
+        # run: npm audit --omit=dev || echo "::warning::Vulnérabilités détectées (voir logs)."
