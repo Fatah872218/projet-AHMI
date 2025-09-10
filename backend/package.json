@@ -4,6 +4,7 @@
   "description": "Ce dossier contient l’API REST du projet **AHMI**, développée en Node.js avec Express et MongoDB.",
   "main": "src/app.js",
   "type": "module",
+  "packageManager": "npm@10.8.2",
   "engines": {
     "node": ">=18 <21"
   },
@@ -14,8 +15,11 @@
     "seed:user": "node src/scripts/createUser.cjs",
     "migrate:lieu": "node ./src/scripts/migrateLieuAdresse.js",
     "clean:adresse": "node ./src/scripts/removeAdresseFromLieu.js",
-    "lint": "eslint .",
-    "build": "echo \"(backend) pas de build requis pour Express\""
+    "lint": "eslint \"src/**/*.{js,mjs,cjs}\"",
+    "lint:fix": "eslint \"src/**/*.{js,mjs,cjs}\" --fix",
+    "lint:ci": "eslint \"src/**/*.{js,mjs,cjs}\" --max-warnings=0",
+    "build": "echo \"(backend) pas de build requis pour Express\"",
+    "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
   "keywords": [],
   "author": "",
@@ -40,5 +44,8 @@
     "swagger-ui-express": "^5.0.1",
     "validator": "^13.15.15",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "eslint": "8.57.0"
   }
 }
