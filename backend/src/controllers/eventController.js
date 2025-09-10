@@ -1,7 +1,7 @@
 import EventService from "../services/eventService.js";
 import bookingRepository from "../repositories/bookingRepository.js";
 import mongoose from "mongoose";
-import { updateEventSchema } from "../validations/eventSchemas.js";
+//import { updateEventSchema } from "../validations/eventSchemas.js";
 
 class EventController {
   constructor() {

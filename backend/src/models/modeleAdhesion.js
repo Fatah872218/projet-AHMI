@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+const { Types } = mongoose;
 
 const adhesionSchema = new mongoose.Schema({
-  _id: ObjectId,
-  utilisateur: { type: ObjectId, ref: "Utilisateur", required: true }, // Relation un-à-plusieurs avec Utulisateurs
+  _id: Types.ObjectId,
+  utilisateur: { type: Types.ObjectId, ref: "Utilisateur", required: true }, // Relation un-à-plusieurs avec Utulisateurs
   typeAdhesion: {
     type: String,
     enum: ["individuelle", "familiale", "etudiant", "partenaire", "benevole"],
@@ -11,7 +12,7 @@ const adhesionSchema = new mongoose.Schema({
   montant: { type: Number, required: true },
   dateDebut: { type: Date, required: true },
   dateFin: { type: Date, required: true },
-  paiements: [{ type: ObjectId, ref: "Paiement" }], // Relation un-à-plusieurs avec Payments
+  paiements: [{ type: Types.ObjectId, ref: "Paiement" }], // Relation un-à-plusieurs avec Payments
   statut: {
     type: String,
     enum: ["active", "expiree", "en_attente", "annulee"],
