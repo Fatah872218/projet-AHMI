@@ -101,7 +101,7 @@ export default class ServiceAuth {
   }
 
   /* ---------- Email réinitialisation (placeholder) ---------- */
-  async envoyerEmailReinitialisation(email) {
-    // À implémenter si besoin
+  async envoyerEmailReinitialisation(_email) {
+    // À implémenter
   }
 }
