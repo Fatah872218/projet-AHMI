@@ -33,8 +33,28 @@ export default class UtilisateurRepository {
       { new: true }
     );
   }
+  //
+  async appliquerReinitialisation(id, nouveauHash) {
+    return Utilisateur.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          motDePasse: nouveauHash,
+          isActif: true,
+          activatedAt: new Date(),
+        },
+        $unset: {
+          tokenReinitialisation: "",
+          expirationTokenReinitialisation: "",
+          activationCode: "",
+          expirationCodeActivation: "",
+        },
+      },
+      { new: true }
+    );
+  }
 
-  /* ---- autres méthodes que tu conservais ---- */
+  /* ---- autres méthodes  ---- */
   async createUtilisateur(data) {
     return Utilisateur.create(data);
   }

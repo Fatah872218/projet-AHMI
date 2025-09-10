@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+const { Types } = mongoose;
 
 const donSchema = new mongoose.Schema({
-  _id: ObjectId,
+  _id: Types.ObjectId,
   utilisateur: {
-    type: ObjectId,
+    type: Types.ObjectId,
     ref: "Utilisateur",
     required: false, // Permet les dons de non-utilisateurs
   },
@@ -20,7 +21,7 @@ const donSchema = new mongoose.Schema({
     enum: ["ponctuel", "mensuel", "annuel"],
     default: "ponctuel",
   },
-  paiement: { type: ObjectId, ref: "Paiements" }, // Relation un-à-un avec Paiement
+  paiement: { type: Types.ObjectId, ref: "Paiements" }, // Relation un-à-un avec Paiement
   motif: { type: String },
   reçuFiscal: {
     eligible: { type: Boolean },

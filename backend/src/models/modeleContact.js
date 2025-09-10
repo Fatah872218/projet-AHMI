@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+const { Types } = mongoose;
 
 const contactSchema = new mongoose.Schema({
-  _id: ObjectId,
+  _id: Types.ObjectId,
   // Référence optionnelle à un utilisateur enregistré
   utilisateur: {
-    type: ObjectId,
+    type: Types.ObjectId,
     ref: "Utilisateur",
     required: false,
   },

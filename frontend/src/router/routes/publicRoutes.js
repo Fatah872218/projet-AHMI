@@ -1,3 +1,4 @@
+// src/router/routes/publicRoutes.js
 import VueConnexion from '@/views/VueConnexion.vue'
 
 export default [
@@ -26,11 +27,22 @@ export default [
     name: 'MotDePasseOublie',
     component: () => import('@/views/vueMotDePasseOublie.vue'),
   },
+
+  // ✅ Variante 1 : token en query → .../reinitialiser-mot-de-passe?token=xxx
   {
-    path: '/reinitialisation-mot-de-passe/:token',
-    name: 'ReinitialisationMotDePasse',
+    path: '/reinitialiser-mot-de-passe',
+    name: 'resetPasswordQuery',
     component: () => import('@/views/VueReinitialisationMotDePasse.vue'),
   },
+
+  // ✅ Variante 2 : token en param → .../reinitialiser-mot-de-passe/xxx
+  {
+    path: '/reinitialiser-mot-de-passe/:token',
+    name: 'resetPasswordParam',
+    component: () => import('@/views/VueReinitialisationMotDePasse.vue'),
+    props: true,
+  },
+
   {
     path: '/events',
     name: 'events',

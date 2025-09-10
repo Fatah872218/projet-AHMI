@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import compression from "compression";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import routeReinitialisationMDP from "./routes/routeReinitialisationMDP.js";
@@ -100,11 +100,13 @@ console.info("Chargement terminé sans erreurs jusqu'ici ");
 //Démarrage orchestré : on attend la DB avant d'écouter le port
 const start = async () => {
   try {
-    await connectDB(); // mongoose.connect via ./config/db.js
     if (process.env.NODE_ENV !== "test") {
+      await connectDB(); // mongoose.connect via ./config/db.js
       app.listen(PORT, () =>
         console.info(`Serveur en écoute sur http://localhost:${PORT}`)
       );
+    } else {
+      console.info("CI: serveur non démarré et DB non appelée (NODE_ENV=test)");
     }
   } catch (err) {
     console.error("Échec au démarrage (DB non disponible) :", err);

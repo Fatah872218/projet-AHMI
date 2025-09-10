@@ -1,5 +1,5 @@
 // middlewares/errorHandler.js
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res) => {
   console.error("ERREUR →", err.stack || err.message);
   const status = err.status || 500;
 

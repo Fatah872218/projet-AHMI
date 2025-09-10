@@ -1,9 +1,5 @@
 import utilisateurService from "../services/serviceUtilisateur.js";
-import {
-  schemaInscription,
-  schemaConnexion,
-  schemaMiseAJourUtilisateur,
-} from "../validations/schemasUtilisateur.js";
+
 import { sendConfirmationEmail } from "../config/nodemailerConfig.js";
 import Role from "../models/modeleRole.js";
 import Utilisateur from "../models/modeleUtilisateur.js";

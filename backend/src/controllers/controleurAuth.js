@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-import argon2 from "argon2";
 import crypto from "crypto";
 import ServiceAuth from "../services/serviceAuth.js";
 import dotenv from "dotenv";
@@ -18,7 +16,7 @@ class ControleurAuth {
   }
 
   // Inscription
-  inscription = async (req, res, next) => {
+  inscription = async (req, res) => {
     try {
       const { utilisateur, token } = await this.serviceAuth.inscrireUtilisateur(
         req.body
@@ -37,7 +35,7 @@ class ControleurAuth {
     }
   };
 
-  // Connexion
+  /// Connexion
   connexion = async (req, res) => {
     const { email, motDePasse } = req.body;
     if (!email) {
@@ -59,12 +57,48 @@ class ControleurAuth {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        expires: new Date(Date.now() + 36000 * 1000), // 10 heures
+        expires: new Date(Date.now() + 36000 * 1000), // 10 h
       });
 
-      res.status(200).json({ utilisateur, token });
+      return res.status(200).json({ utilisateur, token });
     } catch (err) {
-      res.status(401).json({ message: err.message });
+      // 🔁 Tentative UX robuste : compte inactif → renvoyer un e-mail d’activation
+      try {
+        const user = await this.utilisateurRepo.trouverParEmail(email); // sans mot de passe
+        if (user && (user.isActif === false || user.estActif === false)) {
+          // Réutilise un code non expiré pour éviter le spam, sinon régénère
+          let code = user.activationCode;
+          const now = Date.now();
+          const notExpired =
+            user.expirationCodeActivation &&
+            new Date(user.expirationCodeActivation).getTime() > now;
+
+          if (!code || !notExpired) {
+            code = crypto.randomBytes(20).toString("hex");
+            user.activationCode = code;
+            user.expirationCodeActivation = new Date(now + 24 * 60 * 60 * 1000); // 24h
+            await user.save();
+          }
+
+          try {
+            await envoyerEmailActivation(user.email, code);
+          } catch (_) {
+            // Ne renvoie pas de détail SMTP au client
+          }
+
+          return res.status(403).json({
+            message:
+              "Votre compte n’est pas encore activé. Un nouvel e-mail d’activation vient de vous être envoyé.",
+          });
+        }
+      } catch (_) {
+        // Ne divulgue pas d’info si la recherche échoue
+      }
+
+      // Cas générique : identifiants invalides, autre erreur, etc.
+      return res
+        .status(401)
+        .json({ message: err.message || "Échec de connexion." });
     }
   };
 
@@ -101,21 +135,11 @@ class ControleurAuth {
     try {
       const { token } = req.params;
       const { motDePasse } = req.body;
-
-      const utilisateur =
-        await this.utilisateurRepo.trouverParTokenReinitialisation(token);
-      if (
-        !utilisateur ||
-        utilisateur.expirationTokenReinitialisation < Date.now()
-      )
-        return res
-          .status(400)
-          .json({ message: "Lien invalide ou expiré, recommencez." });
-
-      const hash = await argon2.hash(motDePasse);
-      await this.utilisateurRepo.reinitialiserMotDePasse(utilisateur._id, hash);
-
-      return res.status(200).json({ message: "Mot de passe réinitialisé" });
+      const out = await this.serviceReset.reinitialiserMotDePasse(
+        token,
+        motDePasse
+      );
+      return res.status(200).json(out);
     } catch (err) {
       next(err);
     }

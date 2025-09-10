@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-const { Schema, model, Types } = mongoose;
-const { ObjectId } = Types;
+const { Schema, model } = mongoose;
+const _ObjectId = mongoose.Types.ObjectId;
 
 const categorieSchema = new Schema({
   nom: {

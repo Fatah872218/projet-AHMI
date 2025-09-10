@@ -43,7 +43,7 @@ export default class ServiceReinitialisationMDP {
     };
   }
 
-  /** Étape 2 : changement effectif */
+  /** Étape 2 */
   async reinitialiserMotDePasse(token, nouveauMotDePasse) {
     const utilisateur = await utilisateurRepo.trouverParTokenReinitialisation(
       token
@@ -55,10 +55,9 @@ export default class ServiceReinitialisationMDP {
       throw new Error("Lien invalide ou expiré");
     }
 
-    utilisateur.motDePasse = await argon2.hash(nouveauMotDePasse);
-    utilisateur.tokenReinitialisation = null;
-    utilisateur.expirationTokenReinitialisation = null;
-    await utilisateur.save();
+    const hash = await argon2.hash(nouveauMotDePasse);
+    await utilisateurRepo.appliquerReinitialisation(utilisateur._id, hash);
+
     return { ok: true, message: "Mot de passe réinitialisé." };
   }
 }

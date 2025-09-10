@@ -1,0 +1,66 @@
+name: CI / Back-end
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: CI / Back-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Tout s'exécute dans backend/
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      NODE_ENV: test # évite la connexion DB
+      CI: "true" # certains outils basculent en mode CI
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20 LTS (cache npm sur lockfile du back)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies (clean, prod+dev)
+        run: npm ci
+
+      - name: Sanity check (versions & eslint)
+        run: |
+          echo "***"
+          echo "PWD=$(pwd)"
+          node -v
+          npm -v
+          npx eslint -v
+
+      - name: Lint (strict, zero warning)
+        run: npm run lint:ci
+
+      - name: Tests (if present)
+        run: npm test --if-present
+
+      # Pour les projets TS/bundlés : gardez ce step ; sinon, vous pouvez le commenter.
+      - name: Build (if present)
+        run: npm run build --if-present
+
+      # Audit strict : prod uniquement, fail si High+
+      - name: Security audit (prod deps, fail on high+)
+        run: npm audit --omit=dev --audit-level=high

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const argon2 = require("argon2");
-const path = require("path");
+const _path = require("path");
 
 // Charger manuellement le modèle User avec require
 const User = require("../models/user.model.js").default;

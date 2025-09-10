@@ -5,21 +5,26 @@
     description="Connectez-vous à votre compte"
     @submit="handleLogin"
   >
+    <!-- BANNERS -->
+    <AlertBanner v-if="banner.message" :type="banner.type" :message="banner.message" />
+
     <!-- Email -->
     <BaseInput
       label="Email"
       type="email"
       v-model="email"
       required
+      autocomplete="email"
       :error="auth.erreur && auth.erreurChamp === 'email' ? auth.erreur : ''"
     />
 
-    <!-- Password avec œil -->
+    <!-- Mot de passe -->
     <BaseInput
       label="Mot de passe"
       :type="showPassword ? 'text' : 'password'"
       v-model="password"
       required
+      autocomplete="current-password"
       :error="auth.erreur && auth.erreurChamp === 'motDePasse' ? auth.erreur : ''"
     >
       <template #icon>
@@ -34,8 +39,8 @@
       </RouterLink>
     </div>
 
-    <!-- Messages -->
-    <div v-if="auth.erreur" class="text-ahmi-error font-bold mt-2">
+    <!-- Message d'erreur global store (fallback accessibilité) -->
+    <div v-if="auth.erreur" class="text-ahmi-error font-bold mt-2" aria-live="polite">
       {{ auth.erreur }}
     </div>
 
@@ -44,9 +49,9 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
         <p class="text-sm">
           Pas encore inscrit ?
-          <RouterLink to="/inscription" class="underline text-ahmi-secondary"
-            >Créez votre compte</RouterLink
-          >
+          <RouterLink to="/inscription" class="underline text-ahmi-secondary">
+            Créez votre compte
+          </RouterLink>
         </p>
         <RouterLink to="/" class="flex items-center gap-1 text-sm hover:text-ahmi-secondary">
           <HomeIcon class="h-5 w-5" /> Retour à l'accueil
@@ -57,14 +62,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import BaseFormWrapper from '@/components/base/BaseFormWrapper.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
+import AlertBanner from '@/components/ui/AlertBanner.vue'
 import MdiEyeOutline from '@/components/icons/MdiEyeOutline.vue'
 import { HomeIcon } from '@heroicons/vue/outline'
-import { computed } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const email = ref('')
@@ -74,35 +79,77 @@ const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const toast = useToast()
-const form = computed(() => ({
-  email: email.value,
-  motDePasse: password.value,
-}))
+
+const banner = ref({ type: 'info', message: '' })
+
+function clearQuery(keys = []) {
+  const q = { ...route.query }
+  keys.forEach((k) => delete q[k])
+  router.replace({ query: q }).catch(() => {})
+}
+
+onMounted(() => {
+  // Bannières explicites selon le contexte
+  if (route.query.reset === 'ok') {
+    banner.value = {
+      type: 'success',
+      message: 'Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter.',
+    }
+    clearQuery(['reset'])
+  } else if (route.query.reset === 'invalid') {
+    banner.value = {
+      type: 'error',
+      message: 'Lien de réinitialisation invalide ou expiré. Veuillez refaire la procédure.',
+    }
+    clearQuery(['reset'])
+  }
+
+  if (route.query.activation === 'ok') {
+    banner.value = {
+      type: 'success',
+      message: 'Votre compte a été activé avec succès.',
+    }
+    clearQuery(['activation'])
+  }
+})
 
 async function handleLogin() {
+  banner.value = { type: 'info', message: '' } // reset local banner
   try {
-    await auth.connexion(form.value)
+    await auth.connexion({ email: email.value, motDePasse: password.value })
 
     if (!auth.erreur) {
       toast.success('Connexion réussie !')
 
-      // Vérifie la redirection après login
       const q = route.query.redirect
       const redirect = typeof q === 'string' && q.startsWith('/') ? q : '/account'
 
       if (route.path === '/connexion' && redirect === '/connexion') {
         return router.replace('/account')
       }
-
       return router.replace(redirect)
     }
   } catch (error) {
+    const status = error?.response?.status
     const msg = error?.response?.data?.message || 'Erreur de connexion'
+
+    if (status === 403) {
+      // Compte inactif : l’API a déjà renvoyé l’e-mail → message rassurant
+      banner.value = {
+        type: 'info',
+        message:
+          'Votre compte n’est pas encore activé. Nous venons de vous renvoyer un e-mail d’activation.',
+      }
+      toast.info(msg)
+      return
+    }
+
+    // Cas générique (401, etc.)
     toast.error(msg)
   }
 }
 </script>
 
 <style scoped>
-/*  style personnalisé si nécessaire */
+/* style personnalisé si nécessaire */
 </style>

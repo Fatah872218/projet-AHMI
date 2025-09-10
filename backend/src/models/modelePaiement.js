@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
+const { Types } = mongoose;
 
 const paiementSchema = new mongoose.Schema({
-  _id: ObjectId,
+  _id: Types.ObjectId,
   type: {
     type: String,
     enum: ["reservation", "adhesion", "don", "achat"],
     required: true,
   },
-  reservation: { type: ObjectId, ref: "Reservation" }, // Si type=reservation
-  adhesion: { type: ObjectId, ref: "Adhesion" }, //Si type=adhesion.// Relation un-à-plusieurs avec adhesions
-  don: { type: ObjectId, ref: "Don" }, // Si type=don.// Relation un-à-un avec Donations
+  reservation: { type: Types.ObjectId, ref: "Reservation" }, // Si type=reservation
+  adhesion: { type: Types.ObjectId, ref: "Adhesion" }, //Si type=adhesion.// Relation un-à-plusieurs avec adhesions
+  don: { type: Types.ObjectId, ref: "Don" }, // Si type=don.// Relation un-à-un avec Donations
   montant: { type: Number, required: true },
   methode: {
     type: String,
