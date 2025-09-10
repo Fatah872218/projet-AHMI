@@ -20,48 +20,47 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # Tout s'exécute dans backend/
     defaults:
       run:
         working-directory: backend
+
+    env:
+      NODE_ENV: test # évite la connexion DB
+      CI: "true" # certains outils basculent en mode CI
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node 20 LTS
+      - name: Setup Node 20 LTS (cache npm sur lockfile du back)
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install (all deps, incl. dev)
+      - name: Install dependencies (clean, prod+dev)
         run: npm ci
 
-      - name: Sanity check
+      - name: Sanity check (versions & eslint)
         run: |
+          echo "***"
           echo "PWD=$(pwd)"
           node -v
           npm -v
-          if [ -x node_modules/.bin/eslint ]; then
-            ./node_modules/.bin/eslint --version
-          else
-            echo "::error::ESLint introuvable dans node_modules/.bin"
-            exit 1
-          fi
+          npx eslint -v
 
-      - name: Lint
-        run: npm run lint
-        # ou, si tu veux zéro warning en CI :
-        # run: npm run lint:ci
+      - name: Lint (strict, zero warning)
+        run: npm run lint:ci
 
       - name: Tests (if present)
         run: npm test --if-present
 
+      # Pour les projets TS/bundlés : gardez ce step ; sinon, vous pouvez le commenter.
       - name: Build (if present)
         run: npm run build --if-present
 
-      - name: Audit production deps (fail on high+)
+      # Audit strict : prod uniquement, fail si High+
+      - name: Security audit (prod deps, fail on high+)
         run: npm audit --omit=dev --audit-level=high
-        # Variante non bloquante :
-        # run: npm audit --omit=dev || echo "::warning::Vulnérabilités détectées (voir logs)."

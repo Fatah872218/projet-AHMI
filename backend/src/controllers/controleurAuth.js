@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-import argon2 from "argon2";
 import crypto from "crypto";
 import ServiceAuth from "../services/serviceAuth.js";
 import dotenv from "dotenv";
@@ -18,7 +16,7 @@ class ControleurAuth {
   }
 
   // Inscription
-  inscription = async (req, res, next) => {
+  inscription = async (req, res) => {
     try {
       const { utilisateur, token } = await this.serviceAuth.inscrireUtilisateur(
         req.body
