@@ -1,20 +1,22 @@
 import api from './api'
 
-export const getEventById = (id) => api.get(`/events/${id}`)
+export const getEventById = (id, config = {}) => api.get(`/events/${id}`, config)
 
-export const getCategories = () => api.get(`/categories`)
+export const getCategories = (config = {}) => api.get(`/categories`, config)
 
-export const getAllEvents = () => api.get('/events')
+export const getAllEvents = (config = {}) => api.get('/events', config)
 
-export const createEvent = (data) => api.post(`/events`, data)
+export const createEvent = (data, config = {}) => api.post(`/events`, data, config)
 
-export const updateEvent = (id, data) => api.put(`/events/${id}`, data)
+export const updateEvent = (id, data, config = {}) => api.put(`/events/${id}`, data, config)
 
-export const getPlacesRestantes = (id) => api.get(`/events/${id}/places-restantes`)
+export const getPlacesRestantes = (id, config = {}) =>
+  api.get(`/events/${id}/places-restantes`, config)
 
-export const getEventsByStatus = (status) => api.get(`/events/statut/${status}`)
+export const getEventsByStatus = (status, config = {}) =>
+  api.get(`/events/statut/${status}`, config)
 
-export const updateEventStatus = (id, status) =>
-  api.patch(`/events/${id}/statut`, { statut: status })
+export const updateEventStatus = (id, status, config = {}) =>
+  api.patch(`/events/${id}`, { statut: status }, config)
 
-export const deleteEvent = (id) => api.delete(`/events/${id}`)
+export const deleteEvent = (id, config = {}) => api.delete(`/events/${id}`, config)

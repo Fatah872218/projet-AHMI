@@ -1,6 +1,7 @@
 <!-- src/views/AccountView.vue -->
 <script setup>
-import { ref, computed, onMounted, reactive, watch } from 'vue'
+import { ref, computed, onMounted, reactive, watch, onBeforeUnmount } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { format } from 'date-fns'
 import fr from 'date-fns/locale/fr'
 import { useToast } from 'vue-toastification'
@@ -17,6 +18,7 @@ const { utilisateur } = useAuth()
 console.log('Utilisateur connecté :', utilisateur.value)
 
 const toast = useToast()
+
 const evenementsStore = useEvenementsStore()
 const evenements = ref([])
 const reservations = ref([])
@@ -34,10 +36,23 @@ const tabs = [
   { label: 'Mes réservations', value: 'reservations' },
 ]
 const placesToUpdate = reactive({})
+let controller
 
 onMounted(async () => {
+  // 1) Garde-fou
+  const hasToken = !!localStorage.getItem('token')
+  if (!hasToken) {
+    toast.error('Vous devez être connecté pour accéder à cette page.')
+    return
+  }
+
+  // 2) Prépare un AbortController et extrait le signal
+  controller = new AbortController()
+  const { signal } = controller
+
   try {
-    const res = await getAllEvents()
+    // 3) Requêtes "telles quelles", mais avec { signal }
+    const res = await getAllEvents({ signal })
     console.info('Événements reçus :', res.data)
 
     console.info(' Tous les événements récupérés :', res.data)
@@ -45,14 +60,27 @@ onMounted(async () => {
 
     evenements.value = res.data.filter((e) => new Date(e.dateFin) > new Date())
 
-    const res2 = await getMyBookings()
+    const res2 = await getMyBookings({ signal })
     console.info('Réservations récupérées :', res2.data)
     reservations.value = res2.data
   } catch (e) {
-    toast.error('Erreur lors du chargement des données.')
-    console.error(e)
+    // 4) Ignore les annulations (navigation, démontage)
+    const aborted = e?.name === 'CanceledError' || e?.code === 'ERR_CANCELED'
+    if (!aborted) {
+      toast.error('Erreur lors du chargement des données.')
+      console.error('[AccountView] Chargement échoué :', e)
+    }
   }
-  console.clear()
+})
+
+// Annuler si la route change
+onBeforeRouteLeave(() => {
+  controller?.abort()
+})
+
+// Annuler si le composant est démonté
+onBeforeUnmount(() => {
+  controller?.abort()
 })
 
 const evenementsFiltres = computed(() => {

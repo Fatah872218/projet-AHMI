@@ -42,3 +42,7 @@ api.interceptors.response.use(
 )
 
 export default api
+
+// Helper pour tester côté appels ou toasts
+export const isAbortedRequest = (err) =>
+  err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError'
