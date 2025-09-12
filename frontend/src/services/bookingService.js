@@ -2,26 +2,18 @@
 import api from './api'
 
 // ➤ Créer une réservation
-export const createBooking = (data) => {
-  return api.post('/reservations', data)
-}
+export const createBooking = (data, config = {}) => api.post('/reservations', data, config)
 
 // ➤ Récupérer les réservations de l'utilisateur connecté
-export const getMyBookings = () => {
-  return api.get('/reservations/utilisateur/mes-reservations')
-}
+export const getMyBookings = (config = {}) =>
+  +api.get('/reservations/utilisateur/mes-reservations', config)
 
 // ➤ Modifier une réservation
-export const updateBooking = (id, data) => {
-  return api.put(`/reservations/${id}`, data)
-}
+export const updateBooking = (id, data, config = {}) =>
+  +api.put(`/reservations/${id}`, data, config)
 
 // ➤ Supprimer une réservation
-export const deleteBooking = (id) => {
-  return api.delete(`/reservations/${id}`)
-}
+export const deleteBooking = (id, config = {}) => api.delete(`/reservations/${id}`, config)
 
 // ➤ (optionnel) Récupérer toutes les réservations (admin)
-export const getAllBookings = () => {
-  return api.get('/reservations')
-}
+export const getAllBookings = (config = {}) => api.get('/reservations', config)
