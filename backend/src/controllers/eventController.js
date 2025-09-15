@@ -53,6 +53,19 @@ class EventController {
       const event = await this.eventService.getEventById(req.params.id);
       if (!event)
         return res.status(404).json({ message: "Évènement introuvable" });
+      const user = req.utilisateur; // undefined si pas d'auth
+      const isAdmin = user?.role === "admin";
+      const isCreator =
+        user && event.createur && event.createur.toString() === user.id;
+
+      if (event.statut !== "approuve" && !isAdmin && !isCreator) {
+        return res
+          .status(403)
+          .json({
+            message: "Cet évènement n’est pas accessible publiquement.",
+          });
+      }
+
       res.status(200).json(event);
     } catch (err) {
       res.status(500).json({ message: err.message });

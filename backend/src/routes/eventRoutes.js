@@ -43,17 +43,16 @@ router.patch(
 router.get(
   "/:id/places-restantes",
   // Lecture : auth requis, , id valide
-  middlewareAuth,
+
   validateObjectId,
   eventController.getPlacesRestantes
 );
 
 // ROUTES GÉNÉRIQUES
-router.get("/", middlewareAuth, eventController.getAllEvents);
+router.get("/", eventController.getAllEvents);
 router.get(
   "/:id",
 
-  middlewareAuth,
   validateObjectId,
   eventController.getEventById
 );
