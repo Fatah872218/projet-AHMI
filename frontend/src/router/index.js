@@ -28,10 +28,11 @@ router.beforeEach((to, from, next) => {
   const utilisateurStore = useUtilisateurStore()
   //const _user = utilisateurStore.utilisateur
   const hasToken = !!localStorage.getItem('token')
+  const isLoggedIn = hasToken && !!(utilisateurStore?.role || utilisateurStore?.utilisateur?.id)
   //const isLoggedIn = utilisateurStore.isLoggedIn
 
   // Besoin d’auth ?
-  if (to.meta?.requiresAuth && !hasToken) {
+  if (to.meta?.requiresAuth && !isLoggedIn) {
     return next(`/connexion?redirect=${encodeURIComponent(to.fullPath)}`)
   }
 

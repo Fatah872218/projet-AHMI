@@ -162,11 +162,13 @@ const formatDate = (d) => {
 }
 
 function handleReservation() {
+  const target = `/evenement/${route.params.id}/reserver`
   if (!utilisateur.value) {
     toast.warning('Vous devez être connecté pour réserver.')
-    return
+    const redirect = encodeURIComponent(target)
+    return router.push(`/connexion?redirect=${redirect}`)
   }
-  router.push(`/evenement/${route.params.id}/reserver`)
+  router.push(target)
 }
 const isExpired = computed(() => {
   return new Date(evenement.value?.dateFin) < new Date()
