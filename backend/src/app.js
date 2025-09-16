@@ -35,13 +35,39 @@ dotenv.config();
 const app = express();
 
 // Connexion à la base de données
-
+const isProd = process.env.NODE_ENV === "production";
+const helmetOptions = isProd
+  ? {
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          "default-src": ["'self'"],
+          // Pas d'inline/eval en prod
+          "script-src": ["'self'"],
+          "style-src": ["'self'", "'unsafe-inline'"],
+          "img-src": ["'self'", "data:", "blob:", "https:"],
+          "connect-src": [
+            "'self'",
+            process.env.FRONTEND_URL || "http://localhost:5173",
+            "https://nominatim.openstreetmap.org",
+          ],
+          "font-src": ["'self'", "https:", "data:"],
+          "base-uri": ["'self'"],
+        },
+      },
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    }
+  : {
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    };
+app.use(helmet(helmetOptions));
 // Middleware
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
 // Sécurité
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+
 app.use(securityHeaders);
 
 // CORS —  :
@@ -71,6 +97,7 @@ app.use(compression());
 // Routes
 console.info("Avant routes Auth");
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authLimiter, routeReinitialisationMDP);
 app.use("/api/geocode", geocodeLimiter, geocodeRoutes);
 
 app.use("/api/utilisateurs", utilisateurRoutes);
@@ -90,7 +117,6 @@ console.log(" reservations OK");
 console.info(" Avant routes categorie");
 app.use("/api/categories", categorieRoutes);
 console.info(" categories OK");
-app.use("/api/auth", routeReinitialisationMDP);
 
 mountDocs(app); // ➜ http://localhost:5000/docs
 

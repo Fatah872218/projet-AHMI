@@ -7,7 +7,7 @@ export const schemaDemandeReinitialisation = Joi.object({
   }),
 });
 
-export const schemaReinitialisationMDP = Joi.object({
+export const schemaReinitialisationMDPParams = Joi.object({
   motDePasse: Joi.string().min(8).required().messages({
     "string.min": "Le mot de passe doit contenir au moins 8 caractères",
     "string.empty": "Le mot de passe est requis",
@@ -20,3 +20,20 @@ export const schemaReinitialisationMDP = Joi.object({
       "string.empty": "La confirmation du mot de passe est requise",
     }),
 });
+export const schemaReinitialisationMDPBody = Joi.object({
+  token: Joi.string().required().messages({
+    "string.empty": "Le token est requis",
+  }),
+  motDePasse: Joi.string().min(8).required().messages({
+    "string.min": "Le mot de passe doit contenir au moins 8 caractères",
+    "string.empty": "Le mot de passe est requis",
+  }),
+  confirmationMotDePasse: Joi.string()
+    .valid(Joi.ref("motDePasse"))
+    .required()
+    .messages({
+      "any.only": "Les mots de passe ne correspondent pas",
+      "string.empty": "La confirmation du mot de passe est requise",
+    }),
+});
+export { schemaReinitialisationMDPBody as schemaReinitialisationMDP };

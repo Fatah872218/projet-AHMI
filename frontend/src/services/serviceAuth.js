@@ -22,8 +22,21 @@ export const demanderReinitialisationMotDePasse = (email) => {
 }
 
 // ➤ Réinitialisation du mot de passe
-export const reinitialiserMotDePasse = (token, motDePasse, confirmationMotDePasse) =>
-  api.post(`/auth/reinitialiser/${token}`, { motDePasse, confirmationMotDePasse })
+export const reinitialiserMotDePasse = async (token, motDePasse, confirmationMotDePasse) => {
+  try {
+    return await api.post('/auth/reinitialisation-mot-de-passe', {
+      token,
+      motDePasse,
+      confirmationMotDePasse,
+    })
+  } catch (err) {
+    const status = err?.response?.status
+    if (status === 404 || status === 405) {
+      return api.post(`/auth/reinitialiser/${token}`, { motDePasse, confirmationMotDePasse })
+    }
+    throw err
+  }
+}
 
 // activation du compte
 export async function activerCompte(code) {

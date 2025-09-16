@@ -1,19 +1,14 @@
 import express from "express";
 import controleurAuth from "../controllers/controleurAuth.js";
-import ControllerReinitialisationMDP from "../controllers/controllerReinitialisationMDP.js";
+
 import Joi from "joi";
 import valider from "../middlewares/middlewareValidation.js";
 import {
   schemaInscription,
   schemaConnexion,
 } from "../validations/schemasUtilisateur.js";
-import {
-  schemaDemandeReinitialisation,
-  schemaReinitialisationMDP,
-} from "../validations/validationAuth.js";
 
 const router = express.Router();
-const reinitCtrl = new ControllerReinitialisationMDP();
 
 /* ───── Inscription / Connexion ───── */
 router.post(
@@ -23,20 +18,6 @@ router.post(
 );
 router.post("/connexion", valider(schemaConnexion), controleurAuth.connexion);
 
-/* ───── Mot de passe oublié / Réinitialisation ─────
-   On ALIASE ici vers le même contrôleur que routeReinitialisationMDP,
-   pour garantir le même comportement (succès silencieux si email inconnu). */
-router.post(
-  "/mot-de-passe-oublie",
-  valider(schemaDemandeReinitialisation),
-  (req, res, next) => reinitCtrl.demanderReinitialisation(req, res, next)
-);
-
-router.post(
-  "/reinitialiser/:token",
-  valider(schemaReinitialisationMDP),
-  (req, res, next) => reinitCtrl.reinitialiserMotDePasse(req, res, next)
-);
 /* ───── Renvoyer e-mail d’activation ───── */
 const schemaResendActivation = Joi.object({
   email: Joi.string().email().required(),
