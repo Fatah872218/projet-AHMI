@@ -1,5 +1,5 @@
 /// middlewares/errorHandler.js
-export default function errorHandler(err, req, res, next) {
+export default function errorHandler(err, req, res, _next) {
   try {
     const status = err?.status || err?.statusCode || 500;
     const isProd = process.env.NODE_ENV === "production";
