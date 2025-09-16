@@ -133,7 +133,7 @@ class ControleurAuth {
   /* ────────── Réinitialiser mot de passe ────────── */
   reinitialiserMotDePasse = async (req, res, next) => {
     try {
-      const { token } = req.params;
+      const token = req.params?.token || req.body?.token;
       const { motDePasse } = req.body;
       const out = await this.serviceReset.reinitialiserMotDePasse(
         token,

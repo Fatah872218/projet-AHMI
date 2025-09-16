@@ -4,47 +4,48 @@ import ControllerReinitialisationMDP from "../controllers/controllerReinitialisa
 import valider from "../middlewares/middlewareValidation.js";
 import {
   schemaDemandeReinitialisation,
-  schemaReinitialisationMDP,
+  schemaReinitialisationMDPParams,
+  schemaReinitialisationMDPBody,
 } from "../validations/validationAuth.js";
 
 const router = express.Router();
 const controller = new ControllerReinitialisationMDP();
 
 /**
- * ETAPE 1 — Demande de réinitialisation
- * On garde ta route d’origine ET on ajoute l’alias utilisé par le front.
+ * ÉTAPE 1 — Demande de réinitialisation (envoi du mail)
+ * On expose la route POST /mot-de-passe-oublie (déjà utilisée côté front)
  */
-
-// Alias attendu par ton front: POST /api/auth/mot-de-passe-oublie
 router.post(
   "/mot-de-passe-oublie",
   valider(schemaDemandeReinitialisation),
   (req, res, next) => controller.demanderReinitialisation(req, res, next)
 );
 
-// Ta route existante (on la conserve pour compatibilité)
-router.post(
-  "/demande-reinitialisation",
-  valider(schemaDemandeReinitialisation),
-  (req, res, next) => controller.demanderReinitialisation(req, res, next)
-);
-
 /**
- * ETAPE 2 — Réinitialisation avec token
- * On garde ta route d’origine ET on ajoute l’alias /reinitialiser/:token attendu par le front.
+ * ÉTAPE 2 — Réinitialisation
+ *  A) Variante PARAMS → /reinitialiser/:token  (token dans l'URL)
+ *  B) Variante COMPAT → /reinitialiser-mot-de-passe/:token  (token dans l'URL)
+ *  C) Variante BODY    → /reinitialisation-mot-de-passe (token dans le body)
  */
 
-// Alias attendu par ton front: POST /api/auth/reinitialiser/:token
+// A) Route principale avec token dans l'URL
 router.post(
   "/reinitialiser/:token",
-  valider(schemaReinitialisationMDP),
+  valider(schemaReinitialisationMDPParams),
   (req, res, next) => controller.reinitialiserMotDePasse(req, res, next)
 );
 
-// Ta route existante (on la conserve pour compatibilité)
+// B) Compat historique (on conserve)
 router.post(
   "/reinitialiser-mot-de-passe/:token",
-  valider(schemaReinitialisationMDP),
+  valider(schemaReinitialisationMDPParams),
+  (req, res, next) => controller.reinitialiserMotDePasse(req, res, next)
+);
+
+// C) Variante JSON : token dans le body
+router.post(
+  "/reinitialisation-mot-de-passe",
+  valider(schemaReinitialisationMDPBody),
   (req, res, next) => controller.reinitialiserMotDePasse(req, res, next)
 );
 

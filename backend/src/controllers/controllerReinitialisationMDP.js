@@ -21,7 +21,7 @@ class ControllerReinitialisationMDP {
 
   async reinitialiserMotDePasse(req, res, next) {
     try {
-      const { token } = req.params;
+      const token = req.params?.token || req.body?.token;
       const { motDePasse } = req.body ?? {};
       if (!token || !motDePasse) {
         return res
