@@ -27,7 +27,7 @@ router.post(
   "/activation/resend",
   valider(schemaResendActivation),
   (req, res, next) => {
-    controleurAuth.renvoyerEmailActivation(req, res, next);
+    controleurAuth.renvoyerActivation(req, res, next);
   }
 );
 /* ───── Activation & Déconnexion ───── */

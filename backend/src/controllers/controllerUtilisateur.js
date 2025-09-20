@@ -91,6 +91,7 @@ class ControleurUtilisateur {
       const utilisateur = await this.utilisateurService.getUtilisateurById(
         req.utilisateur.id
       );
+      if (utilisateur?.motDePasse) delete utilisateur.motDePasse;
       res.status(200).json(utilisateur);
     } catch (err) {
       res.status(404).json({ message: err.message });
@@ -99,6 +100,9 @@ class ControleurUtilisateur {
 
   mettreAJourProfil = async (req, res) => {
     console.log("Reçu PUT /profil");
+    ["role", "roles", "isActif", "activationCode"].forEach(
+      (k) => delete req.body[k]
+    );
     if (Object.keys(req.body).length === 0) {
       return res
         .status(400)
@@ -110,6 +114,7 @@ class ControleurUtilisateur {
         req.utilisateur.id,
         req.body
       );
+      if (utilisateur?.motDePasse) delete utilisateur.motDePasse;
       console.log("Données reçues :", req.body);
       res.status(200).json(utilisateur);
     } catch (err) {
@@ -151,6 +156,30 @@ class ControleurUtilisateur {
       res
         .status(500)
         .json({ message: "Erreur assignation rôle : " + err.message });
+    }
+  };
+  /**
++   * PATCH /api/utilisateurs/:id/role
++   * Body: { role: "user" | "partenaire" | "admin" }
++   * Autorisation: admin (middleware)
++   */
+  changerRole = async (req, res) => {
+    try {
+      const { role } = req.body || {};
+      if (!role) {
+        return res
+          .status(400)
+          .json({ message: "Champ 'role' requis (user|partenaire|admin)" });
+      }
+      const maj = await this.utilisateurService.changerRoleUtilisateur(
+        req.params.id,
+        role
+      );
+      return res
+        .status(200)
+        .json({ message: "Rôle mis à jour avec succès", utilisateur: maj });
+    } catch (err) {
+      return res.status(400).json({ message: err.message });
     }
   };
 }

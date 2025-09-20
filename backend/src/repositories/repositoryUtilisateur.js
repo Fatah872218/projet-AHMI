@@ -67,4 +67,11 @@ export default class UtilisateurRepository {
   async deleteU(id) {
     return Utilisateur.findByIdAndDelete(id);
   }
+  async countAdmins() {
+    return Utilisateur.countDocuments({ role: "admin" });
+  }
+
+  async updateRole(id, role) {
+    return Utilisateur.findByIdAndUpdate(id, { $set: { role } }, { new: true });
+  }
 }

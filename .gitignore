@@ -53,3 +53,7 @@ frontend/.env.development
 
 
 frontend/src/assets/images/Postman-win64-Setup.exe
+
+# Test cookie jars
+backend/*.jar
+backend/jar.txt
