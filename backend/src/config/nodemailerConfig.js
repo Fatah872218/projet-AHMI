@@ -14,6 +14,7 @@ const {
   SMTP_PASS,
   SMTP_FROM,
   FRONTEND_URL,
+  BACKEND_URL,
 } = process.env;
 
 // Transporteur : en test => pas d'appel réseau ; sinon => SMTP normal (Mailtrap par défaut)
@@ -57,21 +58,27 @@ export async function sendConfirmationEmail(to, subject, html) {
 
 // Envoi e-mail d'activation
 export async function envoyerEmailActivation(to, code) {
-  const base = trimEndSlash(FRONTEND_URL || "http://localhost:5173");
-  const url = `${base}/activation/${code}`;
+  // On conserve le lien FRONT (UX), et on ajoute un lien API direct (pratique pour les tests)
+  const baseFront = trimEndSlash(FRONTEND_URL || "http://localhost:5173");
+  const baseApi = trimEndSlash(BACKEND_URL || "http://localhost:5000");
+  const urlFront = `${baseFront}/activation/${code}`;
+  const urlApi = `${baseApi}/api/auth/activation/${code}`;
   const subject = "Active ton compte AHMI";
   const html = `
   <p>Bienvenue !</p>
   <p>Pour activer ton compte, clique sur le lien ci-dessous :</p>
-  <p><a href="${url}">${url}</a></p>
+ <p>• Via l’interface (Front) : <a href="${urlFront}">${urlFront}</a></p>
+ <p>• Directement via l’API (tests) : <a href="${urlApi}">${urlApi}</a></p>
   <p>Ce lien expire dans 24 heures.</p>
   `;
-  const text = `Active ton compte: ${url}`;
-
+  const text =
+    `Active ton compte (Front) : ${urlFront}\n` +
+    `Ou directement (API)     : ${urlApi}`;
   const info = await sendMail({ to, subject, html, text });
 
   if (NODE_ENV !== "production") {
-    console.log("🔗 Lien d’activation :", url);
+    console.log("🔗 Lien d’activation FRONT :", urlFront);
+    console.log("🔗 Lien d’activation API   :", urlApi);
     console.log("Email envoyé (info):", info);
   }
   return info;
