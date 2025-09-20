@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const roleSchema = new mongoose.Schema({
   nom: {
     type: String,
-    enum: ["visiteur", "adherent", "partenaire", "admin"],
+    enum: ["user", "partenaire", "admin"],
     required: true,
   },
   permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Permission" }],

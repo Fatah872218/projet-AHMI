@@ -19,9 +19,8 @@ class ServiceUtilisateur {
     const { error } = schemaInscription.validate(utilisateurData);
     if (error) throw new Error(error.details[0].message);
     try {
-      const utilisateurExiste = await this.utilisateurRepository.findByEmail(
-        utilisateurData.email
-      );
+      const utilisateurExiste =
+        await this.utilisateurRepository.trouverParEmail(utilisateurData.email);
 
       if (utilisateurExiste)
         throw new Error(
@@ -32,10 +31,17 @@ class ServiceUtilisateur {
       utilisateurData.motDePasse = await argon2.hash(
         utilisateurData.motDePasse
       );
-      console.log("mot de passe hachee:", utilisateurData.motDePasse);
-      return await this.utilisateurRepository.createUtilisateur(
-        utilisateurData
+
+      const dataSaine = { ...utilisateurData };
+      delete dataSaine.role;
+      dataSaine.role = "user";
+      const created = await this.utilisateurRepository.createUtilisateur(
+        dataSaine
       );
+      const safe = created?.toObject ? created.toObject() : { ...created };
+      delete safe.motDePasse;
+      delete safe.activationCode;
+      return safe;
     } catch (err) {
       throw new Error(
         `Erreur lors de l'inscription de l'utilisateur : ${err.message}`
@@ -45,7 +51,10 @@ class ServiceUtilisateur {
   // se connecter
   async connecterUtilisateur(email, motDePasse) {
     try {
-      const utilisateur = await this.utilisateurRepository.findByEmail(email);
+      const utilisateur = await this.utilisateurRepository.trouverParEmail(
+        email,
+        true
+      );
       if (!utilisateur) throw new Error("Utilisateur non trouvé");
 
       const motDePasseValide = await argon2.verify(
@@ -62,7 +71,13 @@ class ServiceUtilisateur {
         expiresIn: process.env.JWT_EXPIRES_IN || "1d",
       });
       /* console.log("Token généré :", token); */
-      return { utilisateur, token };
+      const utilisateurSafe = utilisateur?.toObject
+        ? utilisateur.toObject()
+        : { ...utilisateur };
+      delete utilisateurSafe.motDePasse;
+      delete utilisateurSafe.activationCode;
+
+      return { utilisateur: utilisateurSafe, token };
     } catch (err) {
       throw new Error(
         `Erreur lors de la connexion de l'utilisateur : ${err.message}`
@@ -72,7 +87,7 @@ class ServiceUtilisateur {
   //---------------------------fin athentification----------------------------------------------------------------------------------------------------------------
   // Méthode pour récupérer un utilisateur par son email
   async getUtilisateurByEmail(email) {
-    const utilisateur = await this.utilisateurRepository.findByEmail(email);
+    const utilisateur = await this.utilisateurRepository.trouverParEmail(email);
     if (!utilisateur) throw new Error("Utilisateur non trouvé");
     return utilisateur;
   }
@@ -100,6 +115,17 @@ class ServiceUtilisateur {
   //supression:
   async deleteUtilisateur(id) {
     try {
+      // Empêcher la suppression du dernier admin
+      const user = await this.utilisateurRepository.findById(id);
+      if (!user) throw new Error("Utilisateur non trouvé");
+      if (user.role === "admin") {
+        const nbAdmins = await this.utilisateurRepository.countAdmins();
+        if (nbAdmins <= 1) {
+          throw new Error(
+            "Action refusée : vous ne pouvez pas supprimer le dernier administrateur"
+          );
+        }
+      }
       return await this.utilisateurRepository.deleteU(id);
     } catch (err) {
       throw new Error(
@@ -107,8 +133,56 @@ class ServiceUtilisateur {
       );
     }
   }
+  /**
+   * Changer le rôle d'un utilisateur (réservé admin).
+   * - Valide la cible ∈ { user, partenaire, admin }
+   * - Empêche de retirer le dernier admin
+   * - Si promotion vers "partenaire", upsert la fiche Partenaire
+   */
+  async changerRoleUtilisateur(utilisateurId, roleCible) {
+    const ROLES_VALIDES = new Set(["user", "partenaire", "admin"]);
+    if (!ROLES_VALIDES.has(roleCible)) {
+      throw new Error(
+        "Rôle cible invalide. Attendus : user | partenaire | admin"
+      );
+    }
+
+    const utilisateur = await this.utilisateurRepository.findById(
+      utilisateurId
+    );
+    if (!utilisateur) {
+      throw new Error("Utilisateur non trouvé");
+    }
+
+    // Garde-fou : empêcher de retirer le dernier admin
+    if (utilisateur.role === "admin" && roleCible !== "admin") {
+      const nbAdmins = await this.utilisateurRepository.countAdmins();
+      if (nbAdmins <= 1) {
+        throw new Error(
+          "Action refusée : vous ne pouvez pas retirer le dernier administrateur"
+        );
+      }
+    }
+
+    // Appliquer le changement de rôle
+    const maj = await this.utilisateurRepository.updateRole(
+      utilisateurId,
+      roleCible
+    );
+
+    // Effet de bord : créer la fiche Partenaire si promotion
+    if (roleCible === "partenaire") {
+      const Partenaire = (await import("../models/modelePartenaire.js"))
+        .default;
+      await Partenaire.updateOne(
+        { utilisateur: maj._id },
+        { $setOnInsert: { utilisateur: maj._id } },
+        { upsert: true }
+      );
+    }
+
+    return maj;
+  }
 }
 
-// Exporter la classe entière
-//export default UtilisateurService;
 export default new ServiceUtilisateur();

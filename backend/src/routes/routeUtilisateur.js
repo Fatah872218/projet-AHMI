@@ -6,26 +6,8 @@ import validateObjectId from "../middlewares/validateObjectId.js";
 import valider from "../middlewares/middlewareValidation.js";
 
 //
-import {
-  schemaInscription,
-  schemaConnexion,
-  schemaMiseAJourUtilisateur,
-} from "../validations/schemasUtilisateur.js";
-
+import { schemaMiseAJourUtilisateur } from "../validations/schemasUtilisateur.js";
 const router = express.Router();
-
-/**
- * Auth "utilisateur"
- * NB : si tu as DÉJÀ des routes /api/auth/* dans routesAuth.js,
- *      garde UNE seule des deux familles pour éviter les doublons.
- */
-router.post("/auth/register", valider(schemaInscription), (req, res) =>
-  utilisateurController.inscrire(req, res)
-);
-
-router.post("/auth/login", valider(schemaConnexion), (req, res) =>
-  utilisateurController.connecter(req, res)
-);
 
 /**
  * Profil (nécessite authentification)
@@ -59,5 +41,14 @@ router.post(
   validateObjectId,
   (req, res) => utilisateurController.assignerRole(req, res)
 );
-
+/**
+ * Admin : changer le rôle principal (user|partenaire|admin)
+ */
+router.patch(
+  "/:id/role",
+  middlewareAuth,
+  checkRole("admin"),
+  validateObjectId,
+  (req, res) => utilisateurController.changerRole(req, res)
+);
 export default router;
