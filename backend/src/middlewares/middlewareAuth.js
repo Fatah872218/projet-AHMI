@@ -13,16 +13,14 @@ const middlewareAuth = async (req, res, next) => {
     const cookieToken = req.cookies?.tokenA || req.cookies?.token || null;
     const token = bearer || cookieToken;
 
-    if (!token) {
-      return res.status(401).json({ message: "Token manquant" });
-    }
+    if (!token) return next();
 
     // 2) Vérification du token
     let payload;
     try {
       payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
-      return res.status(401).json({ message: "Token invalide ou expiré" });
+      return next();
     }
 
     // Accepte sub OU id (selon comment le JWT a été généré)
