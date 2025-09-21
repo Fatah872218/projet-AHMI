@@ -10,6 +10,19 @@
 
     <div class="relative">
       <input
+        v-if="typeDeChamp === 'checkbox'"
+        :id="inputId"
+        type="checkbox"
+        :checked="!!modelValue"
+        @change="emit('update:modelValue', $event.target.checked)"
+        :required="required"
+        :aria-invalid="!!error"
+        :aria-describedby="description || error ? descriptionId : null"
+        class="h-4 w-4 rounded border-ahmi-border-primary text-ahmi-primary focus:ring-ahmi-primary"
+      />
+      <!-- Autres types -->
+      <input
+        v-else
         :id="inputId"
         :type="typeDeChamp"
         :value="modelValue"
@@ -55,22 +68,13 @@
 import { ref, computed } from 'vue'
 
 const props = defineProps({
-  label: {
-    type: String,
-    required: true,
-  },
-  modelValue: [String, Number],
-  type: {
-    type: String,
-    default: 'text',
-  },
-  required: {
-    type: Boolean,
-    default: false,
-  },
+  label: { type: String, required: true },
+  modelValue: { type: [String, Number, Boolean], default: '' }, // ✅ accepte Boolean
+  type: { type: String, default: 'text' },
+  required: { type: Boolean, default: false },
   error: String,
   description: String,
-  id: String, // optionnel, sinon généré
+  id: String,
 })
 
 const emit = defineEmits(['update:modelValue'])

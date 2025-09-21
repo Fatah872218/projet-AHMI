@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // Public : liste simple
-router.get("/public", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const categories = await Categorie.find().select("nom");
     res.status(200).json(categories);
@@ -23,7 +23,7 @@ router.get("/public", async (req, res) => {
 });
 
 // Admin : liste complète
-router.get("/", middlewareAuth, checkRole("admin"), async (req, res) => {
+router.get("/admin", middlewareAuth, checkRole("admin"), async (req, res) => {
   try {
     const categories = await Categorie.find();
     res.status(200).json(categories);

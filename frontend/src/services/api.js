@@ -22,6 +22,7 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     const status = err?.response?.status ?? 0
+    const cfg = err?.config || {}
 
     if (status === 401) {
       // session expirée ou token invalide
@@ -35,8 +36,7 @@ api.interceptors.response.use(
     }
 
     if (status === 403) {
-      // refus d’accès : retour vers un espace sûr
-      router.push('/403') // page dédiée
+      if (!cfg.__noRedirect403) router.push('/403') // page dédiée
     }
 
     return Promise.reject(err)
