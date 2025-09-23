@@ -55,15 +55,14 @@ class EventController {
         return res.status(404).json({ message: "Évènement introuvable" });
       const user = req.utilisateur; // undefined si pas d'auth
       const isAdmin = user?.role === "admin";
-      const isCreator =
-        user && event.createur && event.createur.toString() === user.id;
+      const creatorId =
+        event?.createur?._id?.toString?.() ?? event?.createur?.toString?.();
+      const isCreator = user && creatorId === user.id;
 
       if (event.statut !== "approuve" && !isAdmin && !isCreator) {
-        return res
-          .status(403)
-          .json({
-            message: "Cet évènement n’est pas accessible publiquement.",
-          });
+        return res.status(403).json({
+          message: "Cet évènement n’est pas accessible publiquement.",
+        });
       }
 
       res.status(200).json(event);
@@ -84,10 +83,11 @@ class EventController {
         return res.status(404).json({ message: "Événement non trouvé." });
       }
 
-      if (
-        existing.createur.toString() !== req.utilisateur.id &&
-        req.utilisateur.role !== "admin"
-      ) {
+      const creatorId =
+        existing?.createur?._id?.toString?.() ??
+        existing?.createur?.toString?.();
+      const isAdmin = req.utilisateur?.role === "admin";
+      if (creatorId !== req.utilisateur.id && !isAdmin) {
         return res.status(403).json({ message: "Accès refusé" });
       }
 
@@ -149,6 +149,21 @@ class EventController {
   };
   getPlacesRestantes = async (req, res) => {
     try {
+      // 1) Récupère l’évènement pour vérifier l’accès
+      const event = await this.eventService.getEventById(req.params.id);
+      if (!event)
+        return res.status(404).json({ message: "Évènement introuvable" });
+      const user = req.utilisateur; // peut être undefined si route publique
+      const isAdmin = user?.role === "admin";
+      const creatorId =
+        event?.createur?._id?.toString?.() ?? event?.createur?.toString?.();
+      const isCreator = user && creatorId === user.id;
+      if (event.statut !== "approuve" && !isAdmin && !isCreator) {
+        return res.status(403).json({
+          message: "Cet évènement n’est pas accessible publiquement.",
+        });
+      }
+      // 2) Calcule les places restantes
       const places = await this.eventService.getPlacesRestantes(req.params.id);
       res.status(200).json({ placesRestantes: places });
     } catch (err) {
@@ -163,6 +178,36 @@ class EventController {
       res.json({ total });
     } catch (e) {
       res.status(500).json({ message: e.message });
+    }
+  };
+  // GET /api/events/mine?statut=all|valide|en_attente|rejete
+  getMyEvents = async (req, res) => {
+    try {
+      if (!req.utilisateur?.id) {
+        return res.status(401).json({ message: "Authentification requise" });
+      }
+      const raw = String(req.query?.statut || "all").toLowerCase();
+      const map = {
+        valide: "approuve",
+        approuve: "approuve",
+        en_attente: "en_attente",
+        rejete: "rejete",
+        rejeté: "rejete",
+        all: "all",
+      };
+      const statut = map[raw];
+      if (!statut) {
+        return res
+          .status(400)
+          .json({ message: "statut invalide (all|valide|en_attente|rejete)" });
+      }
+      const events = await this.eventService.getMyEvents(
+        req.utilisateur.id,
+        statut
+      );
+      return res.status(200).json(events);
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
     }
   };
 }

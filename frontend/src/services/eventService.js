@@ -20,3 +20,6 @@ export const updateEventStatus = (id, status, config = {}) =>
   api.patch(`/events/${id}`, { statut: status }, config)
 
 export const deleteEvent = (id, config = {}) => api.delete(`/events/${id}`, config)
+
+export const getMyEvents = (statut = 'all', config = {}) =>
+  api.get('/events/mine', { ...config, params: { statut } })

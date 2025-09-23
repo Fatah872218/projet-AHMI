@@ -42,7 +42,7 @@ router.patch(
 
 router.get(
   "/:id/places-restantes",
-  // Lecture : auth requis, , id valide
+  middlewareAuth,
 
   validateObjectId,
   eventController.getPlacesRestantes
@@ -50,13 +50,16 @@ router.get(
 
 // ROUTES GÉNÉRIQUES
 router.get("/", eventController.getAllEvents);
+
+router.get("/mine", middlewareAuth, (req, res) =>
+  eventController.getMyEvents(req, res)
+);
 router.get(
   "/:id",
 
   validateObjectId,
   eventController.getEventById
 );
-
 // CRÉATION / MÀJ / SUPPRESSION
 router.post(
   "/",

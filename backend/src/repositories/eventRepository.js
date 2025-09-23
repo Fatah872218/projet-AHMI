@@ -65,7 +65,9 @@ class EventRepository {
 
   async findByStatus(status) {
     try {
-      return await Evenement.find({ statut: status });
+      return await Evenement.find({ statut: status })
+        .populate("createur")
+        .populate("categories");
     } catch (err) {
       throw new Error(`Erreur filtrage des évènements : ${err.message}`);
     }

@@ -60,7 +60,9 @@ class EventService {
         lienSiteInternet: cleanString(data.lienSiteInternet),
         lienInstagram: cleanString(data.lienInstagram),
         imageUrl: cleanString(data.imageUrl),
-        participationFinanciere: cleanString(data.participationFinanciere),
+        capaciteMax: Number(data.capaciteMax),
+        prix: data.prix != null ? Number(data.prix) : null,
+        participationFinanciere: Number(data.participationFinanciere ?? 0),
         lieu: {
           ...data.lieu,
           rue: cleanString(data.lieu?.rue),
@@ -149,7 +151,38 @@ class EventService {
           throw error;
         }
       }
-      return await this.eventRepository.update(id, updateData, options);
+      const safe = { ...updateData };
+      if (typeof safe.titre === "string") safe.titre = cleanString(safe.titre);
+      if (typeof safe.description === "string")
+        safe.description = cleanString(safe.description);
+      if (typeof safe.lienSiteInternet === "string")
+        safe.lienSiteInternet = cleanString(safe.lienSiteInternet);
+      if (typeof safe.lienInstagram === "string")
+        safe.lienInstagram = cleanString(safe.lienInstagram);
+      if (typeof safe.imageUrl === "string")
+        safe.imageUrl = cleanString(safe.imageUrl);
+      if (safe.capaciteMax != null) safe.capaciteMax = Number(safe.capaciteMax);
+      if (safe.prix != null) safe.prix = Number(safe.prix);
+      if (safe.participationFinanciere != null)
+        safe.participationFinanciere = Number(safe.participationFinanciere);
+      if (safe.lieu) {
+        safe.lieu = {
+          ...safe.lieu,
+          rue:
+            typeof safe.lieu.rue === "string"
+              ? cleanString(safe.lieu.rue)
+              : safe.lieu.rue,
+          codePostal:
+            typeof safe.lieu.codePostal === "string"
+              ? cleanString(safe.lieu.codePostal)
+              : safe.lieu.codePostal,
+          commune:
+            typeof safe.lieu.commune === "string"
+              ? cleanString(safe.lieu.commune)
+              : safe.lieu.commune,
+        };
+      }
+      return await this.eventRepository.update(id, safe, options);
     } catch (err) {
       throw new Error(`Erreur mise à jour évènement : ${err.message}`);
     }
@@ -195,12 +228,19 @@ class EventService {
         eventId
       );
 
-      return evenement.capaciteMax - totalPlaces;
+      const cap = Number(evenement.capaciteMax);
+      if (!Number.isFinite(cap)) return Infinity; // illimité
+      return Math.max(cap - totalPlaces, 0);
     } catch (err) {
       throw new Error(
         `Erreur récupération des places restantes : ${err.message}`
       );
     }
+  }
+  async getMyEvents(userId, statut = "all") {
+    const filter = { createur: userId };
+    if (statut !== "all") filter.statut = statut;
+    return this.getAllEvents(filter);
   }
 }
 

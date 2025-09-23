@@ -2,6 +2,8 @@
 <template>
   <MainLayout>
     <form
+      ref="formEl"
+      novalidate
       @submit.prevent="handleSubmit"
       class="max-w-5xl mx-auto bg-ahmi-bg shadow-md rounded-2xl p-6 space-y-6 text-ahmi-text-primary"
     >
@@ -14,6 +16,7 @@
         <BaseInput
           label="Titre"
           v-model="form.titre"
+          name="titre"
           required
           :error="errors.titre"
           :description="'Nom public de l’événement visible dans les listes.'"
@@ -27,6 +30,8 @@
           <textarea
             id="event-description"
             v-model="form.description"
+            name="description"
+            required
             rows="6"
             class="w-full border rounded px-4 py-2 text-base"
             placeholder="Décrivez brièvement l’événement..."
@@ -48,6 +53,7 @@
             label="Date de début"
             type="datetime-local"
             v-model="form.dateDebut"
+            name="dateDebut"
             required
             :error="errors.dateDebut"
             :description="'Date et heure de début de l’événement.'"
@@ -56,6 +62,7 @@
             label="Date de fin"
             type="datetime-local"
             v-model="form.dateFin"
+            name="dateFin"
             required
             :error="errors.dateFin"
             :description="'Date et heure de fin (doit être postérieure).'"
@@ -72,18 +79,26 @@
         <BaseInput
           label="Rue"
           v-model="form.lieu.rue"
+          name="rue"
           required
-          :error="errors.rue"
+          :error="errors.lieuRue"
           :description="'Ex: 10 rue Victor Hugo'"
         />
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <BaseInput
             label="Code postal"
             v-model="form.lieu.codePostal"
+            name="codePostal"
             required
-            :error="errors.codePostal"
+            :error="errors.lieuCP"
           />
-          <BaseInput label="Commune" v-model="form.lieu.commune" required :error="errors.commune" />
+          <BaseInput
+            label="Commune"
+            v-model="form.lieu.commune"
+            name="commune"
+            required
+            :error="errors.lieuCommune"
+          />
         </div>
       </fieldset>
 
@@ -97,6 +112,7 @@
             label="Capacité maximum"
             type="number"
             v-model.number="form.capaciteMax"
+            name="capaciteMax"
             required
             :error="errors.capaciteMax"
             :description="'Nombre maximal de participants.'"
@@ -105,12 +121,14 @@
             label="Participation financière (€)"
             type="number"
             v-model.number="form.participationFinanciere"
+            name="participationFinanciere"
             :description="'Montant demandé aux participants.'"
           />
           <BaseInput
             label="Prix"
             type="number"
             v-model.number="form.prix"
+            name="prix"
             :description="'Tarif affiché si applicable. Laisser vide si non concerné.'"
             min="0"
             :error="errors.prix"
@@ -119,6 +137,7 @@
             label="Image (URL)"
             type="url"
             v-model="form.imageUrl"
+            name="imageUrl"
             :description="'Coller un lien direct (format jpg/png). Sinon, téléversez une image ci-dessous.'"
           />
           <!--  Uploader une image localement si pas d’URL -->
@@ -150,12 +169,14 @@
             :description="'Vous pouvez coller une URL avec ou sans https://'"
             type="url"
             v-model="form.lienSiteInternet"
+            name="lienSiteInternet"
             :error="errors.lienSiteInternet"
           />
           <BaseInput
             label="Lien Instagram"
             type="url"
             v-model="form.lienInstagram"
+            name="lienInstagram"
             :description="'Vous pouvez coller une URL avec ou sans https://'"
             :error="errors.lienInstagram"
           />
@@ -170,8 +191,9 @@
         <select
           id="event-categories"
           v-model="form.categories"
+          name="categories[]"
           multiple
-          class="w-full border border-ahmi-border-primary rounded px-4 py-2bg-ahmi-surface-primary text-ahmi-text-default"
+          class="w-full border border-ahmi-border-primary rounded px-4 py-2 bg-ahmi-surface-primary text-ahmi-text-default"
         >
           <option v-for="cat in categories" :key="cat._id" :value="cat._id">
             {{ cat.nom }}
@@ -181,8 +203,19 @@
 
       <!-- Organisateur -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <BaseInput label="Nom de l'organisateur" v-model="form.organisateur.nom" disabled />
-        <BaseInput label="Email" type="email" v-model="form.organisateur.email" disabled />
+        <BaseInput
+          label="Nom de l'organisateur"
+          v-model="form.organisateur.nom"
+          name="organisateurNom"
+          disabled
+        />
+        <BaseInput
+          label="Email"
+          type="email"
+          v-model="form.organisateur.email"
+          name="organisateurEmail"
+          disabled
+        />
       </div>
 
       <div class="text-sm text-ahmi-text-secondary mt-4">
@@ -193,6 +226,7 @@
       <BaseInput
         type="checkbox"
         v-model="consentement"
+        name="consentement"
         :required="true"
         label="J’accepte la politique de confidentialité (RGPD)"
         :error="errors.consentement"
@@ -245,6 +279,7 @@ const route = useRoute()
 const router = useRouter()
 
 const isEdit = ref(!!route.params.id)
+const formEl = ref(null)
 const loading = ref(false)
 const categories = ref([])
 const imagePreview = ref('')
@@ -387,7 +422,9 @@ const handleSubmit = async () => {
   const success = await saveEvent()
 
   if (success) {
-    toast.success(isEdit.value ? 'Événement mis à jour.' : 'Événement soumis avec succès !')
+    toast.success(isEdit.value ? 'Événement mis à jour.' : 'Événement soumis avec succès !', {
+      timeout: 4500,
+    })
     router.push({ path: '/account', query: { success: 'creation' } })
   }
 
@@ -456,7 +493,7 @@ onMounted(async () => {
   if (utilisateur.value) {
     form.value.organisateur.nom = utilisateur.value.nom || utilisateur.value.name || ''
     form.value.organisateur.email = utilisateur.value.email || ''
-    form.value.organisateur.id = utilisateur.value.id
+    form.value.organisateur.id = utilisateur.value.id || utilisateur.value._id
   }
 
   const catRes = await safeCall(() => getCategories())
