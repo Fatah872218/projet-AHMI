@@ -10,12 +10,14 @@ import MainLayout from '@/layout/MainLayout.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/components/base/BaseConfirmDialog.vue'
 import CounterInput from '@/components/base/CounterInput.vue'
-import { getAllEvents, deleteEvent, updateEventStatus } from '@/services/eventService'
+import { getAllEvents, deleteEvent, updateEventStatus, getMyEvents } from '@/services/eventService'
 import { getMyBookings, updateBooking, deleteBooking } from '@/services/bookingService'
 import { useEvenementsStore } from '@/stores/evenements'
 
 const { utilisateur } = useAuth()
-console.log('Utilisateur connecté :', utilisateur.value)
+const utilisateurId = computed(() => utilisateur.value?.id || utilisateur.value?._id || null)
+
+console.info('Utilisateur connecté :', utilisateur.value)
 
 const toast = useToast()
 
@@ -51,18 +53,48 @@ onMounted(async () => {
   const { signal } = controller
 
   try {
-    // 3) Requêtes "telles quelles", mais avec { signal }
-    const res = await getAllEvents({ signal })
-    console.info('Événements reçus :', res.data)
+    // 3) Charge les approuvés (public) + MES événements (tous statuts)
+    const resPublic = await getAllEvents({ signal })
+    const approuves = Array.isArray(resPublic?.data?.data)
+      ? resPublic.data.data
+      : Array.isArray(resPublic?.data)
+      ? resPublic.data
+      : []
+    console.info('Événements approuvés reçus :', approuves)
 
-    console.info(' Tous les événements récupérés :', res.data)
-    console.info('🙋 Utilisateur courant :', utilisateur.value)
+    const resMine = await getMyEvents('all', { signal })
+    let mineAll = []
+    if (Array.isArray(resMine?.data?.data)) {
+      mineAll = resMine.data.data
+    } else if (Array.isArray(resMine?.data)) {
+      mineAll = resMine.data
+    }
 
-    evenements.value = res.data.filter((e) => new Date(e.dateFin) > new Date())
+    // Normalise statut backend -> UI : "approuve" => "valide"
+    const normalize = (s) => (s === 'approuve' ? 'valide' : s)
 
+    // Fusionne + dé-duplication par _id (mes événements priment sur la version publique)
+    const byId = new Map()
+    for (const e of approuves) {
+      if (e && e._id) byId.set(String(e._id), { ...e, statut: normalize(e.statut) })
+    }
+    for (const e of mineAll) {
+      if (e && e._id) byId.set(String(e._id), { ...e, statut: normalize(e.statut) })
+    }
+    evenements.value = Array.from(byId.values()).filter(
+      (e) => !e.dateFin || new Date(e.dateFin) > new Date()
+    )
+
+    // Réservations
     const res2 = await getMyBookings({ signal })
-    console.info('Réservations récupérées :', res2.data)
-    reservations.value = res2.data
+    let rdata = []
+    if (Array.isArray(res2?.data?.data)) {
+      rdata = res2.data.data
+    } else if (Array.isArray(res2?.data)) {
+      rdata = res2.data
+    }
+    console.info('Réservations récupérées :', rdata)
+    reservations.value = rdata
   } catch (e) {
     // 4) Ignore les annulations (navigation, démontage)
     const aborted = e?.name === 'CanceledError' || e?.code === 'ERR_CANCELED'
@@ -84,9 +116,10 @@ onBeforeUnmount(() => {
 })
 
 const evenementsFiltres = computed(() => {
-  if (activeTab.value === 'tous') return evenements.value
+  const list = Array.isArray(evenements.value) ? evenements.value : []
+  if (activeTab.value === 'tous') return list
   if (['valide', 'rejete', 'en_attente'].includes(activeTab.value)) {
-    return evenements.value.filter((e) => e.statut === activeTab.value)
+    return list.filter((e) => e.statut === activeTab.value)
   }
   return []
 })
@@ -99,15 +132,12 @@ const formatDate = (d) => {
   }
 }
 
-const getBadgeClass = (statut) => {
-  return (
-    {
-      valide: 'bg-green-100 text-green-700',
-      rejete: 'bg-red-100 text-red-700',
-      en_attente: 'bg-yellow-100 text-yellow-800',
-    }[statut] || 'bg-gray-100 text-gray-700'
-  )
-}
+const getBadgeClass = (statut) =>
+  ({
+    valide: 'bg-green-100 text-green-700',
+    rejete: 'bg-red-100 text-red-700',
+    en_attente: 'bg-yellow-100 text-yellow-800',
+  }[statut] || 'bg-gray-100 text-gray-700')
 
 const demanderConfirmation = (id) => {
   eventToDelete.value = id
@@ -129,7 +159,8 @@ const confirmerSuppression = async () => {
 // eslint-disable-next-line no-unused-vars
 const changerStatut = async (id, nouveauStatut) => {
   try {
-    await updateEventStatus(id, nouveauStatut)
+    const mapToBackend = (s) => (s === 'valide' ? 'approuve' : s)
+    await updateEventStatus(id, mapToBackend(nouveauStatut))
     const i = evenements.value.findIndex((e) => e._id === id)
     if (i !== -1) evenements.value[i].statut = nouveauStatut
     toast.success(`Statut mis à jour.`)
@@ -159,7 +190,12 @@ const modifierPlaces = async (booking, delta) => {
     booking.nombrePlaces = nouvelleValeur
     // Recharge les réservations pour forcer la synchro
     const res2 = await getMyBookings()
-    reservations.value = res2.data
+    const rdata = Array.isArray(res2?.data?.data)
+      ? res2.data.data
+      : Array.isArray(res2?.data)
+      ? res2.data
+      : []
+    reservations.value = rdata
     // Met à jour l'événement correspondant
     const i = evenements.value.findIndex((e) => e._id === booking.evenement._id)
     if (i !== -1) {
@@ -195,8 +231,8 @@ const estPasse = (evenement) => {
 }
 const reservationsRegroupees = computed(() => {
   const map = new Map()
-
-  for (const r of reservations.value) {
+  const base = Array.isArray(reservations.value) ? reservations.value : []
+  for (const r of base) {
     if (!r.evenement || !r.utilisateur) continue
 
     const key = `${r.utilisateur._id}_${r.evenement._id}`
@@ -344,9 +380,15 @@ const validerPlaces = async (r) => {
                   >Gérer</BaseButton
                 >
               </template>
-              <template v-else-if="String(event.createur) === utilisateur.value.id">
+              <template
+                v-else-if="
+                  utilisateurId &&
+                  String(event.createur?._id ?? event.createur ?? event.organisateur?.id) ===
+                    String(utilisateurId)
+                "
+              >
                 <!-- version robuste : <template v-else-if="estCreateur(event)">
- -->
+  -->
                 <BaseButton
                   size="sm"
                   variant="secondary"

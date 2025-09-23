@@ -1,3 +1,4 @@
+<!-- src/components/base/BaseInput.vue -->
 <template>
   <div class="w-full md:w-1/2 mb-sm">
     <label
@@ -16,6 +17,7 @@
         :checked="!!modelValue"
         @change="emit('update:modelValue', $event.target.checked)"
         :required="required"
+        v-bind="$attrs"
         :aria-invalid="!!error"
         :aria-describedby="description || error ? descriptionId : null"
         class="h-4 w-4 rounded border-ahmi-border-primary text-ahmi-primary focus:ring-ahmi-primary"
@@ -28,6 +30,7 @@
         :value="modelValue"
         @input="emit('update:modelValue', $event.target.value)"
         :required="required"
+        v-bind="$attrs"
         :aria-invalid="!!error"
         :aria-describedby="description || error ? descriptionId : null"
         class="block w-full rounded border border-ahmi-border-primary bg-ahmi-surface-primary text-ahmi-text-primary font-openSans text-body placeholder:text-ahmi-text-secondary focus:ring-2 focus:ring-ahmi-primary focus:outline-none py-xs px-sm md:py-sm md:px-md pr-10"
@@ -66,6 +69,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+defineOptions({ inheritAttrs: false })
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -75,6 +79,7 @@ const props = defineProps({
   error: String,
   description: String,
   id: String,
+  name: String,
 })
 
 const emit = defineEmits(['update:modelValue'])
