@@ -45,7 +45,6 @@ watch(
   (list) => {
     const total = Array.isArray(list) ? list.length : 0
     const aMoi = (list || []).filter((ev) => estCreateur(ev)).length
-    console.log('[DEBUG] evenements changés — total:', total, '| à moi:', aMoi)
   },
   { immediate: false }
 )
@@ -105,15 +104,8 @@ onMounted(async () => {
     evenements.value = Array.from(byId.values()).filter(
       (e) => !e.dateFin || new Date(e.dateFin) > new Date()
     )
-    // 🔎 DEBUG : qui suis-je ?
-    console.log('[DEBUG] utilisateurId =', utilisateurId.value)
-    console.log('[DEBUG] utilisateur complet =', utilisateur.value)
 
     // 🔎 DEBUG : payload “mes événements” brut
-    console.log('[DEBUG] getMyEvents() -> mineAll (taille):', mineAll.length)
-    if (mineAll.length) {
-      console.log('[DEBUG] mineAll[0] =', mineAll[0])
-    }
 
     // 🔎 DEBUG : évènements fusionnés (aperçu)
     console.table(
@@ -128,12 +120,6 @@ onMounted(async () => {
     )
 
     // 🔎 DEBUG : que renvoie estCreateur() sur les 5 premiers ?
-    evenements.value.slice(0, 5).forEach((ev, i) => {
-      console.log(
-        `[DEBUG] ev[${i}] _id=${ev._id} titre="${ev.titre}" -> estCreateur=`,
-        estCreateur(ev)
-      )
-    })
 
     // Réservations
     const res2 = await getMyBookings({ signal })
