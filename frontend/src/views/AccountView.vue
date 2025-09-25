@@ -16,8 +16,20 @@ import { useEvenementsStore } from '@/stores/evenements'
 
 const { utilisateur } = useAuth()
 const utilisateurId = computed(() => utilisateur.value?.id || utilisateur.value?._id || null)
-
-console.info('Utilisateur connecté :', utilisateur.value)
+const idsEgales = (a, b) => a != null && b != null && String(a) === String(b)
+const estCreateur = (e) => {
+  const uid = utilisateurId.value
+  if (!uid || !e) return false
+  return (
+    idsEgales(e.createur?._id, uid) ||
+    idsEgales(e.createur, uid) ||
+    idsEgales(e.organisateur?._id, uid) ||
+    idsEgales(e.organisateur?.id, uid) || // si jamais c’est `id` sans underscore
+    idsEgales(e.createdBy, uid) ||
+    idsEgales(e.userId, uid) ||
+    idsEgales(e.utilisateur?._id, uid)
+  )
+}
 
 const toast = useToast()
 
@@ -27,7 +39,16 @@ const reservations = ref([])
 const activeTab = ref('tous')
 const modalVisible = ref(false)
 const eventToDelete = ref(null)
-
+// 🔎 DEBUG : log quand la liste change et combien d'événements "m'appartiennent"
+watch(
+  evenements,
+  (list) => {
+    const total = Array.isArray(list) ? list.length : 0
+    const aMoi = (list || []).filter((ev) => estCreateur(ev)).length
+    console.log('[DEBUG] evenements changés — total:', total, '| à moi:', aMoi)
+  },
+  { immediate: false }
+)
 const isAdmin = computed(() => utilisateur.value?.role === 'admin')
 
 const tabs = [
@@ -84,6 +105,35 @@ onMounted(async () => {
     evenements.value = Array.from(byId.values()).filter(
       (e) => !e.dateFin || new Date(e.dateFin) > new Date()
     )
+    // 🔎 DEBUG : qui suis-je ?
+    console.log('[DEBUG] utilisateurId =', utilisateurId.value)
+    console.log('[DEBUG] utilisateur complet =', utilisateur.value)
+
+    // 🔎 DEBUG : payload “mes événements” brut
+    console.log('[DEBUG] getMyEvents() -> mineAll (taille):', mineAll.length)
+    if (mineAll.length) {
+      console.log('[DEBUG] mineAll[0] =', mineAll[0])
+    }
+
+    // 🔎 DEBUG : évènements fusionnés (aperçu)
+    console.table(
+      evenements.value.map((e) => ({
+        _id: e._id,
+        titre: e.titre,
+        statut: e.statut,
+        createur_str: typeof e.createur === 'string' ? e.createur : null,
+        createur_obj_id: e.createur && e.createur._id ? e.createur._id : null,
+        organisateur_id: (e.organisateur && (e.organisateur._id || e.organisateur.id)) || null,
+      }))
+    )
+
+    // 🔎 DEBUG : que renvoie estCreateur() sur les 5 premiers ?
+    evenements.value.slice(0, 5).forEach((ev, i) => {
+      console.log(
+        `[DEBUG] ev[${i}] _id=${ev._id} titre="${ev.titre}" -> estCreateur=`,
+        estCreateur(ev)
+      )
+    })
 
     // Réservations
     const res2 = await getMyBookings({ signal })
@@ -380,13 +430,7 @@ const validerPlaces = async (r) => {
                   >Gérer</BaseButton
                 >
               </template>
-              <template
-                v-else-if="
-                  utilisateurId &&
-                  String(event.createur?._id ?? event.createur ?? event.organisateur?.id) ===
-                    String(utilisateurId)
-                "
-              >
+              <template v-else-if="estCreateur(event)">
                 <!-- version robuste : <template v-else-if="estCreateur(event)">
   -->
                 <BaseButton
