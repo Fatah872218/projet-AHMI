@@ -39,15 +39,7 @@ const reservations = ref([])
 const activeTab = ref('tous')
 const modalVisible = ref(false)
 const eventToDelete = ref(null)
-// 🔎 DEBUG : log quand la liste change et combien d'événements "m'appartiennent"
-watch(
-  evenements,
-  (list) => {
-    const total = Array.isArray(list) ? list.length : 0
-    const aMoi = (list || []).filter((ev) => estCreateur(ev)).length
-  },
-  { immediate: false }
-)
+
 const isAdmin = computed(() => utilisateur.value?.role === 'admin')
 
 const tabs = [
