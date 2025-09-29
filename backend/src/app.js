@@ -17,7 +17,7 @@ import {
   authLimiter,
   geocodeLimiter,
 } from "./middlewares/rateLimiter.js";
-//import corsStrict from "./middlewares/corsStrict.js";
+import corsStrict from "./middlewares/corsStrict.js";
 //import { sanitizeMongo, preventHpp } from "./middlewares/sanitize.js";
 import auth from "./middlewares/middlewareAuth.js";
 import checkRole from "./middlewares/middlewareCheckRole.js";
@@ -74,13 +74,17 @@ app.use(securityHeaders);
 // 1) CORS strict via ton middleware
 // app.use(corsStrict);
 
-// 2) CORS simple ()
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
-  })
-);
+// 2) CORS : strict en prod, simple en dev
+if (process.env.NODE_ENV === "production") {
+  app.use(corsStrict);
+} else {
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true,
+    })
+  );
+}
 
 // Rate limit — un seul global
 app.use(generalLimiter);
@@ -121,15 +125,16 @@ console.info(" categories OK");
 mountDocs(app); // ➜ http://localhost:5000/docs
 
 app.use(errorHandler);
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5000);
+const HOST = process.env.HOST || "0.0.0.0";
 console.info("Chargement terminé sans erreurs jusqu'ici ");
 //Démarrage orchestré : on attend la DB avant d'écouter le port
 const start = async () => {
   try {
     if (process.env.NODE_ENV !== "test") {
       await connectDB(); // mongoose.connect via ./config/db.js
-      app.listen(PORT, () =>
-        console.info(`Serveur en écoute sur http://localhost:${PORT}`)
+      app.listen(PORT, HOST, () =>
+        console.info(`Serveur prêt sur http://${HOST}:${PORT}`)
       );
     } else {
       console.info("CI: serveur non démarré et DB non appelée (NODE_ENV=test)");
